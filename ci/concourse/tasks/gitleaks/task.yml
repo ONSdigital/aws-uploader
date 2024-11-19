@@ -1,0 +1,13 @@
+---
+platform: linux
+image_resource:
+  type: docker-image
+  source:
+    repository: zricethezav/gitleaks
+    tag: latest
+inputs:
+  - name: pull-request
+run:
+  path: sh
+  args: ["./ci/tasks/gitleaks/task.sh"]
+  dir: pull-request

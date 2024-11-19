@@ -1,0 +1,71 @@
+jobs:
+  - name: pr
+    plan:
+      - get: pull-request
+        trigger: true
+        version: every
+      - put: pull-request
+        params:
+          path: pull-request
+          status: pending
+      - .: (( inject meta.plan.pull-request ))
+        input_mapping:
+          aws-b-accounts-config: pull-request
+        params:
+          TFSTATE: ((aws.tfstate))
+          TFLOCKS: ((aws.tflocks))
+          S3_BUCKET_NAME: ((aws.s3_bucket))
+          DETAILED_EXITCODE: ""
+          GIT_PAT: ((github_pat))
+        on_failure:
+          do:
+            - put: pull-request
+              params:
+                path: pull-request
+                status: failure
+
+      - in_parallel:
+        - .: (( inject checks.tasks.tflint ))
+          on_failure:
+            do:
+              - put: pull-request
+                params:
+                  path: pull-request
+                  status: failure
+
+        - .: (( inject checks.tasks.tfsec ))
+          on_failure:
+            do:
+              - put: pull-request
+                params:
+                  path: pull-request
+                  status: failure
+
+        - .: (( inject checks.tasks.checkov ))
+          on_failure:
+            do:
+              - put: pull-request
+                params:
+                  path: pull-request
+                  status: failure
+
+        - .: (( inject checks.tasks.gitleaks ))
+          on_failure:
+            do:
+              - put: pull-request
+                params:
+                  path: pull-request
+                  status: failure
+
+        - .: (( inject checks.tasks.trufflehog ))
+          on_failure:
+            do:
+              - put: pull-request
+                params:
+                  path: pull-request
+                  status: failure
+
+      - put: pull-request
+        params:
+          path: pull-request
+          status: success

@@ -1,0 +1,156 @@
+meta:
+  plan:
+    terraform-common-config:
+      config:
+        platform: linux
+        image_resource:
+          type: docker-image
+          source:
+            repository: hashicorp/terraform
+            tag: 1.2.7
+        params:
+          TF_INPUT: false
+          TF_CLI_ARGS_apply: -lock-timeout=300s
+          TF_CLI_ARGS_plan: -lock-timeout=300s
+
+    pull-request:
+      task: terraform-plan
+      .: (( inject meta.plan.terraform-common-config ))
+      config:
+        run:
+          path: sh
+          args: [./ci/scripts/terraform/terraform-plan.sh]
+          dir: repo-git
+        inputs:
+          - name: repo-git
+        outputs:
+          - name: terraform-output
+      params:
+        DETAILED_EXITCODE: -detailed-exitcode
+
+    terraform-apply:
+      task: terraform-apply
+      .: (( inject meta.plan.terraform-common-config ))
+      config:
+        run:
+          path: sh
+          args: [./ci/scripts/terraform/terraform-apply.sh]
+          dir: repo-git
+        inputs:
+          - name: repo-git
+
+    terraform-plan:
+      task: terraform-plan
+      .: (( inject meta.plan.terraform-common-config ))
+      config:
+        run:
+          path: sh
+          args: ["./ci/scripts/terraform/terraform-plan.sh"]
+          dir: repo-git
+        inputs:
+          - name: repo-git
+      params:
+        DETAILED_EXITCODE: -detailed-exitcode
+
+checks:
+  config:
+    checkov:
+      config:
+        platform: linux
+        image_resource:
+          type: docker-image
+          source:
+            repository: bridgecrew/checkov
+            tag: latest
+
+    gitleaks:
+      config:
+        platform: linux
+        image_resource:
+          type: docker-image
+          source:
+            repository: zricethezav/gitleaks
+            tag: latest
+
+    tflint:
+      config:
+        platform: linux
+        image_resource:
+          type: docker-image
+          source:
+            repository: ghcr.io/terraform-linters/tflint-bundle
+            tag: latest
+
+    tfsec:
+      config:
+        platform: linux
+        image_resource:
+          type: docker-image
+          source:
+            repository: aquasec/tfsec
+            tag: latest
+
+    trufflehog:
+      config:
+        platform: linux
+        image_resource:
+          type: docker-image
+          source:
+            repository: trufflesecurity/trufflehog
+            tag: latest
+
+  tasks:
+    tflint:
+      task: tflint
+      .: (( inject checks.config.tflint ))
+      config:
+        run:
+          path: sh
+          args: [./ci/scripts/tflint/tflint.sh]
+          dir: terraform-output
+        inputs:
+          - name: terraform-output
+
+    tfsec:
+      task: tfsec
+      .: (( inject checks.config.tfsec ))
+      config:
+        run:
+          path: sh
+          args: [./ci/scripts/tfsec/tfsec.sh]
+          dir: terraform-output
+        inputs:
+          - name: terraform-output
+
+    checkov:
+      task: checkov
+      .: (( inject checks.config.checkov ))
+      config:
+        run:
+          path: sh
+          args: [./ci/scripts/checkov/checkov.sh]
+          dir: terraform-output
+        inputs:
+          - name: terraform-output
+
+    gitleaks:
+      task: gitleaks
+      .: (( inject checks.config.gitleaks ))
+      config:
+        run:
+          path: sh
+          args: [./ci/scripts/gitleaks/gitleaks.sh]
+          dir: terraform-output
+        inputs:
+          - name: terraform-output
+
+    trufflehog:
+      task: trufflehog
+      .: (( inject checks.config.trufflehog ))
+      config:
+        run:
+          path: sh
+          args: [./ci/scripts/trufflehog/trufflehog.sh]
+          dir: terraform-output
+        inputs:
+          - name: terraform-output

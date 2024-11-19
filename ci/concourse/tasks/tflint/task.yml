@@ -1,0 +1,12 @@
+---
+platform: linux
+image_resource:
+  type: docker-image
+  source:
+    repository: ghcr.io/terraform-linters/tflint-bundle
+    tag: latest
+inputs:
+  - name: pull-request
+  - name: terraform-output
+run:
+  path: ./pull-request/ci/tasks/tflint/task.sh

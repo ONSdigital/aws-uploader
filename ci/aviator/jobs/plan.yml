@@ -1,0 +1,14 @@
+jobs:
+  - name: plan
+    max_in_flight: 1
+    plan:
+      - get: aws-b-accounts-config
+        trigger: true
+      - .: (( inject meta.plan.terraform-plan ))
+        params:
+          TFSTATE: ((aws.tfstate))
+          TFLOCKS: ((aws.tflocks))
+          S3_BUCKET_NAME: ((aws.s3_bucket))
+          SLACK_CHANNEL: ((slack.channel))
+          BOT_OAUTH_TOKEN: ((concourse_slack_bot_token))
+          GIT_PAT: ((github_pat))

@@ -1,0 +1,8 @@
+git:
+  repo: https://github.com/onsdigital/repo_name
+  branch: main
+aws:
+  s3_bucket: my_bucket_name
+  tfstate: my_tfstatefile.tfstate
+  tflocks: ons-tfstatelocks
+

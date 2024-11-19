@@ -1,0 +1,146 @@
+---
+github_auth: &github_auth
+  username: ((github_pat))
+  password: x-oauth-basic
+
+aws_auth: &aws_auth
+  AWS_ACCESS_KEY_ID: ((aws.access_key))
+  AWS_SECRET_ACCESS_KEY: ((aws.secret_key))
+
+groups:
+- name: all
+  jobs:
+  - "*"
+
+- name: terraform
+  jobs:
+  - terraform-plan
+  - terraform-apply
+
+resource_types:
+- name: terraform
+  type: docker-image
+  source:
+    repository: ljfranklin/terraform-resource
+    tag: latest
+
+- name: pull-request
+  type: docker-image
+  source:
+    repository: teliaoss/github-pr-resource
+
+resources:
+  - name: repo-git
+    type: git
+    source:
+      <<: *github_auth
+      uri: https://github.com/onsdigital/((git.repo))
+      branch: ((git.branch.repo-git))
+
+  - name: pull-request
+    type: pull-request
+    check_every: 30s
+    webhook_token: ((github_pat))
+    source:
+      repository: onsdigital/((git.repo))
+      access_token: ((github_pat))
+      base_branch: ((git.branch.repo-git-pr))
+      ignore_drafts: false
+
+jobs:
+  - name: terraform-plan
+    plan:
+      - get: pull-request
+        trigger: true
+
+      - put: pull-request
+        params:
+          path: pull-request
+          status: pending
+
+      - task: terraform-plan
+        file: pull-request/ci/tasks/terraform/terraform-plan.yml
+        params:
+          S3_BUCKET_NAME: ((aws.s3_bucket))
+          TF_STATE: ((aws.tfstate))
+          TF_LOCKS: ((aws.tflocks))
+          GIT_PAT: ((github_pat))
+          TF_VARS: ((terraform.tfvars))
+          AWS_ACCESS_KEY_ID: ((aws.access_key))
+          AWS_SECRET_ACCESS_KEY: ((aws.secret_key))
+        on_failure:
+          put: pull-request
+          params:
+            path: pull-request
+            status: FAILURE
+
+      - in_parallel:
+        - task: linting
+          file: pull-request/ci/tasks/tflint/task.yml
+          params:
+            S3_BUCKET_NAME: ((aws.s3_bucket))
+            TF_STATE: ((aws.tfstate))
+            AWS_ACCESS_KEY_ID: ((aws.access_key))
+            AWS_SECRET_ACCESS_KEY: ((aws.secret_key))
+          on_failure:
+            put: pull-request
+            params:
+              path: pull-request
+              status: FAILURE
+
+        - task: tfsec
+          file: pull-request/ci/tasks/tfsec/task.yml
+          params:
+            GIT_PAT: ((github_pat))
+          on_failure:
+            put: pull-request
+            params:
+              path: pull-request
+              status: FAILURE
+
+        - task: checkov
+          file: pull-request/ci/tasks/checkov/task.yml
+          on_failure:
+            put: pull-request
+            params:
+              path: pull-request
+              status: FAILURE
+
+        - task: gitleaks
+          file: pull-request/ci/tasks/gitleaks/task.yml
+          on_failure:
+            put: pull-request
+            params:
+              path: pull-request
+              status: FAILURE
+
+        - task: trufflehog
+          file: pull-request/ci/tasks/trufflehog/task.yml
+          on_failure:
+            put: pull-request
+            params:
+              path: pull-request
+              status: FAILURE
+
+      - put: pull-request
+        params:
+          path: pull-request
+          status: success
+
+  - name: terraform-apply
+    plan:
+    - get: repo-git
+      trigger: true
+    - get: pull-request
+      trigger: false
+      passed: [terraform-plan]
+    - task: terraform-apply
+      file: repo-git/ci/tasks/terraform/terraform-apply.yml
+      params:
+        S3_BUCKET_NAME: ((aws.s3_bucket))
+        TF_STATE: ((aws.tfstate))
+        TF_LOCKS: ((aws.tflocks))
+        TF_VARS: ((terraform.tfvars))
+        AWS_ACCESS_KEY_ID: ((aws.access_key))
+        AWS_SECRET_ACCESS_KEY: ((aws.secret_key))
+        GIT_PAT: ((github_pat))

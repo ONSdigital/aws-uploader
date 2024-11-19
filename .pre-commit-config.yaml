@@ -1,0 +1,29 @@
+repos:
+- repo: https://github.com/gruntwork-io/pre-commit
+  rev: v0.1.17 # Get the latest from: https://github.com/gruntwork-io/pre-commit/releases
+  hooks:
+    - id: tflint
+      args:
+        - "--module"
+        - "--config=.tflint.hcl"
+    - id: terraform-validate
+    - id: terraform-fmt
+- repo: https://github.com/terraform-docs/terraform-docs
+  rev: "v0.16.0"
+  hooks:
+    - id: terraform-docs-go
+      args: ["markdown", "table", "--output-file", "README.md", "."]
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v4.3.0
+  hooks:
+    # Git Style
+    - id: check-added-large-files
+    - id: check-merge-conflict
+    - id: end-of-file-fixer
+    # Security
+    - id: detect-aws-credentials
+    - id: detect-private-key
+- repo: https://github.com/tfsec/tfsec
+  rev: v1.26.0
+  hooks:
+    - id: tfsec

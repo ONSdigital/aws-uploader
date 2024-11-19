@@ -1,0 +1,8 @@
+groups:
+  - name: pr
+    jobs:
+      - pr
+  - name: main
+    jobs:
+      - plan
+      - apply

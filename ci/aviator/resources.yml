@@ -1,0 +1,19 @@
+resources:
+  - name: pull-request
+    type: pull-request
+    source:
+      repository: ((git.repository))
+      access_token: ((github_pat))
+    webhook_token: ((github_webhook_token))
+    check_every: 720h
+  
+  - name: repo-git
+    type: git
+    source:
+      branch: ((git.branch))
+      uri: ((git.repo))
+      username: ((github_pat))
+      password: x-oauth-basic
+    webhook_token: ((github_webhook_token))
+    check_every: 720h
+

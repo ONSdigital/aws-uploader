@@ -1,0 +1,18 @@
+spruce:
+  - base: ci/meta.yml
+    prune:
+      - meta
+    merge:
+      - with_in: ci/
+        regexp: ".*.yml"
+      - with_in: ci/jobs/
+        regexp: ".*.yml"
+    to: aviator_pipeline.yml
+fly:
+  name:  cia-shared
+  target: cia
+  config: aviator_pipeline.yml
+  expose: false
+  check_creds: true
+  load_vars_from:
+  - ci/env/variables.yml

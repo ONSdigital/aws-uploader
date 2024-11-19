@@ -1,0 +1,13 @@
+aws:
+  s3_bucket: my_bucket_name
+  tfstate: my_tfstatefile.tfstate
+  tflocks: locks-table
+  access_key: ((secret_key_from_secrets))
+  secret_key: ((secret_key_from_secrets))
+git:
+  repo: name_of_repo
+  branch:
+    repo-git: main
+    repo-git-pr: main
+terraform:
+  tfvars: env/env.tfvars
