@@ -37,3 +37,18 @@ jobs:
 
     - task: hello-world
       file: repo-git/ci/concourse/tasks/hello_world/hello-world.yml
+
+  - name: goodbye-world
+    plan:
+    - get: repo-git
+      trigger: true
+      passed: [hello-world]
+    - task: goodbye-world
+      file: repo-git/ci/concourse/tasks/hello_world/hello-world.yml
+
+  - name: fizzbuzz
+    plan:
+    - get: repo-git
+      trigger: true
+    - task: goodbye-world
+      file: repo-git/ci/concourse/tasks/hello_world/hello-world.yml
