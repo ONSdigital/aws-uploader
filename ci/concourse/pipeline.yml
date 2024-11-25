@@ -36,4 +36,4 @@ jobs:
       trigger: true
 
     - task: hello-world
-      file: repo-git/HelloWorld/HelloWorld.yml
+      file: repo-git/concourse/tasks/hello_world/hello-world.yml
