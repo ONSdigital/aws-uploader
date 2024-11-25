@@ -7,7 +7,7 @@ aws:
 git:
   repo: aws-Uploader
   branch:
-    repo-git: main
-    repo-git-pr: main
+    repo-git: new_pipeline
+    repo-git-pr: new_pipeline
 terraform:
   tfvars: env/env.tfvars

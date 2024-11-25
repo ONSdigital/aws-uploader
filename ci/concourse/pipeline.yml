@@ -12,10 +12,6 @@ groups:
   jobs:
   - "*"
 
-- name: terraform
-  jobs:
-  - terraform-plan
-  - terraform-apply
 
 resource_types:
 - name: terraform
@@ -24,11 +20,6 @@ resource_types:
     repository: ljfranklin/terraform-resource
     tag: latest
 
-- name: pull-request
-  type: docker-image
-  source:
-    repository: teliaoss/github-pr-resource
-
 resources:
   - name: repo-git
     type: git
@@ -36,16 +27,6 @@ resources:
       <<: *github_auth
       uri: https://github.com/onsdigital/((git.repo))
       branch: ((git.branch.repo-git))
-
-  - name: pull-request
-    type: pull-request
-    check_every: 30s
-    webhook_token: ((github_pat))
-    source:
-      repository: onsdigital/((git.repo))
-      access_token: ((github_pat))
-      base_branch: ((git.branch.repo-git-pr))
-      ignore_drafts: false
 
 
 jobs:
