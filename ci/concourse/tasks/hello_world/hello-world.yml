@@ -8,4 +8,4 @@ image_resource:
 inputs:
   - name: repo-git
 run:
-  path: ./repo-git/concourse/tasks/hello_world/hello-world.sh
+  path: ./repo-git/ci/concourse/tasks/hello_world/hello-world.sh
