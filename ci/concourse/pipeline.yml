@@ -47,100 +47,12 @@ resources:
       base_branch: ((git.branch.repo-git-pr))
       ignore_drafts: false
 
+
 jobs:
-  - name: terraform-plan
-    plan:
-      - get: pull-request
-        trigger: true
-
-      - put: pull-request
-        params:
-          path: pull-request
-          status: pending
-
-      - task: terraform-plan
-        file: pull-request/ci/tasks/terraform/terraform-plan.yml
-        params:
-          S3_BUCKET_NAME: ((aws.s3_bucket))
-          TF_STATE: ((aws.tfstate))
-          TF_LOCKS: ((aws.tflocks))
-          GIT_PAT: ((github_pat))
-          TF_VARS: ((terraform.tfvars))
-          AWS_ACCESS_KEY_ID: ((aws.access_key))
-          AWS_SECRET_ACCESS_KEY: ((aws.secret_key))
-        on_failure:
-          put: pull-request
-          params:
-            path: pull-request
-            status: FAILURE
-
-      - in_parallel:
-        - task: linting
-          file: pull-request/ci/tasks/tflint/task.yml
-          params:
-            S3_BUCKET_NAME: ((aws.s3_bucket))
-            TF_STATE: ((aws.tfstate))
-            AWS_ACCESS_KEY_ID: ((aws.access_key))
-            AWS_SECRET_ACCESS_KEY: ((aws.secret_key))
-          on_failure:
-            put: pull-request
-            params:
-              path: pull-request
-              status: FAILURE
-
-        - task: tfsec
-          file: pull-request/ci/tasks/tfsec/task.yml
-          params:
-            GIT_PAT: ((github_pat))
-          on_failure:
-            put: pull-request
-            params:
-              path: pull-request
-              status: FAILURE
-
-        - task: checkov
-          file: pull-request/ci/tasks/checkov/task.yml
-          on_failure:
-            put: pull-request
-            params:
-              path: pull-request
-              status: FAILURE
-
-        - task: gitleaks
-          file: pull-request/ci/tasks/gitleaks/task.yml
-          on_failure:
-            put: pull-request
-            params:
-              path: pull-request
-              status: FAILURE
-
-        - task: trufflehog
-          file: pull-request/ci/tasks/trufflehog/task.yml
-          on_failure:
-            put: pull-request
-            params:
-              path: pull-request
-              status: FAILURE
-
-      - put: pull-request
-        params:
-          path: pull-request
-          status: success
-
-  - name: terraform-apply
+  - name: hello-world
     plan:
     - get: repo-git
       trigger: true
-    - get: pull-request
-      trigger: false
-      passed: [terraform-plan]
-    - task: terraform-apply
-      file: repo-git/ci/tasks/terraform/terraform-apply.yml
-      params:
-        S3_BUCKET_NAME: ((aws.s3_bucket))
-        TF_STATE: ((aws.tfstate))
-        TF_LOCKS: ((aws.tflocks))
-        TF_VARS: ((terraform.tfvars))
-        AWS_ACCESS_KEY_ID: ((aws.access_key))
-        AWS_SECRET_ACCESS_KEY: ((aws.secret_key))
-        GIT_PAT: ((github_pat))
+
+    - task: hello-world
+      file: repo-git/HelloWorld/HelloWorld.yml

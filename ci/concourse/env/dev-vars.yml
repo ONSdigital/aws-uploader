@@ -5,7 +5,7 @@ aws:
   access_key: ((secret_key_from_secrets))
   secret_key: ((secret_key_from_secrets))
 git:
-  repo: name_of_repo
+  repo: aws-Uploader
   branch:
     repo-git: main
     repo-git-pr: main
