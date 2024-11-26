@@ -44,7 +44,7 @@ jobs:
       trigger: true
       passed: [hello-world]
     - task: goodbye-world
-      file: repo-git/ci/concourse/tasks/hello_world/hello-world.yml
+      file: repo-git/ci/concourse/tasks/goodbye_world/goodbye-world.yml
 
   - name: fizzbuzz
     plan:

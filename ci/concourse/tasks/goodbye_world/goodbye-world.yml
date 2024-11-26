@@ -12,5 +12,5 @@ run:
   args:
     - -c
     - |
-      chmod +x ./repo-git/ci/concourse/tasks/hello_world/hello-world.sh
+      chmod +x ./repo-git/ci/concourse/tasks/goodbye_world/goodbye-world.sh
       ./repo-git/ci/concourse/tasks/goodbye_world/goodbye-world.sh
