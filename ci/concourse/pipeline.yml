@@ -52,3 +52,11 @@ jobs:
       trigger: true
     - task: goodbye-world
       file: repo-git/ci/concourse/tasks/hello_world/hello-world.yml
+
+  - name: foobar
+    plan:
+    - get: repo-git
+      trigger: true
+      passed: [fizzbuzz]
+    - task: goodbye-world
+      file: repo-git/ci/concourse/tasks/goodbye_world/goodbye-world.yml
