@@ -13,3 +13,4 @@ run:
     - -c
     - |
       chmod +x ./repo-git/ci/concourse/tasks/hello_world/hello-world.sh
+      ./repo-git/ci/concourse/tasks/hello_world/hello-world.sh
