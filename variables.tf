@@ -6,3 +6,7 @@ variable "region" {
   default     = "eu-west-2"
   description = "Region in which to create resources"
 }
+variable "upload_host_bucket_name" {
+  type        = string
+  description = "Hosting the html for ONS Uploader webapp"
+}

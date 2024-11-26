@@ -16,4 +16,3 @@ resources:
       password: x-oauth-basic
     webhook_token: ((github_webhook_token))
     check_every: 720h
-
