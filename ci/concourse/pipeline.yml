@@ -31,7 +31,7 @@ resources:
     source:
       <<: *github_auth
       uri: https://github.com/onsdigital/((git.repo))
-      branch: ((git.repo.branch.repo-git))
+      branch: ((git.branch.repo-git))
 
   - name: pull-request
     type: pull-request
