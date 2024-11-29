@@ -31,14 +31,14 @@ resources:
     source:
       <<: *github_auth
       uri: https://github.com/onsdigital/((git.repo))
-      branch: ((git.branch.repo-git))
+      branch: ((git.repo.branch.repo-git))
 
   - name: pull-request
     type: pull-request
     icon: source-pull
     webhook_token: ((github_pat))
     source:
-      repository: onsdigital/((git.repository))
+      repository: onsdigital/((git.repo))
       access_token: ((github_pat))
       base_branch: ((git.branch))
       ignore_drafts: false
