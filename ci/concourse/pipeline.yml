@@ -74,6 +74,7 @@ jobs:
     - task: goodbye-world
       file: repo-git/ci/concourse/tasks/goodbye_world/goodbye-world.yml
 
+    # Terraform pipeline
   - name: set-pipeline-pr
     plan:
     - get: pull-request

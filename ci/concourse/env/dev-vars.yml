@@ -1,13 +1,13 @@
 aws:
-  s3_bucket: my_bucket_name
-  tfstate: my_tfstatefile.tfstate
-  tflocks: locks-table
-  access_key: ((secret_key_from_secrets))
-  secret_key: ((secret_key_from_secrets))
+  s3_bucket: tf-state-uploader-9w3xx5nt
+  tfstate: terraform/aws-uploader.tfstate
+  tflocks: tf-state-uploader-9w3xx5nt
+  access_key: ((ingest_dev_aws_access_key))
+  secret_key: ((ingest_dev_aws_secret_key))
 git:
   repo: aws-Uploader
   branch:
     repo-git: new_pipeline
     repo-git-pr: new_pipeline
 terraform:
-  tfvars: env/env.tfvars
+  tfvars: env/dev.tfvars
