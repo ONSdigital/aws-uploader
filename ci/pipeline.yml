@@ -110,3 +110,66 @@ jobs:
           params:
             path: pull-request
             status: FAILURE
+
+      - in_parallel:
+        - task: linting
+          file: pull-request/ci/tasks/tflint/task.yml
+          input_mapping:
+            repo-git: pull-request
+          params:
+            S3_BUCKET_NAME: ((aws.s3_bucket))
+            TF_STATE: ((aws.tfstate))
+            AWS_ACCESS_KEY_ID: ((aws.access_key))
+            AWS_SECRET_ACCESS_KEY: ((aws.secret_key))
+          on_failure:
+            put: pull-request
+            params:
+              path: pull-request
+              status: FAILURE
+
+        - task: tfsec
+          file: pull-request/ci/tasks/tfsec/task.yml
+          input_mapping:
+            repo-git: pull-request
+          params:
+            GIT_PAT: ((github_pat))
+          on_failure:
+            put: pull-request
+            params:
+              path: pull-request
+              status: FAILURE
+
+        - task: checkov
+          file: pull-request/ci/tasks/checkov/task.yml
+          input_mapping:
+            repo-git: pull-request
+          on_failure:
+            put: pull-request
+            params:
+              path: pull-request
+              status: FAILURE
+
+        - task: gitleaks
+          file: pull-request/ci/tasks/gitleaks/task.yml
+          input_mapping:
+            repo-git: pull-request
+          on_failure:
+            put: pull-request
+            params:
+              path: pull-request
+              status: FAILURE
+
+        - task: trufflehog
+          file: pull-request/ci/tasks/trufflehog/task.yml
+          input_mapping:
+            repo-git: pull-request
+          on_failure:
+            put: pull-request
+            params:
+              path: pull-request
+              status: FAILURE
+
+      - put: pull-request
+        params:
+          path: pull-request
+          status: success
