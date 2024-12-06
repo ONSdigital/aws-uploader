@@ -82,7 +82,7 @@ jobs:
     - set_pipeline: self # pipeline's name
       file: pull-request/ci/concourse/pipeline.yml 
       var_files:
-        - pull-request/ci/env/((concourse.vars))
+        - pull-request/ci/concourse/env/((concourse.vars))
 
   - name: terraform-plan
     plan:
