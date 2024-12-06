@@ -9,3 +9,5 @@ git:
   branch: main
 terraform:
   tfvars: env/dev.tfvars
+concourse:
+  vars: dev-vars.yml
