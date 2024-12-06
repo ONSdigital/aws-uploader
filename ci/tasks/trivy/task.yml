@@ -8,4 +8,4 @@ image_resource:
 inputs:
   - name: pull-request
 run:
-  path: ./pull-request/ci/tasks/tfsec/task.sh
+  path: ./pull-request/ci/tasks/trivy/task.sh
