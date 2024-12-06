@@ -6,6 +6,6 @@ aws:
   secret_key: ((ingest_dev_aws_secret_key))
 git:
   repo: aws-Uploader
-  branch: new_pipeline
+  branch: main
 terraform:
   tfvars: env/dev.tfvars
