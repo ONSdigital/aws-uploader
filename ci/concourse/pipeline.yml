@@ -96,7 +96,7 @@ jobs:
           status: pending
 
       - task: terraform-plan
-        file: pull-request/ci/tasks/terraform/terraform-plan.yml
+        file: pull-request/ci/concourse/tasks/terraform/terraform-plan.yml
         params:
           S3_BUCKET_NAME: ((aws.s3_bucket))
           TF_STATE: ((aws.tfstate))
