@@ -173,3 +173,14 @@ jobs:
         params:
           path: pull-request
           status: success
+
+  - name: terraform-apply
+    plan:
+      - get: repo-git
+        trigger: true
+        passed: [terraform-plan]
+
+      - put: repo-git
+        params:
+          path: repo-git
+          status: pending
