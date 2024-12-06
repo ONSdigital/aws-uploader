@@ -174,13 +174,23 @@ jobs:
           path: pull-request
           status: success
 
+
+
   - name: terraform-apply
     plan:
       - get: repo-git
         trigger: true
-        passed: [terraform-plan]
-
-      - put: repo-git
+      - get: pull-request
+        trigger: false
+        passed: [terraform-plan]  
+ 
+      - task: terraform-apply
+        file: pull-request/ci/tasks/terraform/terraform-apply.yml
         params:
-          path: repo-git
-          status: pending
+          S3_BUCKET_NAME: ((aws.s3_bucket))
+          TF_STATE: ((aws.tfstate))
+          TF_LOCKS: ((aws.tflocks))
+          GIT_PAT: ((github_pat))
+          TF_VARS: ((terraform.tfvars))
+          AWS_ACCESS_KEY_ID: ((aws.access_key))
+          AWS_SECRET_ACCESS_KEY: ((aws.secret_key))
