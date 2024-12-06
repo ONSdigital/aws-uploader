@@ -49,7 +49,7 @@ jobs:
       trigger: true
 
     - task: hello-world
-      file: repo-git/ci/concourse/tasks/hello_world/hello-world.yml
+      file: repo-git/ci/tasks/hello_world/hello-world.yml
 
   - name: goodbye-world
     plan:
@@ -57,14 +57,14 @@ jobs:
       trigger: true
       passed: [hello-world]
     - task: goodbye-world
-      file: repo-git/ci/concourse/tasks/goodbye_world/goodbye-world.yml
+      file: repo-git/ci/tasks/goodbye_world/goodbye-world.yml
 
   - name: fizzbuzz
     plan:
     - get: repo-git
       trigger: true
     - task: goodbye-world
-      file: repo-git/ci/concourse/tasks/hello_world/hello-world.yml
+      file: repo-git/ci/tasks/hello_world/hello-world.yml
 
   - name: foobar
     plan:
@@ -72,7 +72,7 @@ jobs:
       trigger: true
       passed: [fizzbuzz]
     - task: goodbye-world
-      file: repo-git/ci/concourse/tasks/goodbye_world/goodbye-world.yml
+      file: repo-git/ci/tasks/goodbye_world/goodbye-world.yml
 
     # Terraform pipeline
   - name: set-pipeline-pr
@@ -80,9 +80,9 @@ jobs:
     - get: pull-request
       trigger: true
     - set_pipeline: self # pipeline's name
-      file: pull-request/ci/concourse/pipeline.yml 
+      file: pull-request/ci/pipeline.yml 
       var_files:
-        - pull-request/ci/concourse/env/((concourse.vars))
+        - pull-request/ci/env/((concourse.vars))
 
   - name: terraform-plan
     plan:
@@ -96,7 +96,7 @@ jobs:
           status: pending
 
       - task: terraform-plan
-        file: pull-request/ci/concourse/tasks/terraform/terraform-plan.yml
+        file: pull-request/ci/tasks/terraform/terraform-plan.yml
         params:
           S3_BUCKET_NAME: ((aws.s3_bucket))
           TF_STATE: ((aws.tfstate))
