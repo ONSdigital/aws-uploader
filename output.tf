@@ -1,3 +1,3 @@
-// Add in any variables you which to export or be made available from your terraform here.
+# Add in any variables you which to export or be made available from your terraform here.
 
-//Example of exporting a non sensitive value
+#Example of exporting a non sensitive value

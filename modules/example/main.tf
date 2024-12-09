@@ -1,2 +1,2 @@
-// Add in your terraform
-// Keep it clean and create more terraform files as required
+# Add in your terraform
+# Keep it clean and create more terraform files as required
