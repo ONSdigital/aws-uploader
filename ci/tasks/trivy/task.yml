@@ -4,7 +4,7 @@ image_resource:
   type: docker-image
   source:
     repository: aquasec/trivy
-    tag: latest
+    tag: 0.57.0
 inputs:
   - name: pull-request
 run:
