@@ -1,22 +1,19 @@
-# aws-terraform-template
+# AWS Uploader
+This solution hosts the infrastructure to build a website that allows specific users to upload EXTRACT and MANI files inside a secured S3 bucket and deploy it into
+dev, pre-prod and production environments.
 This template is designed to help you start an AWS terraform repository in the same structure across all projects. 
-The template offers:
-- Standard setup for project (main.tf, varaibles.tf, output.tf, readme, pre-commits, module guidance and CI/CD pipelines)
-- CI CD pipeline (see readme within ci folder)
-- Pre Commits 
 
-All commands are designed to be used on linux based operating systems.
+The solution deploys:
+
+		○ Host S3 Bucket: With enabled static website hosting and the appropriate permissions
+		○ CloudFront Distribution: Linked to the Host S3 Bucket
+		○ IAM Roles and Policies
+		○ HTML Scripts: All html pages that will be hosted inside the S3 Bucket 
+		○ Lambda Script: Create "PreSignedURL" script that will be targeting the Ingest Bucket
+		○ Ingest S3 Bucket: Creating the ingest bucket where the files will be uploaded and set the appropriate permissions
+		○ Set up Route 53 DNS: Generates unique URL for each council
 
 
-# Using this template
-
-To use this template go to repository within github and click 'use this template'.
-Set:
-- Owner as 'onsdigital' 
-- Give the repository a meaningful name (e.g aws-terraform-template)
-- Decide if the project needs to be public, private or internal
-
-Click 'Create repository using template'. A repsitory with the same scaffolding will be created.
 
 # Pre Commits
 
