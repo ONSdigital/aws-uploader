@@ -1,1 +1,1 @@
-upload_host_bucket_name = "aws_uploader_host"
+upload_host_bucket_name = "aws-uploader-ost-dev"
