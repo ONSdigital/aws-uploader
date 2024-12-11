@@ -46,7 +46,7 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
   aliases = ["mysite.example.com", "yoursite.example.com"]
 
   default_cache_behavior {
-    allowed_methods  = ["GET", "HEAD", "OPTIONS", "POST"]
+    allowed_methods  = ["GET", "HEAD", "OPTIONS"]
     cached_methods   = ["GET", "HEAD"]
     target_origin_id = "S3Origin"
 
