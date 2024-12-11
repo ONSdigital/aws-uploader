@@ -1,6 +1,7 @@
 #tfsec:ignore:aws-s3-enable-bucket-logging
 #tfsec:ignore:aws-s3-enable-versioning
 module "ons_upload_bucket" {
+  #checkov:skip=CKV_TF_1:using versioning instead of git commit hashes
   source      = "git::https://github.com/ONSdigital/aws-s3-bucket.git?ref=v6.1.0"
   bucket_name = var.upload_host_bucket_name
   versioning  = true
@@ -11,25 +12,25 @@ module "ons_upload_bucket" {
 
 }
 
-resource "aws_s3_bucket_policy" "ons_upload_policy" {
-  bucket = module.ons_upload_bucket.bucket_id
+# resource "aws_s3_bucket_policy" "ons_upload_policy" {
+#   bucket = module.ons_upload_bucket.bucket_id
 
-  policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [
-      {
-        Action = [
-          "s3:GetObject"
-        ],
-        Effect = "Allow",
-        Principal = "*",
-        Resource = [
-          "${module.ons_upload_bucket.bucket_arn}/*"
-        ]
-      }
-    ]
-  })
-}
+#   policy = jsonencode({
+#     Version = "2012-10-17",
+#     Statement = [
+#       {
+#         Action = [
+#           "s3:GetObject"
+#         ],
+#         Effect = "Allow",
+#         Principal = "*",
+#         Resource = [
+#           "${module.ons_upload_bucket.bucket_arn}/*"
+#         ]
+#       }
+#     ]
+#   })
+# }
 
 resource "aws_s3_bucket_website_configuration" "ons_upload_configuration" {
   bucket = module.ons_upload_bucket.bucket_id
