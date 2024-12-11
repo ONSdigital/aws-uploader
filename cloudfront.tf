@@ -10,7 +10,7 @@ resource "aws_s3_bucket_policy" "ons_upload_policy" {
         ],
         Effect = "Allow",
         Principal = {
-            Service = "cloudfront.amazonaws.com"
+          Service = "cloudfront.amazonaws.com"
         },
         Resource = [
           "${module.ons_upload_bucket.bucket_arn}/*"
@@ -26,15 +26,15 @@ resource "aws_cloudfront_origin_access_identity" "oai" {
 
 
 resource "aws_cloudfront_distribution" "s3_distribution" {
-#checkov:skip=CKV_AWS_86:testing cloudfront, fix to be implemented
-#checkov:skip=CKV_AWS_310:testing cloudfront, fix to be implemented
-#checkov:skip=CKV_AWS_174:testing cloudfront, fix to be implemented
-#checkov:skip=CKV_AWS_68:testing cloudfront, fix to be implemented
-#checkov:skip=CKV2_AWS_42:testing cloudfront, fix to be implemented
-#checkov:skip=CKV2_AWS_32:testing cloudfront, fix to be implemented
-#checkov:skip=CKV2_AWS_47:testing cloudfront, fix to be implemented
+  #checkov:skip=CKV_AWS_86:testing cloudfront, fix to be implemented
+  #checkov:skip=CKV_AWS_310:testing cloudfront, fix to be implemented
+  #checkov:skip=CKV_AWS_174:testing cloudfront, fix to be implemented
+  #checkov:skip=CKV_AWS_68:testing cloudfront, fix to be implemented
+  #checkov:skip=CKV2_AWS_42:testing cloudfront, fix to be implemented
+  #checkov:skip=CKV2_AWS_32:testing cloudfront, fix to be implemented
+  #checkov:skip=CKV2_AWS_47:testing cloudfront, fix to be implemented
   origin {
-    domain_name              = aws_s3_bucket_website_configuration.ons_upload_configuration.website_domain
+    domain_name              = data.aws_s3_bucket.upload_bucket.bucket_regional_domain_name
     origin_access_control_id = aws_cloudfront_origin_access_identity.oai.id
     origin_id                = "S3Origin"
   }
