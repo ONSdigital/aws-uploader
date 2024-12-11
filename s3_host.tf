@@ -12,6 +12,10 @@ module "ons_upload_bucket" {
 
 }
 
+data "aws_s3_bucket" "upload_bucket" {
+  bucket = var.upload_host_bucket_name
+}
+
 resource "aws_s3_bucket_website_configuration" "ons_upload_configuration" {
   bucket = module.ons_upload_bucket.bucket_id
 
