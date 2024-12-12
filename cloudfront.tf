@@ -2,23 +2,26 @@ resource "aws_s3_bucket_policy" "ons_upload_policy" {
   bucket = module.ons_upload_bucket.bucket_id
 
   policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [
+    "Version" : "2012-10-17",
+    "Statement" : [
       {
-        Action = [
-          "s3:GetObject"
-        ],
-        Effect = "Allow",
-        Principal = {
-          Service = "cloudfront.amazonaws.com"
+        "Sid" : "AllowCloudFrontServicePrincipalReadOnly",
+        "Effect" : "Allow",
+        "Principal" : {
+          "Service" : "cloudfront.amazonaws.com"
         },
-        Resource = [
-          "${module.ons_upload_bucket.bucket_arn}/*"
-        ]
+        "Action" : "s3:GetObject",
+        "Resource" : "arn:aws:s3:::aws-uploader-ost-dev/*",
+        "Condition" : {
+          "StringEquals" : {
+            "AWS:SourceArn" : "arn:aws:cloudfront::055232432732:distribution/E28DWVPYYHYB4P"
+          }
+        }
       }
     ]
   })
 }
+
 
 resource "aws_cloudfront_origin_access_identity" "oai" {
   comment = "OAI for website"
@@ -47,10 +50,15 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
     origin_id                = "S3Origin"
   }
 
-  enabled             = true
-  is_ipv6_enabled     = true
-  default_root_object = "index.html"
+  enabled         = true
+  is_ipv6_enabled = false #CKV_AWS_68 change to true
+  # web_acl_id = aws_wafv2_web_acl.example.id
 
+  default_root_object = "index.html"
+  # logging_config { #CKV_AWS_86
+  #   bucket = "mylogs.s3.amazonaws.com"
+
+  # }
 
   default_cache_behavior {
     allowed_methods  = ["GET", "HEAD", "OPTIONS"]
@@ -83,6 +91,7 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
 
 
   viewer_certificate {
-    cloudfront_default_certificate = true
+    cloudfront_default_certificate = false #CKV_AWS_174
+    minimum_protocol_version       = "TLSv1.2_2018"
   }
 }

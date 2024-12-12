@@ -24,9 +24,43 @@ resource "aws_s3_bucket_website_configuration" "ons_upload_configuration" {
   }
 }
 
+resource "aws_s3_object" "council_tax_folder" {
+  bucket  = module.ons_upload_bucket.bucket_id
+  key     = "council-tax/"
+  content = ""
+}
+
 resource "aws_s3_object" "home_page" {
   bucket      = module.ons_upload_bucket.bucket_id
-  key         = "index.html"
+  key         = "council-tax/index.html"
   source      = "${path.module}/scripts/index.html"
   source_hash = filemd5("${path.module}/scripts/index.html")
+}
+
+resource "aws_s3_object" "success_page" {
+  bucket      = module.ons_upload_bucket.bucket_id
+  key         = "council-tax/success.html"
+  source      = "${path.module}/scripts/success.html"
+  source_hash = filemd5("${path.module}/scripts/success.html")
+}
+
+resource "aws_s3_object" "error_page" {
+  bucket      = module.ons_upload_bucket.bucket_id
+  key         = "council-tax/error.html"
+  source      = "${path.module}/scripts/error.html"
+  source_hash = filemd5("${path.module}/scripts/error.html")
+}
+
+resource "aws_s3_object" "not_csv_page" {
+  bucket      = module.ons_upload_bucket.bucket_id
+  key         = "council-tax/not_CSV_error.html"
+  source      = "${path.module}/scripts/not_CSV_error.html"
+  source_hash = filemd5("${path.module}/scripts/not_CSV_error.html")
+}
+
+resource "aws_s3_object" "file_names_dont_match_page" {
+  bucket      = module.ons_upload_bucket.bucket_id
+  key         = "council-tax/file_names_dont_match_error.html"
+  source      = "${path.module}/scripts/file_names_dont_match_error.html"
+  source_hash = filemd5("${path.module}/scripts/file_names_dont_match_error.html")
 }
