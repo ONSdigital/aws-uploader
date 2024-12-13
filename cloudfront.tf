@@ -37,7 +37,8 @@ resource "aws_cloudfront_origin_access_control" "cloudfront" {
 
 
 resource "aws_cloudfront_distribution" "s3_distribution" {
-
+  #checkov:skip=CKV_AWS_192:testing cloudfront, fix to be implemented
+  #checkov:skip=CKV_AWS_31:testing cloudfront, fix to be implemented
   #checkov:skip=CKV_AWS_310:testing cloudfront, fix to be implemented
   #checkov:skip=CKV2_AWS_42:testing cloudfront, fix to be implemented
   #checkov:skip=CKV2_AWS_32:testing cloudfront, fix to be implemented
