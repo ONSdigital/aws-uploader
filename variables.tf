@@ -10,3 +10,8 @@ variable "upload_host_bucket_name" {
   type        = string
   description = "Hosting the html for ONS Uploader webapp"
 }
+variable "upload_ingest_bucket_name" {
+  type        = string
+  description = "Bucket for ingesting files"
+}
+
