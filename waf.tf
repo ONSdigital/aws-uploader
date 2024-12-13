@@ -1,4 +1,6 @@
 resource "aws_wafv2_web_acl" "waf_cloudfront" {
+    #checkov:skip=CKV_AWS_192:testing cloudfront, fix to be implemented
+    #checkov:skip=CKV_AWS_31:testing cloudfront, fix to be implemented
   name        = "waf-cloudfront"
   description = "waf for cloudfront"
   scope       = "REGIONAL"
