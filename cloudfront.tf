@@ -37,10 +37,8 @@ resource "aws_cloudfront_origin_access_control" "cloudfront" {
 
 
 resource "aws_cloudfront_distribution" "s3_distribution" {
-  #checkov:skip=CKV_AWS_86:testing cloudfront, fix to be implemented
+
   #checkov:skip=CKV_AWS_310:testing cloudfront, fix to be implemented
-  #checkov:skip=CKV_AWS_174:testing cloudfront, fix to be implemented
-  #checkov:skip=CKV_AWS_68:testing cloudfront, fix to be implemented
   #checkov:skip=CKV2_AWS_42:testing cloudfront, fix to be implemented
   #checkov:skip=CKV2_AWS_32:testing cloudfront, fix to be implemented
   #checkov:skip=CKV2_AWS_47:testing cloudfront, fix to be implemented
@@ -52,13 +50,14 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
 
   enabled         = true
   is_ipv6_enabled = false #CKV_AWS_68 change to true
-  # web_acl_id = aws_wafv2_web_acl.example.id
+  web_acl_id      = aws_wafv2_web_acl.waf_cloudfront.id
 
   default_root_object = "index.html"
-  # logging_config { #CKV_AWS_86
-  #   bucket = "mylogs.s3.amazonaws.com"
+  logging_config { #CKV_AWS_86
+    bucket = module.ons_upload_bucket.bucket_id
+    prefix = "logging"
 
-  # }
+  }
 
   default_cache_behavior {
     allowed_methods  = ["GET", "HEAD", "OPTIONS"]
@@ -95,3 +94,6 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
     minimum_protocol_version       = "TLSv1.2_2018"
   }
 }
+
+
+
