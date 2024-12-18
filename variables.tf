@@ -14,4 +14,3 @@ variable "upload_ingest_bucket_name" {
   type        = string
   description = "Bucket for ingesting files"
 }
-

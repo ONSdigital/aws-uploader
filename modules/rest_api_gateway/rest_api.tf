@@ -8,7 +8,6 @@ resource "aws_api_gateway_rest_api" "rest_api" {
 
   endpoint_configuration {
     types            = [var.endpoint_type]
-    vpc_endpoint_ids = [var.vpc_endpoint]
   }
 }
 
@@ -32,12 +31,8 @@ resource "aws_api_gateway_rest_api_policy" "rest_api" {
             "Action": "execute-api:Invoke",
             "Resource": [
                 "${aws_api_gateway_rest_api.rest_api.execution_arn}/*"
-            ],
-            "Condition" : {
-                "StringNotEquals": {
-                    "aws:SourceVpc": "${var.vpc_id}"
-                }
-            }
+            ]
+
         }
     ]
 }

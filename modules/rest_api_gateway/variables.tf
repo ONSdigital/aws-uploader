@@ -23,13 +23,9 @@ variable "api_endpoints" {
 variable "endpoint_type" {
   type        = string
   description = "Type of endpoint for the rest api, edge, regional or private"
-  default     = "PRIVATE"
+  default     = "REGIONAL"
 }
 
-variable "vpc_id" {
-  type        = string
-  description = "vpc id"
-}
 
 variable "cache_cluster_size" {
   type        = string
@@ -37,11 +33,6 @@ variable "cache_cluster_size" {
   description = "Size of the cache in GB"
 }
 
-variable "vpc_endpoint" {
-  type        = string
-  default     = null
-  description = "VPC endpoint for private vpc"
-}
 
 variable "cognito_user_pool_arn" {
   type        = list(string)
