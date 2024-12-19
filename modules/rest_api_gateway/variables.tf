@@ -34,7 +34,3 @@ variable "cache_cluster_size" {
 }
 
 
-variable "cognito_user_pool_arn" {
-  type        = list(string)
-  description = "List of user pool arns"
-}

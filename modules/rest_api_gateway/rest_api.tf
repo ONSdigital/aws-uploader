@@ -4,6 +4,7 @@ resource "aws_api_gateway_rest_api" "rest_api" {
   name = var.rest_api_name
   lifecycle {
     create_before_destroy = true
+    
   }
 
   endpoint_configuration {
@@ -114,19 +115,4 @@ resource "aws_api_gateway_usage_plan" "rest_api" {
   }
 }
 
-resource "aws_api_gateway_api_key" "rest_api" {
-  name = "${var.rest_api_name}-key"
-}
 
-resource "aws_api_gateway_usage_plan_key" "rest_api" {
-  key_id        = aws_api_gateway_api_key.rest_api.id
-  key_type      = "API_KEY"
-  usage_plan_id = aws_api_gateway_usage_plan.rest_api.id
-}
-
-resource "aws_api_gateway_authorizer" "authorizer" {
-  name          = "tdsa-cognito"
-  type          = "COGNITO_USER_POOLS"
-  rest_api_id   = aws_api_gateway_rest_api.rest_api.id
-  provider_arns = var.cognito_user_pool_arn
-}

@@ -11,7 +11,6 @@ module "api_gateway" {
 
   rest_api_name = "tdsa_rest_api_gateway"
 
-  cognito_user_pool_arn = [module.tdsa_cognito.user_pool_arn]
 
   api_endpoints = [
     {
