@@ -20,6 +20,6 @@ resource "aws_apigatewayv2_route" "get" {
 resource "aws_apigatewayv2_integration" "api" {
   api_id                 = aws_apigatewayv2_api.api.id
   integration_type       = "AWS_PROXY"
-  integration_uri        = aws_lambda_function.api.invoke_arn #put the arn of the lambda
+  integration_uri        = aws_lambda_function.PreSignedURL.arn #put the arn of the lambda
   payload_format_version = "2.0"
 }
