@@ -15,6 +15,7 @@ resource "aws_apigatewayv2_route" "get" {
   api_id    = aws_apigatewayv2_api.api.id
   route_key = "GET /pre-signed-url"
   target    = "integrations/${aws_apigatewayv2_integration.api.id}"
+  authorization_type = "AWS_IAM"
 }
 
 resource "aws_apigatewayv2_integration" "api" {

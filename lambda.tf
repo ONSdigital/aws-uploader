@@ -30,6 +30,12 @@ resource "aws_lambda_function" "PreSignedURL" {
   handler       = "index.handler"
 
   runtime = "nodejs20.x"
+
+  dead_letter_config {
+    target_arn = "PreSignedURL"
+  }
+  reserved_concurrent_executions = 100
+
 }
 
 data "aws_iam_policy_document" "get_s3_object" {
