@@ -21,7 +21,7 @@ data "archive_file" "PreSignedURL" {
   source_file = "${path.module}/src/PreSignedURL.js"
   output_path = "${path.module}/PreSignedURL.zip"
 }
-
+# tflint-ignore: aws_lambda_function_invalid_runtime
 resource "aws_lambda_function" "PreSignedURL" {
   filename      = data.archive_file.PreSignedURL.output_path
   function_name = "PreSignedURL"
