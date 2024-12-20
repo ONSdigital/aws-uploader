@@ -28,6 +28,7 @@ resource "aws_lambda_function" "PreSignedURL" {
   role          = aws_iam_role.iam_for_lambda.arn
   handler       = "index.handler"
 
+  runtime = "nodejs20.x"
 }
 
 data "aws_iam_policy_document" "get_s3_object" {

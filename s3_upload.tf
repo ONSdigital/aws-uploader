@@ -10,6 +10,3 @@ module "ons_upload_ingest_bucket" {
 
 }
 
-data "aws_s3_bucket" "ingest_bucket" {
-  bucket = var.upload_ingest_bucket_name
-}
