@@ -1,3 +1,7 @@
+  #checkov:skip=CKV_AWS_115: concurrent execution limit
+  #checkov:skip=CKV_AWS_116: dead letter queue currently not required
+  #checkov:skip=CKV_AWS_117: no vpc architecture 
+   #checkov:skip=CKV_AWS_272: code signing not required
 data "aws_iam_policy_document" "lambda_role" {
   statement {
     effect = "Allow"
@@ -30,7 +34,10 @@ resource "aws_lambda_function" "PreSignedURL" {
   handler       = "index.handler"
 
   runtime = "nodejs20.x"
-
+  
+tracing_config {
+  mode = "Active"
+}
   # dead_letter_config {
   #   target_arn = "PreSignedURL"
   # }

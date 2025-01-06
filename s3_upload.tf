@@ -9,4 +9,3 @@ module "ons_upload_ingest_bucket" {
   attach_secure_transport_policy = true
 
 }
-
