@@ -25,16 +25,16 @@ data "archive_file" "PreSignedURL" {
 resource "aws_lambda_function" "PreSignedURL" {
   # tflint-ignore: aws_lambda_function_invalid_runtime
   filename      = data.archive_file.PreSignedURL.output_path
-  function_name = "PreSignedURL"
+  function_name = var.lambda_PreSignedURL_function
   role          = aws_iam_role.iam_for_lambda.arn
   handler       = "index.handler"
 
   runtime = "nodejs20.x"
 
-  dead_letter_config {
-    target_arn = "PreSignedURL"
-  }
-  reserved_concurrent_executions = 100
+  # dead_letter_config {
+  #   target_arn = "PreSignedURL"
+  # }
+  # reserved_concurrent_executions = 100
 
 }
 

@@ -9,7 +9,7 @@ resource "aws_apigatewayv2_stage" "api" {
   name        = "$default"
   auto_deploy = true
   access_log_settings {
-   destination_arn = "${aws_cloudwatch_log_group.example.arn}"
+   destination_arn = "${aws_cloudwatch_log_group.api_gateway_log_group.arn}"
    format          = "..."
   }
 }
