@@ -3,7 +3,7 @@ platform: linux
 image_resource:
   type: docker-image
   source:
-    repository: aquasec/trivy
+    repository: public.ecr.aws/aquasecurity/trivy
     tag: 0.57.0
 inputs:
   - name: pull-request

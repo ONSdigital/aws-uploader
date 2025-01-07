@@ -3,7 +3,7 @@ platform: linux
 image_resource:
   type: docker-image
   source:
-    repository: ghcr.io/terraform-linters/tflint-bundle
+    repository: ghcr.io/terraform-linters/tflint
     tag: latest
 inputs:
   - name: pull-request
