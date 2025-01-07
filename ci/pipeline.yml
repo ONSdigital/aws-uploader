@@ -23,7 +23,11 @@ resource_types:
 - name: pull-request
   type: docker-image
   source:
-    repository: teliaoss/github-pr-resource
+    repository: 013353241801.dkr.ecr.eu-west-2.amazonaws.com/concourse_pr
+    tag: latest
+    aws_access_key_id: ((aws.access_key))
+    aws_secret_access_key: ((aws.secret_key))
+    aws_region: eu-west-2
 
 resources:
   # - name: repo-git
@@ -43,37 +47,7 @@ resources:
       base_branch: ((git.branch))
       ignore_drafts: false
 jobs:
-  - name: hello-world
-    plan:
-    - get: repo-git
-      trigger: true
-
-    - task: hello-world
-      file: repo-git/ci/tasks/hello_world/hello-world.yml
-
-  - name: goodbye-world
-    plan:
-    - get: repo-git
-      trigger: true
-      passed: [hello-world]
-    - task: goodbye-world
-      file: repo-git/ci/tasks/goodbye_world/goodbye-world.yml
-
-  - name: fizzbuzz
-    plan:
-    - get: repo-git
-      trigger: true
-    - task: goodbye-world
-      file: repo-git/ci/tasks/hello_world/hello-world.yml
-
-  - name: foobar
-    plan:
-    - get: repo-git
-      trigger: true
-      passed: [fizzbuzz]
-    - task: goodbye-world
-      file: repo-git/ci/tasks/goodbye_world/goodbye-world.yml
-
+ 
     # Terraform pipeline
   - name: set-pipeline-pr
     plan:
