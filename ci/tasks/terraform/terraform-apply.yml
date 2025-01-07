@@ -6,8 +6,8 @@ image_resource:
     repository: public.ecr.aws/hashicorp/terraform
     tag: latest
 inputs:
-  - name: repo-git
+  - name: pull-request
 run:
   path: sh
   args: ["./ci/tasks/terraform/terraform-apply.sh"]
-  dir: repo-git
+  dir: pull-request
