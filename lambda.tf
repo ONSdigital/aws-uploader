@@ -28,12 +28,11 @@ resource "aws_lambda_function" "PreSignedURL" {
   #checkov:skip=CKV_AWS_116: Ensure that AWS Lambda function is configured for a Dead Letter Queue(DLQ)
   #checkov:skip=CKV_AWS_117: no vpc architecture
   #checkov:skip=CKV_AWS_272: code signing not required
-  # tflint-ignore: aws_lambda_function_invalid_runtime
   filename      = data.archive_file.PreSignedURL.output_path
   function_name = var.lambda_PreSignedURL_function
   role          = aws_iam_role.iam_for_lambda.arn
   handler       = "index.handler"
-
+  # tflint-ignore: aws_lambda_function_invalid_runtime
   runtime = "nodejs20.x"
 
   tracing_config {

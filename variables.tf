@@ -15,6 +15,11 @@ variable "upload_ingest_bucket_name" {
   description = "Bucket for ingesting files"
 }
 
+variable "cloudfront_logging_bucket" {
+  type        = string
+  description = "Bucket for logging cloudfront distribution"
+}
+
 variable "lambda_PreSignedURL_function" {
   type        = string
   default     = "PreSignedURL"
