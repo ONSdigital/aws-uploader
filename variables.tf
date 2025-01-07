@@ -37,9 +37,3 @@ variable "api_gateway_cloudwatch" {
   default     = "api_gateway_cloudwatch"
   description = "name_for_api_gateway_cloudwatch_group"
 }
-
-variable "cloudfront_cloudwatch" {
-  type        = string
-  default     = "cloudfront_cloudwatch"
-  description = "cloudfront logging"
-}
