@@ -22,11 +22,12 @@ data "archive_file" "PreSignedURL" {
   output_path = "${path.module}/PreSignedURL.zip"
 }
 
-#checkov:skip=CKV_AWS_115: concurrent execution limit
-#checkov:skip=CKV_AWS_116: dead letter queue currently not required
-#checkov:skip=CKV_AWS_117: no vpc architecture 
-#checkov:skip=CKV_AWS_272: code signing not required
+
 resource "aws_lambda_function" "PreSignedURL" {
+  #checkov:skip=CKV_AWS_115: concurrent execution limit
+  #checkov:skip=CKV_AWS_116: Ensure that AWS Lambda function is configured for a Dead Letter Queue(DLQ)
+  #checkov:skip=CKV_AWS_117: no vpc architecture
+  #checkov:skip=CKV_AWS_272: code signing not required
   # tflint-ignore: aws_lambda_function_invalid_runtime
   filename      = data.archive_file.PreSignedURL.output_path
   function_name = var.lambda_PreSignedURL_function
