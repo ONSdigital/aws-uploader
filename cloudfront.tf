@@ -55,7 +55,7 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
 
   default_root_object = "index.html"
   logging_config { #CKV_AWS_86
-    bucket = aws_cloudwatch_log_group.cloufront_log_group.arn
+    bucket = module.cloudfront_logging_bucket.bucket_id
     prefix = "logging"
 
   }
@@ -94,4 +94,5 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
     cloudfront_default_certificate = false #CKV_AWS_174
     minimum_protocol_version       = "TLSv1.2_2018"
   }
+  depends_on = [ module.cloudfront_logging_bucket ]
 }
