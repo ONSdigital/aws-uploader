@@ -55,7 +55,7 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
 
   default_root_object = "index.html"
   logging_config { #CKV_AWS_86
-    bucket = module.ons_upload_bucket.bucket_id
+    bucket = aws_cloudwatch_log_group.cloufront_log_group.arn
     prefix = "logging"
 
   }
