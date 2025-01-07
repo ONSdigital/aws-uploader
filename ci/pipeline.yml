@@ -26,12 +26,12 @@ resource_types:
     repository: teliaoss/github-pr-resource
 
 resources:
-  - name: repo-git
-    type: git
-    source:
-      <<: *github_auth
-      uri: https://github.com/onsdigital/((git.repo))
-      branch: ((git.branch))
+  # - name: repo-git
+  #   type: git
+  #   source:
+  #     <<: *github_auth
+  #     uri: https://github.com/onsdigital/((git.repo))
+  #     branch: ((git.branch))
 
   - name: pull-request
     type: pull-request
@@ -178,10 +178,10 @@ jobs:
 
   - name: terraform-apply
     plan:
-      - get: repo-git
-        trigger: true
+      # - get: repo-git
+      #   trigger: true
       - get: pull-request
-        trigger: false
+        trigger: true #false
         passed: [terraform-plan]  
  
       - task: terraform-apply
