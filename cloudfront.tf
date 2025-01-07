@@ -94,5 +94,5 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
     cloudfront_default_certificate = false #CKV_AWS_174
     minimum_protocol_version       = "TLSv1.2_2018"
   }
-  depends_on = [ module.cloudfront_logging_bucket ]
+  depends_on = [module.cloudfront_logging_bucket]
 }
