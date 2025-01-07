@@ -93,6 +93,7 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
   viewer_certificate {
     cloudfront_default_certificate = false #CKV_AWS_174
     minimum_protocol_version       = "TLSv1.2_2021"
+    ssl_support_method             = "sni-only"
   }
   depends_on = [module.cloudfront_logging_bucket]
 }
