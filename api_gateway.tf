@@ -9,16 +9,16 @@ resource "aws_apigatewayv2_stage" "api" {
   name        = "$default"
   auto_deploy = true
   access_log_settings {
-   destination_arn = "${aws_cloudwatch_log_group.api_gateway_log_group.arn}"
-   format          = "..."
+    destination_arn = aws_cloudwatch_log_group.api_gateway_log_group.arn
+    format          = "..."
   }
 }
 
 # Create GET route
 resource "aws_apigatewayv2_route" "get" {
-  api_id    = aws_apigatewayv2_api.api.id
-  route_key = "GET /pre-signed-url"
-  target    = "integrations/${aws_apigatewayv2_integration.api.id}"
+  api_id             = aws_apigatewayv2_api.api.id
+  route_key          = "GET /pre-signed-url"
+  target             = "integrations/${aws_apigatewayv2_integration.api.id}"
   authorization_type = "AWS_IAM"
 }
 

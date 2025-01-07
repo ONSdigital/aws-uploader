@@ -36,9 +36,9 @@ resource "aws_lambda_function" "PreSignedURL" {
 
   runtime = "nodejs20.x"
 
-tracing_config {
-  mode = "Active"
-}
+  tracing_config {
+    mode = "Active"
+  }
   # dead_letter_config {
   #   target_arn = "PreSignedURL"
   # }

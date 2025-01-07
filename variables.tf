@@ -16,8 +16,8 @@ variable "upload_ingest_bucket_name" {
 }
 
 variable "lambda_PreSignedURL_function" {
-  type = string
-  default = "PreSignedURL"
+  type        = string
+  default     = "PreSignedURL"
   description = "lambda name for the PreSignedURL function"
 }
 
@@ -28,7 +28,7 @@ variable "cloudwatch_retention_days" {
 }
 
 variable "api_gateway_cloudwatch" {
-  type = string
-  default = "api_gateway_cloudwatch"
+  type        = string
+  default     = "api_gateway_cloudwatch"
   description = "name_for_api_gateway_cloudwatch_group"
 }
