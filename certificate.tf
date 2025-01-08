@@ -1,4 +1,5 @@
 resource "aws_acm_certificate" "uploader" {
+  provider          = aws.useast
   domain_name       = "uploader.${var.domain_name}"
   validation_method = "DNS"
 
