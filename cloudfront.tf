@@ -51,7 +51,7 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
 
   enabled         = true
   is_ipv6_enabled = false #CKV_AWS_68 change to true
-  web_acl_id      = aws_wafv2_web_acl.waf_cloudfront.id
+  web_acl_id      = aws_wafv2_web_acl.waf_cloudfront.arn #
 
   default_root_object = "index.html"
   logging_config { #CKV_AWS_86
