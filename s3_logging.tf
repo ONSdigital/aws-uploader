@@ -22,7 +22,7 @@ resource "aws_s3_bucket" "cloudfront_logging_bucket" {
 resource "aws_s3_bucket_ownership_controls" "cloudfront_logging_bucket" {
   bucket = aws_s3_bucket.cloudfront_logging_bucket.id
   rule {
-    object_ownership = "BucketOwnerEnforced"
+    object_ownership = "BucketOwnerPreferred"
   }
 }
 
