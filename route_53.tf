@@ -5,7 +5,7 @@ data "aws_route53_zone" "domain" {
 
 resource "aws_route53_record" "uploader" {
   zone_id = data.aws_route53_zone.domain.zone_id
-  name    = "upload.${var.domain_name}"
+  name    = local.website_address
   type    = "A"
 
   alias {
