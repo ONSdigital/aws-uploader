@@ -19,6 +19,7 @@ resource "aws_route53_record" "cert_validation" {
 
 
 resource "aws_acm_certificate_validation" "cert" {
+  provider                = aws.useast
   certificate_arn         = aws_acm_certificate.uploader.arn
   validation_record_fqdns = [aws_route53_record.cert_validation.fqdn]
 }

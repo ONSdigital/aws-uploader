@@ -47,7 +47,9 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
     domain_name              = data.aws_s3_bucket.upload_bucket.bucket_regional_domain_name
     origin_access_control_id = aws_cloudfront_origin_access_control.cloudfront.id
     origin_id                = "S3Origin"
+
   }
+  aliases = ["uploader.${var.domain_name}"]
 
   enabled         = true
   is_ipv6_enabled = false                                #CKV_AWS_68 change to true
