@@ -28,3 +28,12 @@ provider "aws" {
     }
   }
 }
+
+
+provider "aws" {
+  #Add a default region for your deployments, this should be a variable in the variables.tf file with a default value.
+  alias  = "useast"
+  region = "us-east-1"
+
+
+}
