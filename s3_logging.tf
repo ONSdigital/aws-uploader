@@ -20,9 +20,10 @@ resource "aws_s3_bucket" "cloudfront_logging_bucket" {
   bucket = var.cloudfront_logging_bucket
 }
 resource "aws_s3_bucket_ownership_controls" "cloudfront_logging_bucket" {
+  #checkov:skip=CKV2_AWS_65
   bucket = aws_s3_bucket.cloudfront_logging_bucket.id
   rule {
-    object_ownership = "BucketOwnerPreferred"
+    object_ownership = "ObjectWriter"
   }
 }
 
@@ -49,8 +50,27 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "cloudfront_loggin
   }
 }
 
-resource "aws_s3_bucket_acl" "cloudfront_logging_bucket" {
+
+data "aws_canonical_user_id" "current" {}
+
+data "aws_cloudfront_log_delivery_canonical_user_id" "cloudfront" {}
+
+resource "aws_s3_bucket_acl" "cloudfront" {
 
   bucket = aws_s3_bucket.cloudfront_logging_bucket.id
-  acl    = "log-delivery-write"
+  access_control_policy {
+    grant {
+      grantee {
+        id   = data.aws_cloudfront_log_delivery_canonical_user_id.cloudfront.id
+        type = "CanonicalUser"
+      }
+      permission = "FULL_CONTROL"
+    }
+    owner {
+      id = data.aws_canonical_user_id.current.id
+    }
+  }
+  depends_on = [aws_s3_bucket_ownership_controls.cloudfront_logging_bucket]
+
 }
+ 
