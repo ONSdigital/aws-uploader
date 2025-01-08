@@ -1,10 +1,10 @@
-resource "aws_acm_certificate" "uploader"{
-    domain_name = "uploader.${var.domain_name}"
-    validation_method = "DNS"
+resource "aws_acm_certificate" "uploader" {
+  domain_name       = "uploader.${var.domain_name}"
+  validation_method = "DNS"
 
-    lifecycle {
-      create_before_destroy = true
-    }
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_route53_record" "cert_validation" {
