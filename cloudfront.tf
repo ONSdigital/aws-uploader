@@ -55,9 +55,9 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
 
   default_root_object = "index.html"
   logging_config { #CKV_AWS_86
-    bucket = "${module.cloudfront_logging_bucket.bucket_id}.s3.amazonaws.com"
+    bucket = aws_s3_bucket.cloudfront_logging_bucket.bucket_domain_name
     prefix = "logging"
-    
+
 
   }
 
@@ -96,5 +96,5 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
     minimum_protocol_version = "TLSv1.2_2021"
     ssl_support_method       = "sni-only"
   }
-  depends_on = [module.cloudfront_logging_bucket]
+
 }

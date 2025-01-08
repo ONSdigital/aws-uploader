@@ -10,50 +10,38 @@
 
 # }
 
-# resource "aws_s3_bucket" "cloudfront_logging_bucket" {
-#   bucket = var.cloudfront_logging_bucket
-# }
-# resource "aws_s3_bucket_ownership_controls" "cloudfront_logging_bucket" {
-#   bucket = aws_s3_bucket.cloudfront_logging_bucket.id 
-#   rule {
-#     object_ownership = "BucketOwnerEnforced"
-#   }
-# }
-
-# resource "aws_s3_bucket_public_access_block" "cloudfront_logging_bucket" {
-#   bucket = aws_s3_bucket.cloudfront_logging_bucket.id
-
-#   block_public_acls = true 
-#   block_public_policy = true 
-#   ignore_public_acls = true 
-#   restrict_public_buckets = true 
-# }
-
-resource "aws_s3_bucket" "sso_bucket" {
+resource "aws_s3_bucket" "cloudfront_logging_bucket" {
   #checkov:skip=CKV2_AWS_61 : reason - test bucket, don't need lifecycle policy
   #checkov:skip=CKV_AWS_145 : reason - want to use AWS managed keys not CMK
   #checkov:skip=CKV_AWS_144 : reason - test bucket, don't need cross-region replication
   #checkov:skip=CKV2_AWS_62 :
   #checkov:skip=CKV_AWS_18 :
   #checkov:skip=CKV_AWS_21 :
-  bucket        = "irex-sso-${random_string.bucket.id}"
-  force_destroy = true
+  bucket = var.cloudfront_logging_bucket
 }
- 
-resource "aws_s3_bucket_public_access_block" "sso_bucket_public_access_block" {
-  bucket = aws_s3_bucket.sso_bucket.id
- 
+resource "aws_s3_bucket_ownership_controls" "cloudfront_logging_bucket" {
+  bucket = aws_s3_bucket.cloudfront_logging_bucket.id
+  rule {
+    object_ownership = "BucketOwnerEnforced"
+  }
+}
+
+resource "aws_s3_bucket_public_access_block" "cloudfront_logging_bucket" {
+  bucket = aws_s3_bucket.cloudfront_logging_bucket.id
+
   block_public_acls       = true
   block_public_policy     = true
   ignore_public_acls      = true
   restrict_public_buckets = true
 }
- 
+
+
+
 #tfsec:ignore:aws-s3-encryption-customer-key
-resource "aws_s3_bucket_server_side_encryption_configuration" "sso_bucket_sse_s3" {
+resource "aws_s3_bucket_server_side_encryption_configuration" "cloudfront_logging_bucket" {
   #checkov:skip=CKV2_AWS_67 :
-  bucket = aws_s3_bucket.sso_bucket.id
- 
+  bucket = aws_s3_bucket.cloudfront_logging_bucket.id
+
   rule {
     apply_server_side_encryption_by_default {
       sse_algorithm = "AES256"
@@ -63,6 +51,6 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "sso_bucket_sse_s3
 
 resource "aws_s3_bucket_acl" "cloudfront_logging_bucket" {
 
-   bucket = module.cloudfront_logging_bucket.bucket_id
-   acl = "log-delivery-write"
+  bucket = aws_s3_bucket.cloudfront_logging_bucket.id
+  acl    = "log-delivery-write"
 }
