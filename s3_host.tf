@@ -76,7 +76,7 @@ resource "aws_s3_object" "council_tax_folder" {
 
 resource "aws_s3_object" "home_page" {
   bucket      = module.ons_upload_bucket.bucket_id
-  key         = "${aws_s3_object.council_tax_folder.key}index.html"
+  key         = "council-tax/index.html"
   source      = "${path.module}/scripts/index.html"
   source_hash = filemd5("${path.module}/scripts/index.html")
 }
