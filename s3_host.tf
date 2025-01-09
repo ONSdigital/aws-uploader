@@ -64,7 +64,7 @@ resource "aws_s3_bucket_website_configuration" "ons_upload_configuration" {
   bucket = module.ons_upload_bucket.bucket_id
 
   index_document {
-    suffix = "council-tax/index.html"
+    suffix = "${aws_s3_object.council_tax_folder.key}index.html"
   }
 }
 
