@@ -9,31 +9,6 @@ module "ons_upload_ingest_bucket" {
   attach_secure_transport_policy = false
 
 }
-
-resource "aws_s3_bucket_policy" "ons_upload_policy" {
-  bucket = module.ons_upload_bucket.bucket_id
-
-  policy = jsonencode({
-    "Version" : "2012-10-17",
-    "Statement" : [
-      {
-        "Sid" : "AllowCloudFrontServicePrincipalReadOnly",
-        "Effect" : "Allow",
-        "Principal" : {
-          "Service" : "cloudfront.amazonaws.com"
-        },
-        "Action" : "s3:GetObject",
-        "Resource" : "arn:aws:s3:::aws-uploader-ost-dev/*",
-        "Condition" : {
-          "StringEquals" : {
-            "AWS:SourceArn" : "arn:aws:cloudfront::055232432732:distribution/E28DWVPYYHYB4P"
-          }
-        }
-      }
-    ]
-  })
-}
-
 data "aws_iam_policy_document" "uploader_bucket" {
   statement {
     effect = "Allow"
@@ -51,7 +26,7 @@ data "aws_iam_policy_document" "uploader_bucket" {
     condition {
       test     = "StringEquals"
       variable = "AWS:SourceArn"
-      values   = ["arn:aws:cloudfront::${data.aws_caller_identity.current.account_id}:distribution/${aws_cloudfront_distribution.ons_uploader.id}"]
+      values   = ["arn:aws:cloudfront::${data.aws_caller_identity.current.account_id}:distribution/${aws_cloudfront_distribution.s3_distribution.id}"]
     }
   }
   statement {
