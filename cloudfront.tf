@@ -1,28 +1,3 @@
-resource "aws_s3_bucket_policy" "ons_upload_policy" {
-  bucket = module.ons_upload_bucket.bucket_id
-
-  policy = jsonencode({
-    "Version" : "2012-10-17",
-    "Statement" : [
-      {
-        "Sid" : "AllowCloudFrontServicePrincipalReadOnly",
-        "Effect" : "Allow",
-        "Principal" : {
-          "Service" : "cloudfront.amazonaws.com"
-        },
-        "Action" : "s3:GetObject",
-        "Resource" : "arn:aws:s3:::aws-uploader-ost-dev/*",
-        "Condition" : {
-          "StringEquals" : {
-            "AWS:SourceArn" : "arn:aws:cloudfront::055232432732:distribution/E28DWVPYYHYB4P"
-          }
-        }
-      }
-    ]
-  })
-}
-
-
 resource "aws_cloudfront_origin_access_identity" "oai" {
   comment = "OAI for website"
 }
