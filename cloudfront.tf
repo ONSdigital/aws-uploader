@@ -30,7 +30,7 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
   is_ipv6_enabled = false                                #CKV_AWS_68 change to true
   web_acl_id      = aws_wafv2_web_acl.waf_cloudfront.arn #
 
-  default_root_object = "council-tax/*"
+  default_root_object = "council-tax/index.html"
   logging_config { #CKV_AWS_86
     bucket = aws_s3_bucket.cloudfront_logging_bucket.bucket_domain_name
     prefix = "logging"
