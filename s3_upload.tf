@@ -49,6 +49,6 @@ data "aws_iam_policy_document" "uploader_bucket" {
 
 
 resource "aws_s3_bucket_policy" "uploader_bucket" {
-  bucket = module.ons_upload_bucket.bucket_arn
+  bucket = module.ons_upload_bucket.bucket_id
   policy = data.aws_iam_policy_document.uploader_bucket.json
 }
