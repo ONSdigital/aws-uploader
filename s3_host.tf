@@ -48,12 +48,6 @@ data "aws_iam_policy_document" "uploader_bucket" {
       values   = ["false"]
     }
   }
-  statement {
-    sid = "AllowCloudFrontServicePrincipal"
-    effect = "Allow"
-    actions   = ["s3:GetObject"]
-
-  }
 }
 
 
