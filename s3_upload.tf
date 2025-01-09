@@ -16,7 +16,7 @@ data "aws_iam_policy_document" "uploader_bucket" {
     resources = ["${module.ons_upload_bucket.bucket_arn}/*"]
 
     principals {
-      type = "AWS"
+      type = "Service"
       identifiers = [
         "cloudfront.amazonaws.com"
       ]
