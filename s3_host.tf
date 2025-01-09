@@ -79,6 +79,7 @@ resource "aws_s3_object" "home_page" {
   key         = "council-tax/index.html"
   source      = "${path.module}/scripts/index.html"
   source_hash = filemd5("${path.module}/scripts/index.html")
+  content_type = "text/html"
 }
 
 resource "aws_s3_object" "success_page" {
@@ -86,6 +87,7 @@ resource "aws_s3_object" "success_page" {
   key         = "council-tax/success.html"
   source      = "${path.module}/scripts/success.html"
   source_hash = filemd5("${path.module}/scripts/success.html")
+  content_type = "text/html"
 }
 
 resource "aws_s3_object" "error_page" {
@@ -93,6 +95,7 @@ resource "aws_s3_object" "error_page" {
   key         = "council-tax/error.html"
   source      = "${path.module}/scripts/error.html"
   source_hash = filemd5("${path.module}/scripts/error.html")
+  content_type = "text/html"
 }
 
 resource "aws_s3_object" "not_csv_page" {
@@ -100,6 +103,7 @@ resource "aws_s3_object" "not_csv_page" {
   key         = "council-tax/not_CSV_error.html"
   source      = "${path.module}/scripts/not_CSV_error.html"
   source_hash = filemd5("${path.module}/scripts/not_CSV_error.html")
+  content_type = "text/html"
 }
 
 resource "aws_s3_object" "file_names_dont_match_page" {
@@ -107,4 +111,5 @@ resource "aws_s3_object" "file_names_dont_match_page" {
   key         = "council-tax/file_names_dont_match_error.html"
   source      = "${path.module}/scripts/file_names_dont_match_error.html"
   source_hash = filemd5("${path.module}/scripts/file_names_dont_match_error.html")
+  content_type = "text/html"
 }
