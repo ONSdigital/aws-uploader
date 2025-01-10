@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Example: Default base page template</title>
+    <title>ONS-Uploader</title>
     <link rel="stylesheet" href="https://cdn.ons.gov.uk/sdc/design-system/70.0.4/css/main.css">
     <link rel="stylesheet" media="print" href="https://cdn.ons.gov.uk/sdc/design-system/70.0.4/css/print.css">
     <meta name="theme-color" content="#206095" />
@@ -167,32 +167,11 @@
           <div class="ons-field">
             <div class="ons-field">
               <label class="ons-label ons-label--with-description" for="file-example-upload"
-                aria-describedby="description-hint">Upload the EXTRACT file</label>
-              <span id="description-hint" class="ons-label__description  ons-input--with-description">File must be named with the format "CTAX_EXTRACT_012345678_yyyymmdd" where the 8 digits are your LAD code and yyyymmdd is the data run date</span>
-              <input name="fileOne" type="file" id="file-example-upload"
-                class="ons-input ons-input--text ons-input-type__input ons-input--upload" accept=".csv,text/plain"
-                aria-describedby="description-hint" />
+                aria-describedby="description-hint">Are you looking for this?</label><br>
+                <a href="https://www.ons.gov.uk/">ons.gov.uk</a>
             </div>
           </div>
-
-          <div class="ons-field">
-            <div class="ons-field">
-              <label class="ons-label ons-label--with-description" for="file-example-upload"
-                aria-describedby="description-hint">Upload the MANI file</label>
-              <span id="description-hint" class="ons-label__description  ons-input--with-description">File must be named with the format "CTAX_MANI_012345678_yyyymmdd" where the 8 digits are your LAD code and yyyymmdd is the data run date</span>
-              <input name="fileTwo" type="file" id="file-example-upload"
-                class="ons-input ons-input--text ons-input-type__input ons-input--upload" accept=".csv,text/plain"
-                aria-describedby="description-hint" />
-            </div>
-          </div> 
 		<br>
-		
-
-
-		<button type="submit" class="ons-btn">
-  <span class="ons-btn__inner"><span class="ons-btn__text">Submit</span>
-  </span>
-</button>
 
         </form>
 
@@ -312,93 +291,6 @@
         </div>
       </footer>
     </div>
-    <script>
-
-
-	const url = 'https://4bnypbtsa2.execute-api.eu-west-2.amazonaws.com/default/getPreSignedURL'; //API Gateway URL. Once API GAteway is called, the lambda is triggered which 
-//carried out file validation and returns pre-signed URLs if files pass checks
-
-const options = {
-    method: 'GET',
-}; //API Gateway will be called with GET method
-    
-let form = document.getElementById("form");
-form.addEventListener("submit", onSubmit);
-    
- //Once user submits both files, the below function pings the API Gateway with the parameters needed.   
-async function onSubmit(event) {
-
-    //move this check to lambda (future reference)
-    
-    event.preventDefault(); //prvents the form being submitted the usual way. 
-    if (form.fileOne.files.length < 1 || form.fileTwo.files.length < 1) { //checks if user has added 2 files (this is the only validation done client side)
-	window.location.href = "error.html";
-            return false;
-        }
-        
-    const fileOne = form.fileOne.files[0]; //First file chosen (EXTRACT file)
-    const fileTwo = form.fileTwo.files[0]; //Second file chosen (MANI file)
-
-    const urlWithParameters = url + `?fileOneName=${fileOne.name}&fileOneType=${fileOne.type}&fileTwoName=${fileTwo.name}&fileTwoType=${fileTwo.type}&fileOneSize=${fileOne.size}&fileTwoSize=${fileTwo.size}&fileOne=${fileOne}&fileTwo=${fileTwo}`;
-
-
-
-    fetch(urlWithParameters, options) //pings API Gateway which triggers lambda. File verification is carried out by lambda - the message in the reponse depeneds on if and why the files fail the checks
-        .then(response => response.json())    
-        .then(data => {   
-            console.log("message : " + data.message)
-            if(data.message === "file is incorrect type"){
-                //alert(`${data.filename} is not csv`);
-		window.location.href = "error.html";
-            
-                
-            }  else if(data.message === "file is empty") {
-                //alert(`${data.filename} is empty`);
-		window.location.href = "error.html";
-                
-            }   else if(data.message === "file names dont match") {
-                //alert(`${data.filename} is empty`);
-		window.location.href = "error.html";
-                
-            }   else {
-                uploadFile(data.uploadURLFileOne, fileOne).then(data => {   //If all file verification checks pass, each file is uploded to its individual pre-signed URL which puts file in s3 bucket
-                   // alert('Hooray! You uploaded ' + fileOne.name);         //Bucket is specified in lambda
-                })
-                uploadFile(data.uploadURLFileTwo, fileTwo).then(data => {
-                   // alert('Hooray! You uploaded ' + fileTwo.name);
-                    window.location.href = "success.html"	
-                })
-            }
-        });
-       
-}
-
-async function uploadFile(uploadURL, file) {
-console.log("uploading file " + file.name)
-let uploadResponse = await fetch(uploadURL, {
-    method: "PUT",
-    body: file
-        }).then(resp => {
-            return resp.text().then(body => {
-                
-                const result = {
-                    status: resp.status,
-                    body,
-                };
-                console.log(result)
-                if (!resp.ok) {
-                    return Promise.reject(result);
-                }
-                console.log(result);
-                return result;
-             });
-        });
-}
-
-(window);
-     
-    
-    </script>
     <div class="embeddable"></div>
     <style>
       body {
