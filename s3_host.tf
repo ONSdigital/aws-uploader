@@ -114,18 +114,18 @@ resource "aws_s3_object" "file_names_dont_match_page" {
   content_type = "text/html"
 }
 
-resource "aws_s3_object" "012345678-council" {
+resource "aws_s3_object" "_012345678-council" {
   bucket      = module.ons_upload_bucket.bucket_id
-  key         = "council-tax/012345678-council.html"
-  source      = "${path.module}/scripts/012345678-council.html"
-  source_hash = filemd5("${path.module}/scripts/012345678-council.html")
+  key         = "council-tax/_012345678-council.html"
+  source      = "${path.module}/scripts/_012345678-council.html"
+  source_hash = filemd5("${path.module}/scripts/_012345678-council.html")
   content_type = "text/html"
 }
 
-resource "aws_s3_object" "012345678-council2" {
+resource "aws_s3_object" "_012345678-council2" {
   bucket      = module.ons_upload_bucket.bucket_id
-  key         = "council-tax/012345678-council2.html"
-  source      = "${path.module}/scripts/012345678-council2.html"
-  source_hash = filemd5("${path.module}/scripts/012345678-council2.html")
+  key         = "council-tax/_012345678-council2.html"
+  source      = "${path.module}/scripts/_012345678-council2.html"
+  source_hash = filemd5("${path.module}/scripts/_012345678-council2.html")
   content_type = "text/html"
 }
