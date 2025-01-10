@@ -99,13 +99,13 @@ const getUploadURL = async (event) => {
   
   
   const  s3ParamsFileOne = new PutObjectCommand({
-     Bucket: 'council-tax-upload-ons',
+     Bucket: 'aws-uploader-ingest-ost-dev',
     Key: event.queryStringParameters.fileOneName
     
   })
   
   const  s3ParamsFileTwo = new PutObjectCommand({
-     Bucket: 'council-tax-upload-ons',
+     Bucket: 'aws-uploader-ingest-ost-dev',
     Key: event.queryStringParameters.fileTwoName
     
   })
