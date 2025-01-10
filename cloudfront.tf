@@ -1,28 +1,3 @@
-resource "aws_s3_bucket_policy" "ons_upload_policy" {
-  bucket = module.ons_upload_bucket.bucket_id
-
-  policy = jsonencode({
-    "Version" : "2012-10-17",
-    "Statement" : [
-      {
-        "Sid" : "AllowCloudFrontServicePrincipalReadOnly",
-        "Effect" : "Allow",
-        "Principal" : {
-          "Service" : "cloudfront.amazonaws.com"
-        },
-        "Action" : "s3:GetObject",
-        "Resource" : "arn:aws:s3:::aws-uploader-ost-dev/*",
-        "Condition" : {
-          "StringEquals" : {
-            "AWS:SourceArn" : "arn:aws:cloudfront::055232432732:distribution/E28DWVPYYHYB4P"
-          }
-        }
-      }
-    ]
-  })
-}
-
-
 resource "aws_cloudfront_origin_access_identity" "oai" {
   comment = "OAI for website"
 }
@@ -47,16 +22,19 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
     domain_name              = data.aws_s3_bucket.upload_bucket.bucket_regional_domain_name
     origin_access_control_id = aws_cloudfront_origin_access_control.cloudfront.id
     origin_id                = "S3Origin"
+
   }
+  aliases = ["uploader.${var.domain_name}"]
 
   enabled         = true
-  is_ipv6_enabled = false #CKV_AWS_68 change to true
-  web_acl_id      = aws_wafv2_web_acl.waf_cloudfront.id
+  is_ipv6_enabled = false                                #CKV_AWS_68 change to true
+  web_acl_id      = aws_wafv2_web_acl.waf_cloudfront.arn #
 
-  default_root_object = "index.html"
+  default_root_object = "council-tax/index.html"
   logging_config { #CKV_AWS_86
-    bucket = module.cloudfront_logging_bucket.bucket_id
+    bucket = aws_s3_bucket.cloudfront_logging_bucket.bucket_domain_name
     prefix = "logging"
+
 
   }
 
@@ -91,8 +69,9 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
 
 
   viewer_certificate {
-    cloudfront_default_certificate = false #CKV_AWS_174
-    minimum_protocol_version       = "TLSv1.2_2018"
+    acm_certificate_arn      = aws_acm_certificate.uploader.arn
+    minimum_protocol_version = "TLSv1.2_2021"
+    ssl_support_method       = "sni-only"
   }
-  depends_on = [module.cloudfront_logging_bucket]
+
 }

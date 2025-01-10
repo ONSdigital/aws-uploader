@@ -23,8 +23,17 @@ provider "aws" {
   # Add default tags for your project, any resource which accepts tags will automatically have the below tags added to them.
   default_tags {
     tags = {
-      Project   = "Project-name",
+      Project   = "ons-uploader",
       Terraform = "True"
     }
   }
 }
+
+
+provider "aws" {
+  #Add a default region for your deployments, this should be a variable in the variables.tf file with a default value.
+  alias  = "useast"
+  region = "us-east-1"
+}
+
+data "aws_caller_identity" "current" {}

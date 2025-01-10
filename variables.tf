@@ -37,3 +37,8 @@ variable "api_gateway_cloudwatch" {
   default     = "api_gateway_cloudwatch"
   description = "name_for_api_gateway_cloudwatch_group"
 }
+
+variable "domain_name" {
+  type        = string
+  description = "Domain name for the DNS within an account to use."
+}
