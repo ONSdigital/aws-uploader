@@ -46,13 +46,13 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
     response_headers_policy_id = "60669652-455b-4ae9-85a4-c4c02393f86c"
     cache_policy_id = "658327ea-f89d-4fab-a63d-7e88639e58f6"
 
-    forwarded_values {
-      query_string = false
+    # forwarded_values {
+    #   query_string = false
 
-      cookies {
-        forward = "none"
-      }
-    }
+    #   cookies {
+    #     forward = "none"
+    #   }
+    # }
 
     viewer_protocol_policy = "redirect-to-https"
     min_ttl                = 0
