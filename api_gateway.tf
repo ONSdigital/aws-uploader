@@ -33,7 +33,7 @@ resource "aws_apigatewayv2_route" "options" {
   api_id             = aws_apigatewayv2_api.api.id
   route_key          = "OPTIONS /pre-signed-url"
   target             = "integrations/${aws_apigatewayv2_integration.api.id}"
-  authorization_type = "AWS_IAM"
+  authorization_type = "NONE"
 }
 
 resource "aws_apigatewayv2_integration" "api" {
