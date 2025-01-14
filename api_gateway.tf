@@ -1,6 +1,12 @@
 resource "aws_apigatewayv2_api" "api" {
   name          = "UploaderAPI"
   protocol_type = "HTTP"
+  cors_configuration {
+    allow_origins = [local.website_address]
+    allow_methods = ["GET", "OPTIONS"]
+    allow_headers = ["Content-Type", "Authorization", "X-Amz-Date", "X-Api-Key", "X-Amz-Security-Token"]
+    max_age = 300
+  }
 }
 
 # Create API stage
@@ -20,6 +26,13 @@ resource "aws_apigatewayv2_route" "get" {
   route_key          = "GET /pre-signed-url"
   target             = "integrations/${aws_apigatewayv2_integration.api.id}"
   authorization_type = "AWS_IAM"
+}
+
+
+resource "aws_apigatewayv2_route" "options" {
+  api_id             = aws_apigatewayv2_api.api.id
+  route_key          = "OPTIONS /pre-signed-url"
+  target             = "integrations/${aws_apigatewayv2_integration.api.id}"
 }
 
 resource "aws_apigatewayv2_integration" "api" {
