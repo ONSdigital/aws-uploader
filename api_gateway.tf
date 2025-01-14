@@ -2,7 +2,7 @@ resource "aws_apigatewayv2_api" "api" {
   name          = "UploaderAPI"
   protocol_type = "HTTP"
   cors_configuration {
-    allow_origins = ["https://${local.website_address}"]
+    allow_origins = ["*"]
     allow_methods = ["GET", "OPTIONS"]
     allow_headers = ["Content-Type", "Authorization", "X-Amz-Date", "X-Api-Key", "X-Amz-Security-Token"]
     max_age       = 300
@@ -42,23 +42,3 @@ resource "aws_apigatewayv2_integration" "api" {
   integration_uri        = aws_lambda_function.PreSignedURL.arn #put the arn of the lambda
   payload_format_version = "2.0"
 }
-
-# resource "aws_api_gateway_resource" "MyDemoResource" {
-#   rest_api_id = aws_apigatewayv2_api.api.id
-#   parent_id   = aws_apigatewayv2_api.api.root_resource_id
-#   path_part   = "mydemoresource"
-# }
-
-# resource "aws_api_gateway_method_response" "response_200" {
-#   rest_api_id = aws_apigatewayv2_api.api.id
-#   resource_id = aws_api_gateway_resource.MyDemoResource.id
-#   http_method = aws_api_gateway_method.MyDemoMethod.http_method
-#   status_code = "200"
-#   response_models = {
-#     "application/json" = "MyDemoResponseModel"
-#   }
-#   response_parameters = {
-#     "method.response.header.Content-Type"     = false
-#     "method-response-header.X-My-Demo-Header" = false
-#   }
-# }
