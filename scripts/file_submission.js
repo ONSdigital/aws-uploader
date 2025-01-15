@@ -25,12 +25,13 @@ async function onSubmit(event) {
 
     const urlWithParameters = url + `?fileOneName=${fileOne.name}&fileOneType=${fileOne.type}&fileTwoName=${fileTwo.name}&fileTwoType=${fileTwo.type}&fileOneSize=${fileOne.size}&fileTwoSize=${fileTwo.size}&fileOne=${fileOne}&fileTwo=${fileTwo}`;
 
-
+    console.log(url)
 
     fetch(urlWithParameters, options) //pings API Gateway which triggers lambda. File verification is carried out by lambda - the message in the reponse depeneds on if and why the files fail the checks
         .then(response => response.json())    
         .then(data => {   
             console.log("message : " + data.message)
+            console.log(response)
             if(data.message === "file is incorrect type"){
                 //alert(`${data.filename} is not csv`);
 		window.location.href = "error.html";
