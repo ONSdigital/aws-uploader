@@ -18,7 +18,7 @@ resource "aws_iam_role" "iam_for_lambda" {
 
 data "archive_file" "PreSignedURL" {
   type        = "zip"
-  source_file = "${path.module}/src/PreSignedURL.js"
+  source_file = "${path.module}/src/PreSignedURL.mjs"
   output_path = "${path.module}/PreSignedURL.zip"
 }
 
