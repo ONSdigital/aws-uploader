@@ -28,47 +28,47 @@ resource "aws_apigatewayv2_route" "get" {
   authorization_type = "AWS_IAM"
 
   request_parameter {
-    request_parameter_key = "fileOne"
+    request_parameter_key = "route.request.querystring.fileOne"
     required              = true
   }
 
   request_parameter {
-    request_parameter_key = "fileOneName"
+    request_parameter_key = "route.request.querystring.fileOneName"
     required              = true
   }
 
   request_parameter {
-    request_parameter_key = "fileOneSize"
+    request_parameter_key = "route.request.querystring.fileOneSize"
     required              = true
   }
 
   request_parameter {
-    request_parameter_key = "fileOneType"
+    request_parameter_key = "route.request.querystring.fileOneType"
     required              = true
   }
 
   request_parameter {
-    request_parameter_key = "fileTwo"
+    request_parameter_key = "route.request.querystring.fileTwo"
     required              = true
   }
 
   request_parameter {
-    request_parameter_key = "fileTwoName"
+    request_parameter_key = "route.request.querystring.fileTwoName"
     required              = true
   }
 
   request_parameter {
-    request_parameter_key = "fileTwoSize"
+    request_parameter_key = "route.request.querystring.fileTwoSize"
     required              = true
   }
 
   request_parameter {
-    request_parameter_key = "fileTwoType"
+    request_parameter_key = "route.request.querystring.fileTwoType"
     required              = true
   }
 
   request_parameter {
-    request_parameter_key = "ladCode"
+    request_parameter_key = "route.request.querystring.ladCode"
     required              = true
   }
 }
@@ -81,47 +81,47 @@ resource "aws_apigatewayv2_route" "options" {
   authorization_type = "AWS_IAM"
 
   request_parameter {
-    request_parameter_key = "fileOne"
+    request_parameter_key = "route.request.querystring.fileOne"
     required              = true
   }
 
   request_parameter {
-    request_parameter_key = "fileOneName"
+    request_parameter_key = "route.request.querystring.fileOneName"
     required              = true
   }
 
   request_parameter {
-    request_parameter_key = "fileOneSize"
+    request_parameter_key = "route.request.querystring.fileOneSize"
     required              = true
   }
 
   request_parameter {
-    request_parameter_key = "fileOneType"
+    request_parameter_key = "route.request.querystring.fileOneType"
     required              = true
   }
 
   request_parameter {
-    request_parameter_key = "fileTwo"
+    request_parameter_key = "route.request.querystring.fileTwo"
     required              = true
   }
 
   request_parameter {
-    request_parameter_key = "fileTwoName"
+    request_parameter_key = "route.request.querystring.fileTwoName"
     required              = true
   }
 
   request_parameter {
-    request_parameter_key = "fileTwoSize"
+    request_parameter_key = "route.request.querystring.fileTwoSize"
     required              = true
   }
 
   request_parameter {
-    request_parameter_key = "fileTwoType"
+    request_parameter_key = "route.request.querystring.fileTwoType"
     required              = true
   }
 
   request_parameter {
-    request_parameter_key = "ladCode"
+    request_parameter_key = "route.request.querystring.ladCode"
     required              = true
   }
 }
