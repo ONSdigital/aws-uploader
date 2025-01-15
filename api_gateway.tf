@@ -27,50 +27,6 @@ resource "aws_apigatewayv2_route" "get" {
   target             = "integrations/${aws_apigatewayv2_integration.api.id}"
   authorization_type = "AWS_IAM"
 
-  request_parameter {
-    request_parameter_key = "route.request.querystring.fileOne"
-    required              = true
-  }
-
-  request_parameter {
-    request_parameter_key = "route.request.querystring.fileOneName"
-    required              = true
-  }
-
-  request_parameter {
-    request_parameter_key = "route.request.querystring.fileOneSize"
-    required              = true
-  }
-
-  request_parameter {
-    request_parameter_key = "route.request.querystring.fileOneType"
-    required              = true
-  }
-
-  request_parameter {
-    request_parameter_key = "route.request.querystring.fileTwo"
-    required              = true
-  }
-
-  request_parameter {
-    request_parameter_key = "route.request.querystring.fileTwoName"
-    required              = true
-  }
-
-  request_parameter {
-    request_parameter_key = "route.request.querystring.fileTwoSize"
-    required              = true
-  }
-
-  request_parameter {
-    request_parameter_key = "route.request.querystring.fileTwoType"
-    required              = true
-  }
-
-  request_parameter {
-    request_parameter_key = "route.request.querystring.ladCode"
-    required              = true
-  }
 }
 
 
@@ -79,56 +35,20 @@ resource "aws_apigatewayv2_route" "options" {
   route_key          = "OPTIONS /pre-signed-url"
   target             = "integrations/${aws_apigatewayv2_integration.api.id}"
   authorization_type = "AWS_IAM"
-
-  request_parameter {
-    request_parameter_key = "route.request.querystring.fileOne"
-    required              = true
-  }
-
-  request_parameter {
-    request_parameter_key = "route.request.querystring.fileOneName"
-    required              = true
-  }
-
-  request_parameter {
-    request_parameter_key = "route.request.querystring.fileOneSize"
-    required              = true
-  }
-
-  request_parameter {
-    request_parameter_key = "route.request.querystring.fileOneType"
-    required              = true
-  }
-
-  request_parameter {
-    request_parameter_key = "route.request.querystring.fileTwo"
-    required              = true
-  }
-
-  request_parameter {
-    request_parameter_key = "route.request.querystring.fileTwoName"
-    required              = true
-  }
-
-  request_parameter {
-    request_parameter_key = "route.request.querystring.fileTwoSize"
-    required              = true
-  }
-
-  request_parameter {
-    request_parameter_key = "route.request.querystring.fileTwoType"
-    required              = true
-  }
-
-  request_parameter {
-    request_parameter_key = "route.request.querystring.ladCode"
-    required              = true
-  }
 }
 
-resource "aws_apigatewayv2_integration" "api" {
+resource "aws_apigatewayv2_integration" "get" {
   api_id                 = aws_apigatewayv2_api.api.id
   integration_type       = "AWS_PROXY"
   integration_uri        = aws_lambda_function.PreSignedURL.arn #put the arn of the lambda
+  integration_method     = "GET"
+  payload_format_version = "2.0"
+}
+
+resource "aws_apigatewayv2_integration" "options" {
+  api_id                 = aws_apigatewayv2_api.api.id
+  integration_type       = "AWS_PROXY"
+  integration_uri        = aws_lambda_function.PreSignedURL.arn #put the arn of the lambda
+  integration_method     = "OPTIONS"
   payload_format_version = "2.0"
 }
