@@ -23,7 +23,7 @@ async function onSubmit(event) {
     const fileOne = form.fileOne.files[0]; //First file chosen (EXTRACT file)
     const fileTwo = form.fileTwo.files[0]; //Second file chosen (MANI file)
 
-    const urlWithParameters = url + `?fileOneName=${fileOne.name}&fileOneType=${fileOne.type}&fileTwoName=${fileTwo.name}&fileTwoType=${fileTwo.type}&fileOneSize=${fileOne.size}&fileTwoSize=${fileTwo.size}&fileOne=${fileOne}&fileTwo=${fileTwo}`;
+    const urlWithParameters = url + `?fileOneName=${fileOne.name}&fileOneType=${fileOne.type}&fileTwoName=${fileTwo.name}&fileTwoType=${fileTwo.type}&fileOneSize=${fileOne.size}&fileTwoSize=${fileTwo.size}`;
 
     console.log(url)
 
@@ -31,7 +31,8 @@ async function onSubmit(event) {
         .then(response => response.json())    
         .then(data => {   
             console.log("message : " + data.message)
-            console.log(response)
+            console.log("fileOne: " + data.uploadURLFileOne)
+            console.log("fileTwo: " + data.uploadURLFileTwo)
             if(data.message === "file is incorrect type"){
                 //alert(`${data.filename} is not csv`);
 		window.location.href = "error.html";
