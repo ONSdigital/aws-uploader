@@ -1,5 +1,5 @@
 
-const url = 'https://bcvwyrcdub.execute-api.eu-west-2.amazonaws.com'//default/getPreSignedURL'; //API Gateway URL. Once API GAteway is called, the lambda is triggered which 
+const url = 'https://bcvwyrcdub.execute-api.eu-west-2.amazonaws.com/getPreSignedURL'; //API Gateway URL. Once API GAteway is called, the lambda is triggered which 
 //carried out file validation and returns pre-signed URLs if files pass checks
 
 const options = {
