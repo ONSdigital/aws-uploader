@@ -129,3 +129,19 @@ resource "aws_s3_object" "_012345678-council2" {
   source_hash  = filemd5("${path.module}/scripts/_012345678-council2.html")
   content_type = "text/html"
 }
+
+resource "aws_s3_object" "file_submission" {
+  bucket       = module.ons_upload_bucket.bucket_id
+  key          = "council-tax/file_submission.js"
+  source       = "${path.module}/scripts/file_submission.js"
+  source_hash  = filemd5("${path.module}/scripts/file_submission.js")
+  content_type = "text"
+}
+
+resource "aws_s3_object" "result_message" {
+  bucket       = module.ons_upload_bucket.bucket_id
+  key          = "council-tax/result_message.js"
+  source       = "${path.module}/scripts/result_message.js"
+  source_hash  = filemd5("${path.module}/scripts/result_message.js")
+  content_type = "text"
+}
