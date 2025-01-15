@@ -9,7 +9,7 @@ const s3 = new S3({region: 'eu-west-2'});
 
 
 export const handler = async (event, context, callback) => {
-  
+  console.log('I am here');
   //-- Starting verification checks --
   
   //create variables to complete file verificatin checks
