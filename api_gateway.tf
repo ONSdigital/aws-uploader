@@ -26,6 +26,51 @@ resource "aws_apigatewayv2_route" "get" {
   route_key          = "GET /pre-signed-url"
   target             = "integrations/${aws_apigatewayv2_integration.api.id}"
   authorization_type = "AWS_IAM"
+
+  request_parameter {
+    request_parameter_key = "fileOne"
+    required              = true
+  }
+
+  request_parameter {
+    request_parameter_key = "fileOneName"
+    required              = true
+  }
+
+  request_parameter {
+    request_parameter_key = "fileOneSize"
+    required              = true
+  }
+
+  request_parameter {
+    request_parameter_key = "fileOneType"
+    required              = true
+  }
+
+  request_parameter {
+    request_parameter_key = "fileTwo"
+    required              = true
+  }
+
+  request_parameter {
+    request_parameter_key = "fileTwoName"
+    required              = true
+  }
+
+  request_parameter {
+    request_parameter_key = "fileTwoSize"
+    required              = true
+  }
+
+  request_parameter {
+    request_parameter_key = "fileTwoType"
+    required              = true
+  }
+
+  request_parameter {
+    request_parameter_key = "ladCode"
+    required              = true
+  }
 }
 
 
@@ -34,6 +79,51 @@ resource "aws_apigatewayv2_route" "options" {
   route_key          = "OPTIONS /pre-signed-url"
   target             = "integrations/${aws_apigatewayv2_integration.api.id}"
   authorization_type = "AWS_IAM"
+
+  request_parameter {
+    request_parameter_key = "fileOne"
+    required              = true
+  }
+
+  request_parameter {
+    request_parameter_key = "fileOneName"
+    required              = true
+  }
+
+  request_parameter {
+    request_parameter_key = "fileOneSize"
+    required              = true
+  }
+
+  request_parameter {
+    request_parameter_key = "fileOneType"
+    required              = true
+  }
+
+  request_parameter {
+    request_parameter_key = "fileTwo"
+    required              = true
+  }
+
+  request_parameter {
+    request_parameter_key = "fileTwoName"
+    required              = true
+  }
+
+  request_parameter {
+    request_parameter_key = "fileTwoSize"
+    required              = true
+  }
+
+  request_parameter {
+    request_parameter_key = "fileTwoType"
+    required              = true
+  }
+
+  request_parameter {
+    request_parameter_key = "ladCode"
+    required              = true
+  }
 }
 
 resource "aws_apigatewayv2_integration" "api" {
