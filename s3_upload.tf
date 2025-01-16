@@ -10,7 +10,7 @@ module "ons_upload_ingest_bucket" {
 }
 
 resource "aws_s3_bucket_cors_configuration" "uploader" {
-  bucket = ons_upload_ingest_bucket.id
+  bucket = module.ons_upload_ingest_bucket.bucket_id
 
   cors_rule {
     allowed_headers = ["*"]
