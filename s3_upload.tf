@@ -15,7 +15,7 @@ resource "aws_s3_bucket_cors_configuration" "uploader" {
   cors_rule {
     allowed_headers = ["*"]
     allowed_methods = ["PUT"]
-    allowed_origins = ["https://uploader.ingest-dev.aws.onsdigital.uk"]
+    allowed_origins = ["https://${local.website_address}"]
   }
 
 }
