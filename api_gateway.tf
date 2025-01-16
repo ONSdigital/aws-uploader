@@ -2,7 +2,7 @@ resource "aws_apigatewayv2_api" "api" {
   name          = "UploaderAPI"
   protocol_type = "HTTP"
   cors_configuration {
-    allow_origins = ["*"]
+    allow_origins = ["https://${local.website_address}"]
     allow_methods = ["GET", "OPTIONS"]
     allow_headers = ["Content-Type", "Authorization", "X-Amz-Date", "X-Api-Key", "X-Amz-Security-Token"]
     max_age       = 300
