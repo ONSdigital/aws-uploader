@@ -134,7 +134,7 @@ resource "aws_s3_object" "file_submission" {
   bucket       = module.ons_upload_bucket.bucket_id
   key          = "council-tax/file_submission.js"
   content = templatefile("${path.module}/scripts/file_submission.js", {
-    api_url = aws+apigatewayv2_stage.api.invoke_url
+    api_url = aws_apigatewayv2_stage.api.invoke_url
   })
   content_type = "text"
 }
