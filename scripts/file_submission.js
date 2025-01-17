@@ -24,7 +24,7 @@ async function onSubmit(event) {
     const fileOne = form.fileOne.files[0]; //First file chosen (EXTRACT file)
     const fileTwo = form.fileTwo.files[0]; //Second file chosen (MANI file)
 
-    const urlWithParameters = url + `?fileOneName=${fileOne.name}&fileOneType=${fileOne.type}&fileTwoName=${fileTwo.name}&fileTwoType=${fileTwo.type}&fileOneSize=${fileOne.size}&fileTwoSize=${fileTwo.size}`;
+    const urlWithParameters = url + `?fileOneName=$${fileOne.name}&fileOneType=$${fileOne.type}&fileTwoName=$${fileTwo.name}&fileTwoType=$${fileTwo.type}&fileOneSize=$${fileOne.size}&fileTwoSize=$${fileTwo.size}`;
 
     console.log(url)
 
@@ -35,24 +35,19 @@ async function onSubmit(event) {
             console.log("fileOne: " + data.uploadURLFileOne)
             console.log("fileTwo: " + data.uploadURLFileTwo)
             if(data.message === "file is incorrect type"){
-                //alert(`${data.filename} is not csv`);
 		window.location.href = "error.html";
             
                 
             }  else if(data.message === "file is empty") {
-                //alert(`${data.filename} is empty`);
 		window.location.href = "error.html";
                 
             }   else if(data.message === "file names dont match") {
-                //alert(`${data.filename} is empty`);
 		window.location.href = "error.html";
                 
             }   else {
                 uploadFile(data.uploadURLFileOne, fileOne).then(data => {   //If all file verification checks pass, each file is uploded to its individual pre-signed URL which puts file in s3 bucket
-                   // alert('Hooray! You uploaded ' + fileOne.name);         //Bucket is specified in lambda
                 })
                 uploadFile(data.uploadURLFileTwo, fileTwo).then(data => {
-                   // alert('Hooray! You uploaded ' + fileTwo.name);
                     window.location.href = "success.html"	
                 })
             }
