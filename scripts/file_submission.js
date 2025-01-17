@@ -26,14 +26,12 @@ async function onSubmit(event) {
 
     const urlWithParameters = url + `?fileOneName=$${fileOne.name}&fileOneType=$${fileOne.type}&fileTwoName=$${fileTwo.name}&fileTwoType=$${fileTwo.type}&fileOneSize=$${fileOne.size}&fileTwoSize=$${fileTwo.size}`;
 
-    console.log(url)
+    
 
     fetch(urlWithParameters, options) //pings API Gateway which triggers lambda. File verification is carried out by lambda - the message in the reponse depeneds on if and why the files fail the checks
         .then(response => response.json())    
         .then(data => {   
             console.log("message : " + data.message)
-            console.log("fileOne: " + data.uploadURLFileOne)
-            console.log("fileTwo: " + data.uploadURLFileTwo)
             if(data.message === "file is incorrect type"){
 		window.location.href = "error.html";
             
@@ -67,11 +65,9 @@ let uploadResponse = await fetch(uploadURL, {
                     status: resp.status,
                     body,
                 };
-                console.log(result)
                 if (!resp.ok) {
                     return Promise.reject(result);
                 }
-                console.log(result);
                 return result;
              });
         });
