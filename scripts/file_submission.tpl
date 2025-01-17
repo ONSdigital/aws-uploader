@@ -1,6 +1,6 @@
-require('dotenv').config()
 
-const url = process.env.upload_url; //API Gateway URL. Once API GAteway is called, the lambda is triggered which 
+
+const url = "${api_url}/pre-signed-url"; //API Gateway URL. Once API GAteway is called, the lambda is triggered which 
 //carried out file validation and returns pre-signed URLs if files pass checks
 
 const options = {
