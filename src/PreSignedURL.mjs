@@ -9,7 +9,7 @@ const s3 = new S3({region: 'eu-west-2'});
 
 
 export const handler = async (event, context, callback) => {
-  
+  console.log('I am here');
   //-- Starting verification checks --
   
   //create variables to complete file verificatin checks
@@ -99,13 +99,13 @@ const getUploadURL = async (event) => {
   
   
   const  s3ParamsFileOne = new PutObjectCommand({
-     Bucket: 'council-tax-upload-ons',
+     Bucket: 'aws-uploader-ingest-ost-dev', //bucket used for ingested files
     Key: event.queryStringParameters.fileOneName
     
   })
   
   const  s3ParamsFileTwo = new PutObjectCommand({
-     Bucket: 'council-tax-upload-ons',
+     Bucket: 'aws-uploader-ingest-ost-dev',
     Key: event.queryStringParameters.fileTwoName
     
   })

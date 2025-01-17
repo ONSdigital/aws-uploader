@@ -9,3 +9,13 @@ module "ons_upload_ingest_bucket" {
   attach_secure_transport_policy = true
 }
 
+resource "aws_s3_bucket_cors_configuration" "uploader" {
+  bucket = module.ons_upload_ingest_bucket.bucket_id
+
+  cors_rule {
+    allowed_headers = ["*"]
+    allowed_methods = ["PUT"]
+    allowed_origins = ["https://${local.website_address}"]
+  }
+
+}
