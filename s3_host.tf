@@ -131,12 +131,10 @@ resource "aws_s3_object" "_012345678-council2" {
 }
 
 resource "aws_s3_object" "file_submission" {
-  bucket = module.ons_upload_bucket.bucket_id
-  key    = "council-tax/file_submission.js"
-  content = templatefile("${path.module}/scripts/file_submission.js", {
-    api_url = aws_apigatewayv2_stage.api.invoke_url
-    }
-  )
+  bucket       = module.ons_upload_bucket.bucket_id
+  key          = "council-tax/file_submission.js"
+  source       = "${path.module}/scripts/file_submission.js"
+  source_hash  = filemd5("${path.module}/scripts/file_submission.js")
   content_type = "text"
 }
 
