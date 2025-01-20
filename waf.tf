@@ -10,7 +10,7 @@ resource "aws_wafv2_web_acl" "waf_cloudfront" {
   default_action {
     allow {}
   }
-  
+
   association_config {
     request_body {
       api_gateway {
@@ -18,7 +18,28 @@ resource "aws_wafv2_web_acl" "waf_cloudfront" {
       }
     }
   }
-  
+
+  rule {
+    name     = "AWS-AWSManagedRulesAmazonIpReputationList"
+    priority = 1
+
+    override_action {
+      none {}
+    }
+
+    statement {
+      managed_rule_group_statement {
+        name        = "AWSManagedRulesAmazonIpReputationList"
+        vendor_name = "AWS"
+      }
+    }
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      metric_name                = "AWS-AWSManagedRulesAmazonIpReputationList"
+      sampled_requests_enabled   = true
+    }
+  }
+
   rule {
     name     = "rule-1"
     priority = 1
@@ -39,6 +60,7 @@ resource "aws_wafv2_web_acl" "waf_cloudfront" {
 
           name = "SizeRestrictions_QUERYSTRING"
         }
+
 
         rule_action_override {
           action_to_use {
@@ -70,3 +92,4 @@ resource "aws_wafv2_web_acl" "waf_cloudfront" {
     sampled_requests_enabled   = true
   }
 }
+ 
