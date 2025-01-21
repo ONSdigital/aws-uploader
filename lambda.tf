@@ -49,7 +49,7 @@ resource "aws_lambda_function" "PreSignedURL" {
 data "aws_iam_policy_document" "get_s3_object" {
   statement {
     effect    = "Allow"
-    actions   = ["s3:GetObject", "s3:PutObject", "s3:PutObjectAcl", "logs:CreateLogStream", "logs:PutLogEvents"]
+    actions   = ["s3:GetObject", "s3:PutObject", "s3:PutObjectAcl", "logs:CreateLogStream", "logs:PutLogEvents", "logs:CreateLogGroup"]
     resources = ["${module.ons_upload_ingest_bucket.bucket_arn}/*"]
   }
 }
