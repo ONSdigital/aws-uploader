@@ -42,7 +42,7 @@ resource "aws_wafv2_web_acl" "waf_cloudfront" {
 
   rule {
     name     = "rule-1"
-    priority = 1
+    priority = 2
 
     override_action {
       count {}
