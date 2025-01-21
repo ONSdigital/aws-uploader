@@ -41,7 +41,7 @@ resource "aws_wafv2_web_acl" "waf_cloudfront" {
   }
 
   rule {
-    name     = "rule-1"
+    name     = "AWSCommonRuleSet"
     priority = 2
 
     override_action {
@@ -70,17 +70,34 @@ resource "aws_wafv2_web_acl" "waf_cloudfront" {
           name = "NoUserAgent_HEADER"
         }
 
-        scope_down_statement {
-          geo_match_statement {
-            country_codes = ["GB"]
-          }
-        }
       }
     }
 
     visibility_config {
       cloudwatch_metrics_enabled = true
-      metric_name                = "waf-cloudfront"
+      metric_name                = "AWSCommonRuleSet-waf"
+      sampled_requests_enabled   = true
+    }
+  }
+
+    rule {
+    name     = "GBGeoMatch"
+    priority = 3
+
+    action {
+      allow {}
+    }
+
+    statement {
+          geo_match_statement {
+            country_codes = ["GB"]
+          
+      }
+    }
+
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      metric_name                = "GEOMatch-waf"
       sampled_requests_enabled   = true
     }
   }
