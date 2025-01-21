@@ -11,13 +11,13 @@ resource "aws_wafv2_web_acl" "waf_cloudfront" {
     allow {}
   }
 
-  association_config {
-    request_body {
-      api_gateway {
-        default_size_inspection_limit = "KB_16"
-      }
-    }
-  }
+  # association_config {
+  #   request_body {
+  #     api_gateway {
+  #       default_size_inspection_limit = "KB_16"
+  #     }
+  #   }
+  # }
 
   rule {
     name     = "AWS-AWSManagedRulesAmazonIpReputationList"
