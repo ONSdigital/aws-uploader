@@ -1,6 +1,6 @@
 import querystring from 'querystring';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import Logger from ".utilities/logger.js";
+import Logger from "logger.js";
 
 
 // New way of using AWS SDk v3
