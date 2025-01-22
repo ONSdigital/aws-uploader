@@ -49,7 +49,7 @@ resource "aws_lambda_function" "PreSignedURL" {
 data "aws_iam_policy_document" "get_s3_object" {
   statement {
     effect    = "Allow"
-    actions   = ["s3:GetObject", "s3:PutObject", "s3:PutObjectAcl", "logs:CreateLogStream", "logs:PutLogEvents", "logs:CreateLogGroup"]
+    actions   = ["s3:GetObject", "s3:PutObject", "s3:PutObjectAcl"]
     resources = ["${module.ons_upload_ingest_bucket.bucket_arn}/*"]
   }
 }
@@ -57,6 +57,11 @@ data "aws_iam_policy_document" "get_s3_object" {
 resource "aws_iam_role_policy_attachment" "lambda_s3" {
   role       = aws_iam_role.iam_for_lambda.name
   policy_arn = aws_iam_policy.lambda_s3.arn
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_basic" {
+  role       = aws_iam_role.iam_for_lambda.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
 resource "aws_iam_policy" "lambda_s3" {
