@@ -117,13 +117,13 @@ const getUploadURL = async (event) => {
   
   
   const  s3ParamsFileOne = new PutObjectCommand({
-     Bucket: 'aws-uploader-ingest-ost-dev', //bucket used for ingested files
+     Bucket: process.env.BUCKET_NAME, //bucket used for ingested files
     Key: event.queryStringParameters.fileOneName
     
   })
   
   const  s3ParamsFileTwo = new PutObjectCommand({
-     Bucket: 'aws-uploader-ingest-ost-dev',
+     Bucket: process.env.BUCKET_NAME,
     Key: event.queryStringParameters.fileTwoName
     
   })

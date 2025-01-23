@@ -39,11 +39,12 @@ resource "aws_lambda_function" "PreSignedURL" {
   tracing_config {
     mode = "Active"
   }
-  # dead_letter_config {
-  #   target_arn = "PreSignedURL"
-  # }
-  # reserved_concurrent_executions = 100
 
+  environment {
+    variables = {
+      BUCKET_NAME = module.uploader_ingest_bucket.bucket_id
+    }
+  }
 }
 
 data "aws_iam_policy_document" "get_s3_object" {
