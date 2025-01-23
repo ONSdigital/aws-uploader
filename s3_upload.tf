@@ -71,12 +71,11 @@ resource "aws_s3_bucket_lifecycle_configuration" "ingest_lifecycle_policy" {
   rule{
     id = "delete_after_14_days"
     status = "Enabled"
-    expiration {
-      days = 14
-    }
-    noncurrent_version_expiration {
-      noncurrent_days = 14
-    }
+ 
+   abort_incomplete_multipart_upload {
+     days_after_initiation = 7
+  }
   }
 }
+
 
