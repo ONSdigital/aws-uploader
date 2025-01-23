@@ -80,7 +80,7 @@ resource "aws_wafv2_web_acl" "waf_cloudfront" {
     }
   }
 
-    rule {
+  rule {
     name     = "GBGeoMatch"
     priority = 3
 
@@ -89,9 +89,9 @@ resource "aws_wafv2_web_acl" "waf_cloudfront" {
     }
 
     statement {
-          geo_match_statement {
-            country_codes = ["GB"]
-          
+      geo_match_statement {
+        country_codes = ["GB"]
+
       }
     }
 
@@ -101,7 +101,7 @@ resource "aws_wafv2_web_acl" "waf_cloudfront" {
       sampled_requests_enabled   = true
     }
   }
-rule {
+  rule {
     name     = "AWSManagedRulesKnownBadInputsRuleSet"
     priority = 4
 

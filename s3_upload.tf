@@ -58,9 +58,9 @@ data "aws_iam_policy_document" "uploader_ingest_bucket" {
       values   = ["false"]
     }
   }
-  }
+}
 
-  resource "aws_s3_bucket_policy" "uploader_ingest_bucket" {
+resource "aws_s3_bucket_policy" "uploader_ingest_bucket" {
   bucket = module.ons_upload_ingest_bucket.bucket_id
   policy = data.aws_iam_policy_document.uploader_ingest_bucket.json
 }
