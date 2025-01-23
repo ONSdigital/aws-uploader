@@ -42,7 +42,7 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
     allowed_methods            = ["GET", "HEAD", "OPTIONS"]
     cached_methods             = ["GET", "HEAD"]
     target_origin_id           = "S3Origin"
-    origin_request_policy_id   = "" # Managed-CORS-CustomOrigin policy ID
+    origin_request_policy_id   = "acba4595-bd28-49b8-b9fe-13317c0390fa" # Managed-CORS-CustomOrigin policy ID
     response_headers_policy_id = "60669652-455b-4ae9-85a4-c4c02393f86c"
     cache_policy_id            = "658327ea-f89d-4fab-a63d-7e88639e58f6"
 
