@@ -65,7 +65,7 @@ data "aws_iam_policy_document" "uploader_ingest_bucket" {
   policy = data.aws_iam_policy_document.uploader_ingest_bucket.json
 }
 
-resource "aws_s3_bucket_lifecyle_configuration" "ingest_lifecycle_policy" {
+resource "aws_s3_bucket_lifecycle_configuration" "ingest_lifecycle_policy" {
   bucket = module.ons_uploade_ingest_bucket.bucket_id
 
   rule{
