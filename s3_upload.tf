@@ -7,29 +7,6 @@ module "ons_upload_ingest_bucket" {
   logging     = false
 
   attach_secure_transport_policy = true
-  attach_policy_statements = true
-  bucket_policy_statements = {
-    ingest_policy = {
-      effect = "Allow"
-
-    actions   = ["s3:GetObject", "s3:PutObject"]
-    resources = [module.ons_upload_bucket.bucket_arn, "${module.ons_upload_bucket.bucket_arn}/*"]
-
-    principals = [{
-      type = "Service"
-      identifiers = [
-        "cloudfront.amazonaws.com"
-      ]
-    }
-    ]
-
-    condition = [{
-      test     = "StringEquals"
-      variable = "AWS:SourceArn"
-      values   = ["arn:aws:cloudfront::${data.aws_caller_identity.current.account_id}:distribution/${aws_cloudfront_distribution.s3_distribution.id}"]
-    }]
-    }
-  }
 }
 
 resource "aws_s3_bucket_cors_configuration" "uploader" {
@@ -42,3 +19,49 @@ resource "aws_s3_bucket_cors_configuration" "uploader" {
   }
 
 }
+
+
+data "aws_iam_policy_document" "uploader_ingest_bucket" {
+  statement {
+    effect = "Allow"
+
+    actions   = ["s3:GetObject", "s3:PutObject"]
+    resources = ["${module.ons_upload_ingest_bucket.bucket_arn}/*"]
+
+    principals {
+      type = "Service"
+      identifiers = [
+        "cloudfront.amazonaws.com"
+      ]
+    }
+
+    condition {
+      test     = "StringEquals"
+      variable = "AWS:SourceArn"
+      values   = ["arn:aws:cloudfront::${data.aws_caller_identity.current.account_id}:distribution/${aws_cloudfront_distribution.s3_distribution.id}"]
+    }
+  }
+
+  statement {
+    effect  = "Deny"
+    actions = ["s3:*"]
+    resources = [module.ons_upload_ingest_bucket.bucket_arn,
+      "${module.ons_upload_ingest_bucket.bucket_arn}/*"
+    ]
+    principals {
+      type        = "*"
+      identifiers = ["*"]
+    }
+    condition {
+      test     = "Bool"
+      variable = "aws:SecureTransport"
+      values   = ["false"]
+    }
+  }
+  }
+
+  resource "aws_s3_bucket_policy" "uploader_ingest_bucket" {
+  bucket = module.ons_upload_ingest_bucket.bucket_id
+  policy = data.aws_iam_policy_document.uploader_ingest_bucket.json
+}
+
