@@ -1,12 +1,22 @@
 import querystring from 'querystring';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { Logger } from ".utilities/logger.js";
+
+
+class uploaderLogger {
+  logError(errorMessage) {
+      console.error("Error: ${errorMessage}");
+  }
+
+  logInfo(infoMessage) {
+      console.log("Info: ${infoMessage}");
+  }
+}
 
 
 // New way of using AWS SDk v3
 import { S3, PutObjectCommand, S3Client } from "@aws-sdk/client-s3"
 const s3 = new S3({region: 'eu-west-2'});
-const logger = Logger()
+const logger = new uploaderLogger()
 
 
 export const handler = async (event, context, callback) => {
