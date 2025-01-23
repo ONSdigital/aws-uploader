@@ -24,6 +24,7 @@ data "archive_file" "PreSignedURL" {
 
 
 resource "aws_lambda_function" "PreSignedURL" {
+  #checkov:skip=CKV_AWS_173: we are using AWS encryption keys
   #checkov:skip=CKV_AWS_115: concurrent execution limit
   #checkov:skip=CKV_AWS_116: Ensure that AWS Lambda function is configured for a Dead Letter Queue(DLQ)
   #checkov:skip=CKV_AWS_117: no vpc architecture
