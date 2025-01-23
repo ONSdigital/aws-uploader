@@ -7,7 +7,7 @@ module "ons_upload_ingest_bucket" {
   logging     = false
 
   attach_secure_transport_policy = true
-  attach_policy_statement = true
+  attach_policy_statements = true
   bucket_policy_statements = {
     ingest_policy = {
       effect = "Allow"
