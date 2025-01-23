@@ -147,10 +147,3 @@ resource "aws_s3_object" "result_message" {
   content_type = "text"
 }
 
-resource "aws_s3_object" "logger" {
-  bucket       = module.ons_upload_bucket.bucket_id
-  key          = "council-tax/logger.js"
-  source       = "${path.module}/src/utilities/logger.js"
-  source_hash  = filemd5("${path.module}/src/utilities/logger.js")
-  content_type = "text"
-}
