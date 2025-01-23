@@ -6,7 +6,7 @@ module "ons_upload_ingest_bucket" {
   tiering     = false
   logging     = false
 
-  attach_secure_transport_policy = true
+  attach_secure_transport_policy = false
 }
 
 resource "aws_s3_bucket_cors_configuration" "uploader" {
@@ -58,10 +58,25 @@ data "aws_iam_policy_document" "uploader_ingest_bucket" {
       values   = ["false"]
     }
   }
-}
+  }
 
-resource "aws_s3_bucket_policy" "uploader_ingest_bucket" {
+  resource "aws_s3_bucket_policy" "uploader_ingest_bucket" {
   bucket = module.ons_upload_ingest_bucket.bucket_id
   policy = data.aws_iam_policy_document.uploader_ingest_bucket.json
+}
+
+resource "aws_s3_bucket_lifecyle_configuration" "ingest_lifecycle_policy" {
+  bucket = module.ons_uploade_ingest_bucket.bucket_id
+
+  rule{
+    id = "delete_after_14_days"
+    status = "Enabled"
+    expiration {
+      days = 14
+    }
+    noncurrent_version_expiration {
+      noncurrent_days = 14
+    }
+  }
 }
 
