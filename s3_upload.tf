@@ -66,7 +66,7 @@ data "aws_iam_policy_document" "uploader_ingest_bucket" {
 }
 
 resource "aws_s3_bucket_lifecycle_configuration" "ingest_lifecycle_policy" {
-  bucket = module.ons_uploade_ingest_bucket.bucket_id
+  bucket = module.ons_upload_ingest_bucket.bucket_id
 
   rule{
     id = "delete_after_14_days"
