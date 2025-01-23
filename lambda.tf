@@ -42,7 +42,7 @@ resource "aws_lambda_function" "PreSignedURL" {
 
   environment {
     variables = {
-      BUCKET_NAME = module.uploader_ingest_bucket.bucket_id
+      BUCKET_NAME = module.ons_upload_ingest_bucket.bucket_id
     }
   }
 }
