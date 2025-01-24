@@ -39,7 +39,6 @@ async function onSubmit(event) {
         // Need to handle the error here
         return false;
     }
-    //kdskjlasfsa
 
     if (!fileTwo.name.includes(ladCode)) {
         console.log("File name does not contain matching code:", fileTwo.name);
