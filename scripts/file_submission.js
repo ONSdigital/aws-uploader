@@ -3,7 +3,7 @@ class uploaderLogger {
         console.error(`Error: ${errorMessage}`);
     }
     logInfo(infoMessage) {
-        console.infp(`Info: ${infoMessage}`);
+        console.info(`Info: ${infoMessage}`);
     }
   }
 const logger = new uploaderLogger()
