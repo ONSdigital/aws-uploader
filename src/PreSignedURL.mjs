@@ -12,7 +12,7 @@ class uploaderLogger {
   }
 
   logSuccess(LADCode, fileName, URL, statusCode) {
-    console.log(`Success: status ${statusCode}, LADCode: ${LADCode}, fileName: ${fileName}, URL: ${URL}`);
+    console.log(`Success: ${statusCode}, LADCode: ${LADCode}, fileName: ${fileName}, URL: ${URL}`);
 }
 }
 
@@ -39,7 +39,7 @@ export const handler = async (event, context, callback) => {
     let trimmedFileTwoNameToCheckIfFilesMatch = event.queryStringParameters.fileTwoName.slice(0, 5) + event.queryStringParameters.fileTwoName.slice(9, 28); //trim file two name to just the parts which should match file one name
     const fileOneName = event.queryStringParameters.fileOneName;
     const ladCode = extractLADCode(fileOneName);
-    
+
     //Series of checks on file data before pre-signed URLs are created. Checks size of each file isnt 0, checks file type of each file is csv, check if file names match.
     //Need to add file name format verification.
     
@@ -83,7 +83,7 @@ export const handler = async (event, context, callback) => {
       //return result;
       const result = await getUploadURL(event);
       const resultBody = JSON.parse(result.body);
-      logger.logSuccess(event.queryStringParameters.LADCode, event.queryStringParameters.fileOneName, resultBody.uploadURLFileOne, result.statusCode);
+      logger.logSuccess(LADCode, event.queryStringParameters.fileOneName, resultBody.uploadURLFileOne, result.statusCode);
       return result;
     }
   } catch (error){
