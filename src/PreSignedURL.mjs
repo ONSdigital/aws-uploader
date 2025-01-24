@@ -34,7 +34,7 @@ export const handler = async (event, context, callback) => {
     
     if(event.queryStringParameters.fileOneSize==="0") {
       const result = isFileEmpty(event.queryStringParameters.fileOneName);
-      logger.Error(result.statusCode, result.message)
+      logger.logError(result.statusCode, result.message)
       return result
     } else  if (event.queryStringParameters.fileTwoSize==="0") {
       const result = isFileEmpty(event.queryStringParameters.fileTwoName);
@@ -47,7 +47,7 @@ export const handler = async (event, context, callback) => {
       return result;
     } else if (trimmedFileOneNameToCheckIfFilesMatch != trimmedFileTwoNameToCheckIfFilesMatch){
      const result = fileNamesDontMatch(event);
-     logger.Error(result.statusCode, result.message)
+     logger.logError(result.statusCode, result.message)
      return result;
     } else {
       const result = await getUploadURL(event);
