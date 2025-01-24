@@ -3,7 +3,7 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 class uploaderLogger {
   logError(LADCode, fileName, statusCode, errorMessage) {
-      console.error(`Error: ${statusCode}, LADCode: ${LADCode}, fileName: ${fileName}, ${errorMessage}`);
+    console.error(`Status: ${statusCode}, LADCode: ${LADCode}, File: ${fileName}, Message: ${errorMessage}`);
   }
 
   logInfo(infoMessage) {
@@ -11,8 +11,7 @@ class uploaderLogger {
   }
 
   logSuccess(LADCode, fileName, URL, statusCode) {
-    console.log(`Success: ${statusCode}, LADCode: ${LADCode}, fileName: ${fileName}, URL: ${URL}`);
-}
+    console.log(`Success: Status: ${statusCode}, LADCode: ${LADCode}, fileName: ${fileName}, URL: ${URL}`);}
 }
 
 
@@ -68,9 +67,15 @@ export const handler = async (event, context, callback) => {
       return result;
     }
   } catch (error){
-    logger.logError(error.Message)
+    logger.logError("500", "Internal Server Error", "500", error.message);
+    return {
+      statusCode: 500,
+      body: JSON.stringify({
+        message: "Internal Server Error",
+        error: error.message
+      })
+    };
   }
-
 }
 
 //sends reponse if a file is not csv which alerts user
@@ -82,7 +87,7 @@ const fileNotCSV = async (filename) => {
       "headers": { 'Access-Control-Allow-Origin': '*'
          },
       "body": JSON.stringify({
-        "message": "file is incorrect type",
+        "message": "File is not .csv",
         "filename" : filename
       })
     })
@@ -99,7 +104,7 @@ const isFileEmpty = async (filename) => {
       "headers": { 'Access-Control-Allow-Origin': '*'
          },
       "body": JSON.stringify({
-        "message": `file is empty`,
+        "message": `File is empty`,
         "filename" : filename
       })
     })
@@ -117,7 +122,7 @@ const fileNamesDontMatch = async (event) => {
       "headers": { 'Access-Control-Allow-Origin': '*'
          },
       "body": JSON.stringify({
-        "message": "file names dont match"
+        "message": "File names do not match"
       })
     })
   })
@@ -150,16 +155,13 @@ return new Promise((resolve, reject) => {
       "statusCode": 200,
       "isBase64Encoded": false,
       "headers": { 'Access-Control-Allow-Origin': '*',
-                    //'Access-Control-Allow-Headers': '*',
-                    //'Access-Control-Allow-Methods': 'GET, OPTIONS'
          },
       "body": JSON.stringify({
         "uploadURLFileOne": uploadURLFileOne,
         "uploadURLFileTwo" : uploadURLFileTwo,
-        "message" : "success",
+        "message" : "Success",
       })
     })
   })
   
 }
-
