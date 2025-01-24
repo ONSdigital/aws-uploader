@@ -34,21 +34,37 @@ export const handler = async (event, context, callback) => {
     
     if(event.queryStringParameters.fileOneSize==="0") {
       const result = isFileEmpty(event.queryStringParameters.fileOneName);
-      logger.logError(result.statusCode, result.message)
-      return result
+      const resultBody = JSON.parse(result.body);
+      logger.logError(result.statusCode, resultBody.message);
+      return result;
+      // logger.logError(result.statusCode, result.message)
+      // return result
     } else  if (event.queryStringParameters.fileTwoSize==="0") {
       const result = isFileEmpty(event.queryStringParameters.fileTwoName);
-      return result
+      const resultBody = JSON.parse(result.body);
+      logger.logError(result.statusCode, resultBody.message);
+      return result;
+      //return result
     } else if(event.queryStringParameters.fileOneType !== "text/csv"){
       const result = await fileNotCSV(event.queryStringParameters.fileOneName);
+      const resultBody = JSON.parse(result.body);
+      logger.logError(result.statusCode, resultBody.message);
       return result;
+      //return result;
     } else if(event.queryStringParameters.fileTwoType !== "text/csv"){
       const result = await fileNotCSV(event.queryStringParameters.fileTwoName);
+      const resultBody = JSON.parse(result.body);
+      logger.logError(result.statusCode, resultBody.message);
       return result;
+      //return result;
     } else if (trimmedFileOneNameToCheckIfFilesMatch != trimmedFileTwoNameToCheckIfFilesMatch){
-     const result = fileNamesDontMatch(event);
-     logger.logError(result.statusCode, result.message)
-     return result;
+      const result = await fileNamesDontMatch(event);
+      const resultBody = JSON.parse(result.body);
+      logger.logError(result.statusCode, resultBody.message);
+      return result;
+    //  const result = fileNamesDontMatch(event);
+    //  logger.logError(result.statusCode, result.message)
+    //  return result;
     } else {
       const result = await getUploadURL(event);
       
@@ -65,7 +81,7 @@ export const handler = async (event, context, callback) => {
 const fileNotCSV = async (filename) => {
   return new Promise((resolve, reject) => {
       resolve({
-      "statusCode": 200,
+      "statusCode": 403,
       "isBase64Encoded": false,
       "headers": { 'Access-Control-Allow-Origin': '*'
          },
