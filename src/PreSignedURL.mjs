@@ -53,7 +53,7 @@ export const handler = async (event, context, callback) => {
     } else if(event.queryStringParameters.fileOneType !== "text/csv"){
       const result = await fileNotCSV(event.queryStringParameters.fileOneName);
       const resultBody = JSON.parse(result.body);
-      logger.logError(ladCode, event.queryStringParam.FileOneName, result.statusCode, resultBody.message);
+      logger.logError(LADCode, event.queryStringParam.FileOneName, result.statusCode, resultBody.message);
       return result;
       //return result;
     } else if(event.queryStringParameters.fileTwoType !== "text/csv"){
