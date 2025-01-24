@@ -1,4 +1,4 @@
-class uploaderLogger {
+class uploaderErrorLogger {
     logError(errorMessage) {
         console.error(`Error: ${errorMessage}`);
     }
@@ -6,7 +6,7 @@ class uploaderLogger {
         console.info(`Info: ${infoMessage}`);
     }
   }
-const logger = new uploaderLogger()
+const logger = new uploaderErrorLogger()
 
 const url = "${api_url}/pre-signed-url"; //API Gateway URL. Once API GAteway is called, the lambda is triggered which 
 //carried out file validation and returns pre-signed URLs if files pass checks
