@@ -124,9 +124,9 @@ resource "aws_s3_object" "_012345678-council" {
 
 resource "aws_s3_object" "_012345678-council2" {
   bucket       = module.ons_upload_bucket.bucket_id
-  key          = "council-tax/_012345678-council2.html"
-  source       = "${path.module}/scripts/_012345678-council2.html"
-  source_hash  = filemd5("${path.module}/scripts/_012345678-council2.html")
+  key          = "council-tax/E07000175-Newark&Sherwood.html"
+  source       = "${path.module}/scripts/E07000175-Newark&Sherwood.html"
+  source_hash  = filemd5("${path.module}/scripts/E07000175-Newark&Sherwood.html")
   content_type = "text/html"
 }
 
@@ -146,3 +146,4 @@ resource "aws_s3_object" "result_message" {
   source_hash  = filemd5("${path.module}/scripts/result_message.js")
   content_type = "text"
 }
+
