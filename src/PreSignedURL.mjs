@@ -21,6 +21,7 @@ const logger = new uploaderLogger()
 
 export const handler = async (event, context, callback) => {
   try{
+    logger.logInfo(200, `Event content: ${JSON.stringify(event)}`);
     //logger.logInfo("Starting verification checks")
   
     //-- Starting verification checks --
@@ -33,14 +34,14 @@ export const handler = async (event, context, callback) => {
     //Need to add file name format verification.
     
     if(event.queryStringParameters.fileOneSize==="0") {
-      const result = isFileEmpty(event.queryStringParameters.fileOneName);
+      const result = await isFileEmpty(event.queryStringParameters.fileOneName);
       const resultBody = JSON.parse(result.body);
       logger.logError(result.statusCode, resultBody.message);
       return result;
       // logger.logError(result.statusCode, result.message)
       // return result
     } else  if (event.queryStringParameters.fileTwoSize==="0") {
-      const result = isFileEmpty(event.queryStringParameters.fileTwoName);
+      const result = await isFileEmpty(event.queryStringParameters.fileTwoName);
       const resultBody = JSON.parse(result.body);
       logger.logError(result.statusCode, resultBody.message);
       return result;
