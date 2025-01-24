@@ -4,11 +4,11 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 class uploaderLogger {
   logError(errorMessage) {
-      console.error("Error: ${errorMessage}");
+      console.error(`Error: ${statusCode}, ${errorMessage}`);
   }
 
-  logInfo(infoMessage) {
-      console.log("Info: ${infoMessage}");
+  logInfo(statusCode, infoMessage) {
+      console.log(`Info: ${statusCode}, ${infoMessage}`);
   }
 }
 
@@ -21,7 +21,7 @@ const logger = new uploaderLogger()
 
 export const handler = async (event, context, callback) => {
   try{
-    logger.logInfo("Starting verification checks")
+    //logger.logInfo("Starting verification checks")
   
     //-- Starting verification checks --
     
@@ -34,6 +34,7 @@ export const handler = async (event, context, callback) => {
     
     if(event.queryStringParameters.fileOneSize==="0") {
       const result = isFileEmpty(event.queryStringParameters.fileOneName);
+      logger.Error(result.statusCode, result.message)
       return result
     } else  if (event.queryStringParameters.fileTwoSize==="0") {
       const result = isFileEmpty(event.queryStringParameters.fileTwoName);
@@ -50,7 +51,7 @@ export const handler = async (event, context, callback) => {
     } else {
       const result = await getUploadURL(event);
       
-      logger.logInfo("Completed verification checks")
+      //logger.logInfo("Completed verification checks")
       return result;
     }
   } catch (error){
@@ -80,7 +81,7 @@ const fileNotCSV = async (filename) => {
 const isFileEmpty = async (filename) => {
   return new Promise((resolve, reject) => {
       resolve({
-      "statusCode": 200,
+      "statusCode": 204,
       "isBase64Encoded": false,
       "headers": { 'Access-Control-Allow-Origin': '*'
          },
@@ -106,6 +107,7 @@ const fileNamesDontMatch = async (event) => {
          },
       "body": JSON.stringify({
         "message": "file names dont match"
+        
         
       })
     })
