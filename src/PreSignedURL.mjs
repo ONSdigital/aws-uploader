@@ -10,6 +10,10 @@ class uploaderLogger {
   logInfo(statusCode, infoMessage) {
       console.log(`Info: ${statusCode}, ${infoMessage}`);
   }
+
+  logSuccess(LADCode, fileName, URL, statusCode) {
+    console.log(`Success: status ${statusCode}, LADCode: ${LADCode}, fileName: ${fileName}, URL: ${URL}`);
+}
 }
 
 
@@ -67,9 +71,13 @@ export const handler = async (event, context, callback) => {
     //  logger.logError(result.statusCode, result.message)
     //  return result;
     } else {
-      const result = await getUploadURL(event);
+      //const result = await getUploadURL(event);
       
       //logger.logInfo("Completed verification checks")
+      //return result;
+      const result = await getUploadURL(event);
+      const resultBody = JSON.parse(result.body);
+      logger.logSuccess(event.queryStringParameters.LADCode, event.queryStringParameters.fileOneName, resultBody.uploadURLFileOne, result.statusCode);
       return result;
     }
   } catch (error){
