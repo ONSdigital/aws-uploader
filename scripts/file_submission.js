@@ -42,15 +42,15 @@ async function onSubmit(event) {
             console.log("message : " + data.message)
             if(data.message === "file is incorrect type"){
 		window.location.href = "error.html";
-            logger.logError(data.message);
+            logger.logError("file is incorrect type");
                 
             }  else if(data.message === "file is empty") {
 		window.location.href = "error.html";
-            logger.logError(data.message);
+            logger.logError("file is incorrect type");
 
             }   else if(data.message === "file names dont match") {
 		window.location.href = "error.html";
-            logger.logError(data.message); 
+            logger.logError("file is incorrect type"); 
 
             }   else {
                 uploadFile(data.uploadURLFileOne, fileOne).then(data => {   //If all file verification checks pass, each file is uploded to its individual pre-signed URL which puts file in s3 bucket
