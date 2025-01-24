@@ -42,3 +42,13 @@ variable "domain_name" {
   type        = string
   description = "Domain name for the DNS within an account to use."
 }
+
+variable "errorMessage" {
+  type = string
+  description = "logs error message"
+}
+
+variable "infoMessage" {
+  type = string
+  description = "logs info message"
+}
