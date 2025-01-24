@@ -6,6 +6,10 @@ class uploaderLogger {
     console.error(`Status: ${statusCode}, LADCode: ${LADCode}, File: ${fileName}, Message: ${errorMessage}`);
   }
 
+  logInternalError(LADCode, fileName, statusCode, errorMessage) {
+    console.error(`Status: ${statusCode}, LADCode: ${LADCode}, File: ${fileName}, Message: ${errorMessage}`);
+  }
+
   logInfo(infoMessage) {
       console.log(`Info: ${infoMessage}`);
   }
@@ -67,7 +71,7 @@ export const handler = async (event, context, callback) => {
       return result;
     }
   } catch (error){
-    logger.logError("500", "Internal Server Error", "500", error.message);
+    logger.logInternalError(LADCode, eventNames.queryStringParameters.fileOneName, "500", error.message);
     return {
       statusCode: 500,
       body: JSON.stringify({
