@@ -6,8 +6,8 @@ class uploaderLogger {
       console.error(`Error: ${statusCode}, LADCode: ${LADCode}, fileName: ${fileName}, ${errorMessage}`);
   }
 
-  logInfo(statusCode, infoMessage) {
-      console.log(`Info: ${statusCode}, ${infoMessage}`);
+  logInfo(infoMessage) {
+      console.log(`Info: ${infoMessage}`);
   }
 
   logSuccess(LADCode, fileName, URL, statusCode) {
@@ -25,8 +25,7 @@ const logger = new uploaderLogger()
 
 export const handler = async (event, context, callback) => {
   try{
-    logger.logInfo(200, `Event content: ${JSON.stringify(event)}`);
-    //logger.logInfo("Starting verification checks")
+    logger.logInfo("Starting verification checks")
   
     //-- Starting verification checks --
     
@@ -40,41 +39,29 @@ export const handler = async (event, context, callback) => {
     if(event.queryStringParameters.fileOneSize==="0") {
       const result = await isFileEmpty(event.queryStringParameters.fileOneName);
       const resultBody = JSON.parse(result.body);
-      logger.logError(result.statusCode, resultBody.message);
+      logger.logError(event.queryStringParameters.fileOneName.slice(13, 22), event.queryStringParameters.fileOneName, result.statusCode, resultBody.message);
       return result;
-      // logger.logError(result.statusCode, result.message)
-      // return result
     } else  if (event.queryStringParameters.fileTwoSize==="0") {
       const result = await isFileEmpty(event.queryStringParameters.fileTwoName);
       const resultBody = JSON.parse(result.body);
-      logger.logError(result.statusCode, resultBody.message);
+      logger.logError(event.queryStringParameters.fileOneName.slice(13, 22), event.queryStringParameters.fileOneName, result.statusCode, resultBody.message);
       return result;
-      //return result
     } else if(event.queryStringParameters.fileOneType !== "text/csv"){
       const result = await fileNotCSV(event.queryStringParameters.fileOneName);
       const resultBody = JSON.parse(result.body);
-      logger.logError(LADCode, event.queryStringParam.FileOneName, result.statusCode, resultBody.message);
+      logger.logError(event.queryStringParameters.fileOneName.slice(13, 22), event.queryStringParameters.fileOneName, result.statusCode, resultBody.message);
       return result;
-      //return result;
     } else if(event.queryStringParameters.fileTwoType !== "text/csv"){
       const result = await fileNotCSV(event.queryStringParameters.fileTwoName);
       const resultBody = JSON.parse(result.body);
-      logger.logError(result.statusCode, resultBody.message);
+      logger.logError(event.queryStringParameters.fileOneName.slice(13, 22), event.queryStringParameters.fileOneName, result.statusCode, resultBody.message);
       return result;
-      //return result;
     } else if (trimmedFileOneNameToCheckIfFilesMatch != trimmedFileTwoNameToCheckIfFilesMatch){
       const result = await fileNamesDontMatch(event);
       const resultBody = JSON.parse(result.body);
-      logger.logError(result.statusCode, resultBody.message);
+      logger.logError(event.queryStringParameters.fileOneName.slice(13, 22), event.queryStringParameters.fileOneName, result.statusCode, resultBody.message);
       return result;
-    //  const result = fileNamesDontMatch(event);
-    //  logger.logError(result.statusCode, result.message)
-    //  return result;
     } else {
-      //const result = await getUploadURL(event);
-      
-      //logger.logInfo("Completed verification checks")
-      //return result;
       const result = await getUploadURL(event);
       const resultBody = JSON.parse(result.body);
       logger.logSuccess(LADCode, event.queryStringParameters.fileOneName, resultBody.uploadURLFileOne, result.statusCode);
@@ -119,8 +106,6 @@ const isFileEmpty = async (filename) => {
   }) 
 }
 
-
-
 //sends response if a file names dont match
 const fileNamesDontMatch = async (event) => {
   
@@ -133,8 +118,6 @@ const fileNamesDontMatch = async (event) => {
          },
       "body": JSON.stringify({
         "message": "file names dont match"
-        
-        
       })
     })
   })
