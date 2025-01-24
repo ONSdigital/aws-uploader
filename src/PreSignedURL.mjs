@@ -47,6 +47,7 @@ export const handler = async (event, context, callback) => {
       return result;
     } else if (trimmedFileOneNameToCheckIfFilesMatch != trimmedFileTwoNameToCheckIfFilesMatch){
      const result = fileNamesDontMatch(event);
+     logger.Error(result.statusCode, result.message)
      return result;
     } else {
       const result = await getUploadURL(event);
@@ -101,7 +102,7 @@ const fileNamesDontMatch = async (event) => {
   return new Promise((resolve, reject) => {
     
       resolve({
-      "statusCode": 200,
+      "statusCode": 300,
       "isBase64Encoded": false,
       "headers": { 'Access-Control-Allow-Origin': '*'
          },
