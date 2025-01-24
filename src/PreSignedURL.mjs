@@ -4,11 +4,11 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 class uploaderLogger {
   logError(errorMessage) {
-      console.error("Error: ${errorMessage}");
+      console.error(`Error: ${errorMessage}`);
   }
 
   logInfo(infoMessage) {
-      console.log("Info: ${infoMessage}");
+      console.log(`Info: ${infoMessage}`);
   }
 }
 

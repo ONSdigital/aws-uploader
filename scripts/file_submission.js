@@ -1,4 +1,12 @@
-
+class uploaderLogger {
+    logError(errorMessage) {
+        console.error(`Error: ${errorMessage}`);
+    }
+    logInfo(infoMessage) {
+        console.infp(`Info: ${infoMessage}`);
+    }
+  }
+const logger = new uploaderLogger()
 
 const url = "${api_url}/pre-signed-url"; //API Gateway URL. Once API GAteway is called, the lambda is triggered which 
 //carried out file validation and returns pre-signed URLs if files pass checks
@@ -34,19 +42,22 @@ async function onSubmit(event) {
             console.log("message : " + data.message)
             if(data.message === "file is incorrect type"){
 		window.location.href = "error.html";
-            
+            logger.logError(data.message);
                 
             }  else if(data.message === "file is empty") {
 		window.location.href = "error.html";
-                
+            logger.logError(data.message);
+
             }   else if(data.message === "file names dont match") {
 		window.location.href = "error.html";
-                
+            logger.logError(data.message); 
+
             }   else {
                 uploadFile(data.uploadURLFileOne, fileOne).then(data => {   //If all file verification checks pass, each file is uploded to its individual pre-signed URL which puts file in s3 bucket
                 })
                 uploadFile(data.uploadURLFileTwo, fileTwo).then(data => {
-                    window.location.href = "success.html"	
+                    window.location.href = "success.html"
+                    logger.logInfo("file uploaded")
                 })
             }
         });
