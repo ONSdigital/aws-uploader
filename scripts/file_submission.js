@@ -24,9 +24,29 @@ async function onSubmit(event) {
     const fileOne = form.fileOne.files[0]; //First file chosen (EXTRACT file)
     const fileTwo = form.fileTwo.files[0]; //Second file chosen (MANI file)
 
-    const urlWithParameters = url + `?fileOneName=$${fileOne.name}&fileOneType=$${fileOne.type}&fileTwoName=$${fileTwo.name}&fileTwoType=$${fileTwo.type}&fileOneSize=$${fileOne.size}&fileTwoSize=$${fileTwo.size}`;
-
+    // Extract code from the current URL
+    const currentUrl = window.location.href;
+    // This regex looks for any characters between the last / and the first -
+    const urlParts = currentUrl.split('/');
+    const lastPart = urlParts[urlParts.length - 1];
     
+    // Get everything before the first hyphen
+    const ladCode = lastPart.split('-')[0];
+    console.log("URL Code found: ", ladCode);
+
+    if (!fileOne.name.includes(ladCode)) {
+        console.log("File name does not contain matching code:", fileOne.name);
+        // Need to handle the error here
+        return false;
+    }
+
+    if (!fileTwo.name.includes(ladCode)) {
+        console.log("File name does not contain matching code:", fileTwo.name);
+        // Need to handle the error here
+        return false;
+    }
+
+    const urlWithParameters = url + `?fileOneName=$${fileOne.name}&fileOneType=$${fileOne.type}&fileTwoName=$${fileTwo.name}&fileTwoType=$${fileTwo.type}&fileOneSize=$${fileOne.size}&fileTwoSize=$${fileTwo.size}`;
 
     fetch(urlWithParameters, options) //pings API Gateway which triggers lambda. File verification is carried out by lambda - the message in the reponse depeneds on if and why the files fail the checks
         .then(response => response.json())    
