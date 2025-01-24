@@ -16,10 +16,7 @@ class uploaderLogger {
 }
 }
 
-function extractLADCode(fileOneName) {
-  const ladCodeMatch = fileOneName.match(/CTAX_EXTRACT_(\d+)_/);
-  return ladCodeMatch ? ladCodeMatch[1] : null;
-}
+
 
 // New way of using AWS SDk v3
 import { S3, PutObjectCommand, S3Client } from "@aws-sdk/client-s3"
@@ -37,9 +34,7 @@ export const handler = async (event, context, callback) => {
     //create variables to complete file verificatin checks
     let trimmedFileOneNameToCheckIfFilesMatch = event.queryStringParameters.fileOneName.slice(0, 5) + event.queryStringParameters.fileOneName.slice(12, 31); //trim file one name to just the parts which should exactly match file two
     let trimmedFileTwoNameToCheckIfFilesMatch = event.queryStringParameters.fileTwoName.slice(0, 5) + event.queryStringParameters.fileTwoName.slice(9, 28); //trim file two name to just the parts which should match file one name
-    const fileOneName = event.queryStringParameters.fileOneName;
-    const ladCode = extractLADCode(fileOneName);
-
+    let LADCode = event.queryStringParameters.fileOneName.slice(13, 21);
     //Series of checks on file data before pre-signed URLs are created. Checks size of each file isnt 0, checks file type of each file is csv, check if file names match.
     //Need to add file name format verification.
     
