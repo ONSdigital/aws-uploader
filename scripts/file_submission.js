@@ -36,7 +36,7 @@ async function onSubmit(event) {
 
     if (!fileOne.name.includes(ladCode)) {
         console.log("File name does not contain matching code:", fileOne.name);
-        window.location.href = "error.html";
+        window.location.href = "LAD_doesnt_match.html";
         // Need to handle the error here
         return false;
     }
@@ -44,6 +44,7 @@ async function onSubmit(event) {
     if (!fileTwo.name.includes(ladCode)) {
         console.log("File name does not contain matching code:", fileTwo.name);
         // Need to handle the error here
+        window.location.href = "LAD_doesnt_match.html";
         return false;
     }
 
