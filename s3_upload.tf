@@ -58,9 +58,9 @@ data "aws_iam_policy_document" "uploader_ingest_bucket" {
       values   = ["false"]
     }
   }
-  }
+}
 
-  resource "aws_s3_bucket_policy" "uploader_ingest_bucket" {
+resource "aws_s3_bucket_policy" "uploader_ingest_bucket" {
   bucket = module.ons_upload_ingest_bucket.bucket_id
   policy = data.aws_iam_policy_document.uploader_ingest_bucket.json
 }
@@ -68,13 +68,13 @@ data "aws_iam_policy_document" "uploader_ingest_bucket" {
 resource "aws_s3_bucket_lifecycle_configuration" "ingest_lifecycle_policy" {
   bucket = module.ons_upload_ingest_bucket.bucket_id
 
-  rule{
-    id = "delete_after_14_days"
+  rule {
+    id     = "delete_after_14_days"
     status = "Enabled"
- 
-   abort_incomplete_multipart_upload {
-     days_after_initiation = 7
-  }
+
+    abort_incomplete_multipart_upload {
+      days_after_initiation = 7
+    }
   }
 }
 

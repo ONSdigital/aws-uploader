@@ -26,10 +26,10 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
   }
   aliases = ["uploader.${var.domain_name}"]
 
-  enabled         = true
-  is_ipv6_enabled = false                                #CKV_AWS_68 change to true
-  web_acl_id      = aws_wafv2_web_acl.waf_cloudfront.arn #
-  http_version = "http2and3"
+  enabled             = true
+  is_ipv6_enabled     = false                                #CKV_AWS_68 change to true
+  web_acl_id          = aws_wafv2_web_acl.waf_cloudfront.arn #
+  http_version        = "http2and3"
   default_root_object = "council-tax/index.html"
   logging_config { #CKV_AWS_86
     bucket = aws_s3_bucket.cloudfront_logging_bucket.bucket_domain_name
