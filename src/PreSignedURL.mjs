@@ -1,10 +1,9 @@
 import querystring from 'querystring';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
-
 class uploaderLogger {
-  logError(statusCode, errorMessage) {
-      console.error(`Error: ${statusCode}, ${errorMessage}`);
+  logError(LADCode, fileName, statusCode, errorMessage) {
+      console.error(`Error: ${statusCode}, LADCode: ${LADCode}, fileName: ${fileName}, ${errorMessage}`);
   }
 
   logInfo(statusCode, infoMessage) {
@@ -34,7 +33,7 @@ export const handler = async (event, context, callback) => {
     //create variables to complete file verificatin checks
     let trimmedFileOneNameToCheckIfFilesMatch = event.queryStringParameters.fileOneName.slice(0, 5) + event.queryStringParameters.fileOneName.slice(12, 31); //trim file one name to just the parts which should exactly match file two
     let trimmedFileTwoNameToCheckIfFilesMatch = event.queryStringParameters.fileTwoName.slice(0, 5) + event.queryStringParameters.fileTwoName.slice(9, 28); //trim file two name to just the parts which should match file one name
-    let LADCode = event.queryStringParameters.fileOneName.slice(13, 21);
+    let LADCode = event.queryStringParameters.fileOneName.slice(13, 22);
     //Series of checks on file data before pre-signed URLs are created. Checks size of each file isnt 0, checks file type of each file is csv, check if file names match.
     //Need to add file name format verification.
     
@@ -54,7 +53,7 @@ export const handler = async (event, context, callback) => {
     } else if(event.queryStringParameters.fileOneType !== "text/csv"){
       const result = await fileNotCSV(event.queryStringParameters.fileOneName);
       const resultBody = JSON.parse(result.body);
-      logger.logError(result.statusCode, resultBody.message);
+      logger.logError(ladCode, event.queryStringParam.FileOneName, result.statusCode, resultBody.message);
       return result;
       //return result;
     } else if(event.queryStringParameters.fileTwoType !== "text/csv"){
