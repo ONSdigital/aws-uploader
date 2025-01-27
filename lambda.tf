@@ -68,7 +68,7 @@ resource "aws_iam_role_policy_attachment" "lambda_basic" {
 }
 
 resource "aws_iam_policy" "PreSignedURL_s3_policy" {
-  name        = "lambda-policy"
-  description = "policy for lambda"
+  name        = "PreSignedURL-lambda-policy"
+  description = "policy for PreSignedURL lambda"
   policy      = data.aws_iam_policy_document.get_s3_object.json
 }

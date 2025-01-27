@@ -3,15 +3,15 @@ resource "aws_cloudfront_origin_access_identity" "oai" {
 }
 
 resource "aws_cloudfront_origin_access_control" "ons_uploader_cloudfront" {
-  name                              = "cloudfront"
-  description                       = "CloudFront Policy"
+  name                              = "ons-uploader-cloudfront"
+  description                       = "CloudFront Policy for Uploader"
   origin_access_control_origin_type = "s3"
   signing_behavior                  = "always"
   signing_protocol                  = "sigv4"
 }
 
 
-resource "aws_cloudfront_distribution" "s3_distribution" {
+resource "aws_cloudfront_distribution" "uploader" {
   #checkov:skip=CKV_AWS_192:testing cloudfront, fix to be implemented
   #checkov:skip=CKV_AWS_31:testing cloudfront, fix to be implemented
   #checkov:skip=CKV_AWS_310:testing cloudfront, fix to be implemented
@@ -28,7 +28,7 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
 
   enabled             = true
   is_ipv6_enabled     = false                                #CKV_AWS_68 change to true
-  web_acl_id          = aws_wafv2_web_acl.waf_cloudfront.arn #
+  web_acl_id          = aws_wafv2_web_acl.uploader_waf_cloudfront.arn #
   http_version        = "http2and3"
   default_root_object = "council-tax/index.html"
   logging_config { #CKV_AWS_86
