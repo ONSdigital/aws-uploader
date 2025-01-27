@@ -2,7 +2,7 @@ resource "aws_cloudfront_origin_access_identity" "oai" {
   comment = "OAI for website"
 }
 
-resource "aws_cloudfront_origin_access_control" "cloudfront" {
+resource "aws_cloudfront_origin_access_control" "ons_uploader_cloudfront" {
   name                              = "cloudfront"
   description                       = "CloudFront Policy"
   origin_access_control_origin_type = "s3"
@@ -20,7 +20,7 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
   #checkov:skip=CKV2_AWS_47:testing cloudfront, fix to be implemented
   origin {
     domain_name              = data.aws_s3_bucket.upload_bucket.bucket_regional_domain_name
-    origin_access_control_id = aws_cloudfront_origin_access_control.cloudfront.id
+    origin_access_control_id = aws_cloudfront_origin_access_control.ons_uploader_cloudfront.id
     origin_id                = "S3Origin"
 
   }

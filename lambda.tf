@@ -57,9 +57,9 @@ data "aws_iam_policy_document" "get_s3_object" {
   }
 }
 
-resource "aws_iam_role_policy_attachment" "lambda_s3" {
+resource "aws_iam_role_policy_attachment" "PreSignedURL_s3_policy" {
   role       = aws_iam_role.PreSignedURL_role.name
-  policy_arn = aws_iam_policy.lambda_s3.arn
+  policy_arn = aws_iam_policy.PreSignedURL_s3_policy.arn
 }
 
 resource "aws_iam_role_policy_attachment" "lambda_basic" {
@@ -67,7 +67,7 @@ resource "aws_iam_role_policy_attachment" "lambda_basic" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
-resource "aws_iam_policy" "lambda_s3" {
+resource "aws_iam_policy" "PreSignedURL_s3_policy" {
   name        = "lambda-policy"
   description = "policy for lambda"
   policy      = data.aws_iam_policy_document.get_s3_object.json
