@@ -130,6 +130,14 @@ resource "aws_s3_object" "_012345678-council2" {
   content_type = "text/html"
 }
 
+resource "aws_s3_object" "LAD_doesnt_match" {
+  bucket       = module.ons_upload_bucket.bucket_id
+  key          = "council-tax/LAD_doesnt_match.html"
+  source       = "${path.module}/scripts/LAD_doesnt_match.html"
+  source_hash  = filemd5("${path.module}/scripts/LAD_doesnt_match.html")
+  content_type = "text/html"
+}
+
 resource "aws_s3_object" "file_submission" {
   bucket = module.ons_upload_bucket.bucket_id
   key    = "council-tax/file_submission.js"
