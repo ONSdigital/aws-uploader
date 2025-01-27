@@ -36,6 +36,8 @@ export const handler = async (event, context, callback) => {
     let trimmedFileOneNameToCheckIfFilesMatch = event.queryStringParameters.fileOneName.slice(0, 5) + event.queryStringParameters.fileOneName.slice(12, 31); //trim file one name to just the parts which should exactly match file two
     let trimmedFileTwoNameToCheckIfFilesMatch = event.queryStringParameters.fileTwoName.slice(0, 5) + event.queryStringParameters.fileTwoName.slice(9, 28); //trim file two name to just the parts which should match file one name
     let LADCode = event.queryStringParameters.fileOneName.slice(13, 22);
+    const currentDate = new Date();
+    const formatedDate = currentDate.toISOString()
     //Series of checks on file data before pre-signed URLs are created. Checks size of each file isnt 0, checks file type of each file is csv, check if file names match.
     //Need to add file name format verification.
     
@@ -65,7 +67,7 @@ export const handler = async (event, context, callback) => {
       logger.logError(event.queryStringParameters.fileOneName.slice(13, 22), event.queryStringParameters.fileOneName, result.statusCode, resultBody.message);
       return result;
     } else {
-      const result = await getUploadURL(event);
+      const result = await getUploadURL(event, LADCode, formatedDate);
       const resultBody = JSON.parse(result.body);
       logger.logSuccess(LADCode, event.queryStringParameters.fileOneName, resultBody.uploadURLFileOne, result.statusCode);
       return result;
@@ -133,26 +135,26 @@ const fileNamesDontMatch = async (event) => {
 }
 
 //if all checks pass, then the pre-signed url for each file is created and returned to user which triggers automatic upload of each file to s3 bucket
-const getUploadURL = async (event) => {
+const getUploadURL = async (event,LADCode,formatedDate) => {
   
   
   const  s3ParamsFileOne = new PutObjectCommand({
      Bucket: process.env.BUCKET_NAME, //bucket used for ingested files
-    Key: event.queryStringParameters.fileOneName
+    Key: `/council-tax/${LADCode}/${formatedDate}/${event.queryStringParameters.fileOneName}`
     
   })
   
   const  s3ParamsFileTwo = new PutObjectCommand({
      Bucket: process.env.BUCKET_NAME,
-    Key: event.queryStringParameters.fileTwoName
+    Key: `/council-tax/${LADCode}/${formatedDate}/${event.queryStringParameters.fileTwoName}`
     
   })
   const client = new S3Client({
     
     
   }) 
-   let uploadURLFileOne = await getSignedUrl(s3, s3ParamsFileOne)
-    let uploadURLFileTwo = await getSignedUrl(s3, s3ParamsFileTwo)
+   let uploadURLFileOne = await getSignedUrl(s3, s3ParamsFileOne, { expiresIn: 90 })
+    let uploadURLFileTwo = await getSignedUrl(s3, s3ParamsFileTwo, { expiresIn: 90 })
 return new Promise((resolve, reject) => {
    
       resolve({
