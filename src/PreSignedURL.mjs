@@ -2,8 +2,8 @@ import querystring from 'querystring';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 class uploaderLogger {
-  logError(LADCode, fileName, statusCode, errorMessage) {
-    console.error(`Status: ${statusCode}, LADCode: ${LADCode}, File: ${fileName}, Message: ${errorMessage}`);
+  logError(LADCode, fileName, fileSize, statusCode, errorMessage) {
+    console.error(`Status: ${statusCode}, LADCode: ${LADCode}, File: ${fileName}, File size: ${} MB, Message: ${errorMessage}`);
   }
 
   logInternalError(LADCode, fileName, statusCode, errorMessage) {
@@ -42,27 +42,27 @@ export const handler = async (event, context, callback) => {
     if(event.queryStringParameters.fileOneSize==="0") {
       const result = await isFileEmpty(event.queryStringParameters.fileOneName);
       const resultBody = JSON.parse(result.body);
-      logger.logError(event.queryStringParameters.fileOneName.slice(13, 22), event.queryStringParameters.fileOneName, result.statusCode, resultBody.message);
+      logger.logError(event.queryStringParameters.fileOneName.slice(13, 22), event.queryStringParameters.fileOneName, event.queryStringParameters.fileOneSize, result.statusCode, resultBody.message);
       return result;
     } else  if (event.queryStringParameters.fileTwoSize==="0") {
       const result = await isFileEmpty(event.queryStringParameters.fileTwoName);
       const resultBody = JSON.parse(result.body);
-      logger.logError(event.queryStringParameters.fileOneName.slice(13, 22), event.queryStringParameters.fileOneName, result.statusCode, resultBody.message);
+      logger.logError(event.queryStringParameters.fileOneName.slice(13, 22), event.queryStringParameters.fileTwoName, event.queryStringParameters.fileTwoSize, result.statusCode, resultBody.message);
       return result;
     } else if(event.queryStringParameters.fileOneType !== "text/csv"){
       const result = await fileNotCSV(event.queryStringParameters.fileOneName);
       const resultBody = JSON.parse(result.body);
-      logger.logError(event.queryStringParameters.fileOneName.slice(13, 22), event.queryStringParameters.fileOneName, result.statusCode, resultBody.message);
+      logger.logError(event.queryStringParameters.fileOneName.slice(13, 22), event.queryStringParameters.fileOneName, event.queryStringParameters.fileOneSize, result.statusCode, resultBody.message);
       return result;
     } else if(event.queryStringParameters.fileTwoType !== "text/csv"){
       const result = await fileNotCSV(event.queryStringParameters.fileTwoName);
       const resultBody = JSON.parse(result.body);
-      logger.logError(event.queryStringParameters.fileOneName.slice(13, 22), event.queryStringParameters.fileOneName, result.statusCode, resultBody.message);
+      logger.logError(event.queryStringParameters.fileTwoName.slice(13, 22), event.queryStringParameters.fileTwoName, event.queryStringParameters.fileTwoSize, result.statusCode, resultBody.message);
       return result;
     } else if (trimmedFileOneNameToCheckIfFilesMatch != trimmedFileTwoNameToCheckIfFilesMatch){
       const result = await fileNamesDontMatch(event);
       const resultBody = JSON.parse(result.body);
-      logger.logError(event.queryStringParameters.fileOneName.slice(13, 22), event.queryStringParameters.fileOneName, result.statusCode, resultBody.message);
+      logger.logError(event.queryStringParameters.fileOneName.slice(13, 22), event.queryStringParameters.fileOneName, event.queryStringParameters.fileOneSize, result.statusCode, resultBody.message);
       return result;
     } else {
       const result = await getUploadURL(event);
