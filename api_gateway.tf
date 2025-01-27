@@ -22,19 +22,18 @@ resource "aws_apigatewayv2_stage" "api" {
 
 # Create GET route
 resource "aws_apigatewayv2_route" "get" {
-  api_id             = aws_apigatewayv2_api.api.id
-  route_key          = "GET /pre-signed-url"
-  target             = "integrations/${aws_apigatewayv2_integration.get.id}"
-  authorization_type = "AWS_IAM"
-
+  #checkov:skip=CKV_AWS_309: Decision Auth is not required for this API
+  api_id    = aws_apigatewayv2_api.api.id
+  route_key = "GET /pre-signed-url"
+  target    = "integrations/${aws_apigatewayv2_integration.get.id}"
 }
 
 
 resource "aws_apigatewayv2_route" "options" {
-  api_id             = aws_apigatewayv2_api.api.id
-  route_key          = "OPTIONS /pre-signed-url"
-  target             = "integrations/${aws_apigatewayv2_integration.options.id}"
-  authorization_type = "AWS_IAM"
+  #checkov:skip=CKV_AWS_309: Decision Auth is not required for this API
+  api_id    = aws_apigatewayv2_api.api.id
+  route_key = "OPTIONS /pre-signed-url"
+  target    = "integrations/${aws_apigatewayv2_integration.options.id}"
 }
 
 resource "aws_apigatewayv2_integration" "get" {

@@ -38,7 +38,7 @@ data "aws_iam_policy_document" "uploader_ingest_bucket" {
     condition {
       test     = "StringEquals"
       variable = "AWS:SourceArn"
-      values   = ["arn:aws:cloudfront::${data.aws_caller_identity.current.account_id}:distribution/${aws_cloudfront_distribution.s3_distribution.id}"]
+      values   = ["arn:aws:cloudfront::${data.aws_caller_identity.current.account_id}:distribution/${aws_cloudfront_distribution.uploader.id}"]
     }
   }
 

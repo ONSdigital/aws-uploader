@@ -11,8 +11,8 @@ data "aws_iam_policy_document" "lambda_role" {
   }
 }
 
-resource "aws_iam_role" "iam_for_lambda" {
-  name               = "iam_for_lambda"
+resource "aws_iam_role" "PreSignedURL_role" {
+  name               = "PreSignedURL_role"
   assume_role_policy = data.aws_iam_policy_document.lambda_role.json
 }
 
@@ -31,7 +31,7 @@ resource "aws_lambda_function" "PreSignedURL" {
   #checkov:skip=CKV_AWS_272: code signing not required
   filename         = data.archive_file.PreSignedURL.output_path
   function_name    = var.lambda_PreSignedURL_function
-  role             = aws_iam_role.iam_for_lambda.arn
+  role             = aws_iam_role.PreSignedURL_role.arn
   handler          = "PreSignedURL.handler"
   source_code_hash = data.archive_file.PreSignedURL.output_base64sha256
   # tflint-ignore: aws_lambda_function_invalid_runtime
@@ -57,18 +57,18 @@ data "aws_iam_policy_document" "get_s3_object" {
   }
 }
 
-resource "aws_iam_role_policy_attachment" "lambda_s3" {
-  role       = aws_iam_role.iam_for_lambda.name
-  policy_arn = aws_iam_policy.lambda_s3.arn
+resource "aws_iam_role_policy_attachment" "PreSignedURL_s3_policy" {
+  role       = aws_iam_role.PreSignedURL_role.name
+  policy_arn = aws_iam_policy.PreSignedURL_s3_policy.arn
 }
 
 resource "aws_iam_role_policy_attachment" "lambda_basic" {
-  role       = aws_iam_role.iam_for_lambda.name
+  role       = aws_iam_role.PreSignedURL_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
-resource "aws_iam_policy" "lambda_s3" {
-  name        = "lambda-policy"
-  description = "policy for lambda"
+resource "aws_iam_policy" "PreSignedURL_s3_policy" {
+  name        = "PreSignedURL-lambda-policy"
+  description = "policy for PreSignedURL lambda"
   policy      = data.aws_iam_policy_document.get_s3_object.json
 }
