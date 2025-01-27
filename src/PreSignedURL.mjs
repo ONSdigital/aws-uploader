@@ -140,13 +140,13 @@ const getUploadURL = async (event,LADCode,formatedDate) => {
   
   const  s3ParamsFileOne = new PutObjectCommand({
      Bucket: process.env.BUCKET_NAME, //bucket used for ingested files
-    Key: `/council-tax/${LADCode}/${formatedDate}/${event.queryStringParameters.fileOneName}`
+    Key: `council-tax/${LADCode}/${formatedDate}/${event.queryStringParameters.fileOneName}`
     
   })
   
   const  s3ParamsFileTwo = new PutObjectCommand({
      Bucket: process.env.BUCKET_NAME,
-    Key: `/council-tax/${LADCode}/${formatedDate}/${event.queryStringParameters.fileTwoName}`
+    Key: `council-tax/${LADCode}/${formatedDate}/${event.queryStringParameters.fileTwoName}`
     
   })
   const client = new S3Client({
