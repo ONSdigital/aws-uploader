@@ -3,7 +3,7 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 class uploaderLogger {
   logError(LADCode, fileName, fileSize, statusCode, errorMessage) {
-    console.error(`Status: ${statusCode}, LADCode: ${LADCode}, File: ${fileName}, File size: ${} MB, Message: ${errorMessage}`);
+    console.error(`Status: ${statusCode}, LADCode: ${LADCode}, File: ${fileName}, File size: ${fileSize} MB, Message: ${errorMessage}`);
   }
 
   logInternalError(LADCode, fileName, statusCode, errorMessage) {
