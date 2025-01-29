@@ -58,7 +58,7 @@ async function onSubmit(event) {
 		window.location.href = "not_CSV_error.html";
             
                 
-            }  else if(data.message === "file is empty") {
+            }  else if(data.message === "File is empty") {
 		window.location.href = "empy_file_error.html";
                 
             }   else if(data.message === "file names dont match") {
