@@ -18,6 +18,11 @@ resource "aws_apigatewayv2_stage" "api" {
     destination_arn = aws_cloudwatch_log_group.api_gateway_log_group.arn
     format          = "{\"requestId\":\"$context.requestId\",\"ip\":\"$context.identity.sourceIp\",\"caller\":\"$context.identity.caller\",\"user\":\"$context.identity.user\",\"requestTime\":\"$context.requestTime\",\"httpMethod\":\"$context.httpMethod\",\"resourcePath\":\"$context.resourcePath\",\"status\":\"$context.status\",\"protocol\":\"$context.protocol\",\"responseLength\":\"$context.responseLength\"}"
   }
+
+  default_root_settings {
+    throttling_burst_limit = 100
+    throttling_rate_limit = 50
+  }
 }
 
 # Create GET route
