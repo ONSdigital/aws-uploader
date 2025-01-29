@@ -19,7 +19,7 @@ resource "aws_apigatewayv2_stage" "api" {
     format          = "{\"requestId\":\"$context.requestId\",\"ip\":\"$context.identity.sourceIp\",\"caller\":\"$context.identity.caller\",\"user\":\"$context.identity.user\",\"requestTime\":\"$context.requestTime\",\"httpMethod\":\"$context.httpMethod\",\"resourcePath\":\"$context.resourcePath\",\"status\":\"$context.status\",\"protocol\":\"$context.protocol\",\"responseLength\":\"$context.responseLength\"}"
   }
 
-  default_root_settings {
+  default_route_settings {
     throttling_burst_limit = 100
     throttling_rate_limit = 50
   }
