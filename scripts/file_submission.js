@@ -37,12 +37,6 @@ async function onSubmit(event) {
     if (!fileOne.name.includes(ladCode)) {
         console.log("File name does not contain matching code:", fileOne.name);
         // window.location.href = "LAD_doesnt_match.html";
-        error.innerHTML = <span class="ons-panel__assistive-text ons-u-vh">Error: </span> +
-        <div class="ons-panel__body">
-          <p class="ons-panel__error">
-            <strong>LAD code does not match</strong>
-          </p> 
-          </div>
         // Need to handle the error here
         return false;
     }
