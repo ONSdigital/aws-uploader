@@ -85,44 +85,44 @@ resource "aws_cloudfront_response_headers_policy" "custom_security_headers" {
 
   cors_config {
     access_control_allow_credentials = false
-    
+
     access_control_allow_headers {
-       items = ["Authorization", "Content-Type", "X-Amz-Date", "X-Api-Key", "X-Amz-Security-Token"]
+      items = ["Authorization", "Content-Type", "X-Amz-Date", "X-Api-Key", "X-Amz-Security-Token"]
     }
-    
+
     access_control_allow_methods {
       items = ["GET", "HEAD", "OPTIONS"]
     }
-    
+
     access_control_allow_origins {
       items = ["*"]
     }
-    
+
     origin_override = true
   }
 
   security_headers_config {
     content_security_policy {
-            content_security_policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.ons.gov.uk; style-src 'self' 'unsafe-inline' https://cdn.ons.gov.uk; font-src 'self' https://cdn.ons.gov.uk; img-src 'self' https://cdn.ons.gov.uk data:;"
-      override = true
+      content_security_policy = "default-src 'self'; manifest-src 'self' https://cdn.ons.gov.uk; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.ons.gov.uk; style-src 'self' 'unsafe-inline' https://cdn.ons.gov.uk; font-src 'self' https://cdn.ons.gov.uk; img-src 'self' https://cdn.ons.gov.uk data:;"
+      override                = true
     }
-    
+
     strict_transport_security {
       access_control_max_age_sec = 31536000
       include_subdomains         = true
       preload                    = true
       override                   = true
     }
-    
+
     content_type_options {
       override = true
     }
-    
+
     frame_options {
       frame_option = "SAMEORIGIN"
       override     = true
     }
-    
+
     xss_protection {
       mode_block = true
       protection = true
