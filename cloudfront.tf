@@ -105,7 +105,7 @@ resource "aws_cloudfront_response_headers_policy" "custom_security_headers" {
     content_security_policy {
        content_security_policy = <<-EOT
 default-src 'self';
-connect-src 'self' https://bcvwyrcdub.execute-api.eu-west-2.amazonaws.com/pre-signed-url https://aws-uploader-ingest-ost-dev.s3.eu-west-2.amazonaws.com;
+connect-src 'self' ${aws_apigatewayv2_stage.api.invoke_url}pre-signed-url ${local.s3_domain};
 manifest-src 'self' https://cdn.ons.gov.uk;
 script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.ons.gov.uk;
 style-src 'self' 'unsafe-inline' https://cdn.ons.gov.uk;
