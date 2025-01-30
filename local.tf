@@ -1,4 +1,4 @@
 locals {
   website_address = "uploader.${var.domain_name}"
-  s3_domain = "${aws_s3_bucket.upload_bucket.bucket}.s3.${data.aws_region.current.name}.amazonaws.com"
+  s3_domain = "${module.ons_upload_ingest_bucket.bucket_id}.s3.${data.aws_region.current.name}.amazonaws.com"
 }
