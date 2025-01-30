@@ -95,7 +95,7 @@ resource "aws_cloudfront_response_headers_policy" "custom_security_headers" {
     }
     
     access_control_allow_origins {
-      items = ["https://${local.website_address}", local.formatted_api_url]
+      items = ["*"]
     }
     
     origin_override = true
