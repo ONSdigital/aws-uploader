@@ -169,6 +169,26 @@
         <br>
 
         <form id="form">
+           <!-- Error message for extract-upload -->
+          <div class="ons-panel ons-panel--error ons-panel--no-title" id="extract-file-error" style="display: none;">
+            <span class="ons-panel__assistive-text ons-u-vh">Error: </span>
+            <div class="ons-panel__body">
+              <p class="ons-panel__error">
+                <strong>Select a file that is a CSV</strong>
+              </p>
+            </div>
+          </div>
+
+          <!-- Error message for mani-upload -->
+          <div class="ons-panel ons-panel--error ons-panel--no-title" id="mani-file-error" style="display: none;">
+            <span class="ons-panel__assistive-text ons-u-vh">Error: </span>
+            <div class="ons-panel__body">
+              <p class="ons-panel__error">
+                <strong>Select a file that is a CSV</strong>
+              </p>
+            </div>
+          </div>
+
           <div class="ons-field">
             <div class="ons-field">
               <label class="ons-label ons-label--with-description" for="file-example-upload"
@@ -177,17 +197,6 @@
               <input name="fileOne" type="file" id="extract-upload"
                 class="ons-input ons-input--text ons-input-type__input ons-input--upload" accept=".csv"
                 aria-describedby="description-hint" />
-
-              <!-- Error message for extract-upload -->
-              <div class="ons-panel ons-panel--error ons-panel--no-title" id="extract-file-error" style="display: none;">
-                <span class="ons-panel__assistive-text ons-u-vh">Error: </span>
-                <div class="ons-panel__body">
-                  <p class="ons-panel__error">
-                    <strong>Select a file that is a CSV</strong>
-                  </p>
-                </div>
-              </div>
-
             </div>
           </div>
 
@@ -199,17 +208,6 @@
               <input name="fileTwo" type="file" id="mani-upload"
                 class="ons-input ons-input--text ons-input-type__input ons-input--upload" accept=".csv"
                 aria-describedby="description-hint" />
-
-              <!-- Error message for mani-upload -->
-              <div class="ons-panel ons-panel--error ons-panel--no-title" id="mani-file-error" style="display: none;">
-                <span class="ons-panel__assistive-text ons-u-vh">Error: </span>
-                <div class="ons-panel__body">
-                  <p class="ons-panel__error">
-                    <strong>Select a file that is a CSV</strong>
-                  </p>
-                </div>
-              </div>
-
             </div>
           </div>
 		<br>
