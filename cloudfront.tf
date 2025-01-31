@@ -103,7 +103,19 @@ resource "aws_cloudfront_response_headers_policy" "custom_security_headers" {
 
   security_headers_config {
     content_security_policy {
+<<<<<<< HEAD
        content_security_policy ="default-src 'self'; connect-src 'self' ${aws_apigatewayv2_stage.api.invoke_url}pre-signed-url ${local.s3_domain}; manifest-src 'self' https://cdn.ons.gov.uk; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.ons.gov.uk; style-src 'self' 'unsafe-inline' https://cdn.ons.gov.uk; font-src 'self' https://cdn.ons.gov.uk; img-src 'self' https://cdn.ons.gov.uk data:;"
+=======
+      content_security_policy = <<-EOT
+default-src 'self';
+connect-src 'self' ${aws_apigatewayv2_stage.api.invoke_url}pre-signed-url ${local.s3_domain};
+manifest-src 'self' https://cdn.ons.gov.uk;
+script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.ons.gov.uk;
+style-src 'self' 'unsafe-inline' https://cdn.ons.gov.uk;
+font-src 'self' https://cdn.ons.gov.uk;
+img-src 'self' https://cdn.ons.gov.uk data:;
+      EOT
+>>>>>>> d748333 (fmt)
       override                = true
     }
 
