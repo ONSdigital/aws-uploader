@@ -12,7 +12,7 @@ form.addEventListener("submit", onSubmit);
     
  //Once user submits both files, the below function pings the API Gateway with the parameters needed.   
 async function onSubmit(event) {
-
+    
     //move this check to lambda (future reference)
     
     event.preventDefault(); //prvents the form being submitted the usual way. 

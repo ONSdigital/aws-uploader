@@ -217,7 +217,10 @@
 
 
 		<button type="submit" class="ons-btn">
+
   <span class="ons-btn__inner"><span class="ons-btn__text">Submit</span>
+  <span class="spinner-border spinner-border-sm"></span>
+  Loading..
   </span>
 </button>
 
@@ -356,7 +359,7 @@
 
 </html>
 
-
+<script>
 document.getElementById('form').addEventListener('submit', function(event) {
   let extractUpload = document.getElementById('extract-upload');
   let maniUpload = document.getElementById('mani-upload');
@@ -391,3 +394,5 @@ document.getElementById('form').addEventListener('submit', function(event) {
     event.preventDefault();
   }
 });
+
+</script>
