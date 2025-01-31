@@ -43,7 +43,7 @@ resource "aws_cloudfront_distribution" "uploader" {
     cached_methods             = ["GET", "HEAD"]
     target_origin_id           = "S3Origin"
     origin_request_policy_id   = "acba4595-bd28-49b8-b9fe-13317c0390fa" # Managed-CORS-CustomOrigin policy ID
-    response_headers_policy_id = "60669652-455b-4ae9-85a4-c4c02393f86c"
+    response_headers_policy_id = aws_cloudfront_response_headers_policy.custom_security_headers.id
     cache_policy_id            = "658327ea-f89d-4fab-a63d-7e88639e58f6"
 
     # forwarded_values {
@@ -79,3 +79,54 @@ resource "aws_cloudfront_distribution" "uploader" {
 
 }
 
+resource "aws_cloudfront_response_headers_policy" "custom_security_headers" {
+  name    = "csp-security-headers"
+  comment = "Security headers including CORS, Security Headers and CSP"
+
+  cors_config {
+    access_control_allow_credentials = false
+
+    access_control_allow_headers {
+      items = ["Authorization", "Content-Type", "X-Amz-Date", "X-Api-Key", "X-Amz-Security-Token"]
+    }
+
+    access_control_allow_methods {
+      items = ["GET", "HEAD", "OPTIONS"]
+    }
+
+    access_control_allow_origins {
+      items = ["*"]
+    }
+
+    origin_override = true
+  }
+
+  security_headers_config {
+    content_security_policy {
+      content_security_policy = "default-src 'self'; connect-src 'self' ${aws_apigatewayv2_stage.api.invoke_url}pre-signed-url ${local.s3_domain}; manifest-src 'self' https://cdn.ons.gov.uk; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.ons.gov.uk; style-src 'self' 'unsafe-inline' https://cdn.ons.gov.uk; font-src 'self' https://cdn.ons.gov.uk; img-src 'self' https://cdn.ons.gov.uk data:;"
+      override                = true
+    }
+
+    strict_transport_security {
+      access_control_max_age_sec = 31536000
+      include_subdomains         = true
+      preload                    = true
+      override                   = true
+    }
+
+    content_type_options {
+      override = true
+    }
+
+    frame_options {
+      frame_option = "SAMEORIGIN"
+      override     = true
+    }
+
+    xss_protection {
+      mode_block = true
+      protection = true
+      override   = true
+    }
+  }
+}

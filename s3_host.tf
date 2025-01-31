@@ -138,13 +138,21 @@ resource "aws_s3_object" "LAD_doesnt_match" {
   content_type = "text/html"
 }
 
+resource "aws_s3_object" "empty_file" {
+  bucket       = module.ons_upload_bucket.bucket_id
+  key          = "council-tax/empty_file_error.html"
+  source       = "${path.module}/scripts/empty_file_error.html"
+  source_hash  = filemd5("${path.module}/scripts/empty_file_error.html")
+  content_type = "text/html"
+}
+
 resource "aws_s3_object" "file_submission" {
   bucket = module.ons_upload_bucket.bucket_id
   key    = "council-tax/file_submission.js"
   content = templatefile("${path.module}/scripts/file_submission.js", {
     api_url = aws_apigatewayv2_stage.api.invoke_url
   })
-  content_type = "text"
+  content_type = "text/javascript"
 }
 
 resource "aws_s3_object" "result_message" {
@@ -152,6 +160,6 @@ resource "aws_s3_object" "result_message" {
   key          = "council-tax/result_message.js"
   source       = "${path.module}/scripts/result_message.js"
   source_hash  = filemd5("${path.module}/scripts/result_message.js")
-  content_type = "text"
+  content_type = "text/javascript"
 }
 

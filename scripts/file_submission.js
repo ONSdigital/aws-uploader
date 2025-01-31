@@ -1,6 +1,6 @@
 
 
-const url = "${api_url}/pre-signed-url"; //API Gateway URL. Once API GAteway is called, the lambda is triggered which 
+const url = "${api_url}pre-signed-url"; //API Gateway URL. Once API GAteway is called, the lambda is triggered which 
 //carried out file validation and returns pre-signed URLs if files pass checks
 
 const options = {
@@ -55,14 +55,14 @@ async function onSubmit(event) {
         .then(data => {   
             console.log("message : " + data.message)
             if(data.message === "file is incorrect type"){
-		window.location.href = "error.html";
+		window.location.href = "not_CSV_error.html";
             
                 
-            }  else if(data.message === "file is empty") {
-		window.location.href = "error.html";
+            }  else if(data.message === "File is empty") {
+		window.location.href = "empy_file_error.html";
                 
             }   else if(data.message === "file names dont match") {
-		window.location.href = "error.html";
+		window.location.href = "file_names_dont_match_error.html";
                 
             }   else {
                 uploadFile(data.uploadURLFileOne, fileOne).then(data => {   //If all file verification checks pass, each file is uploded to its individual pre-signed URL which puts file in s3 bucket

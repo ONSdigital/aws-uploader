@@ -37,16 +37,16 @@ export const handler = async (event, context, callback) => {
     let trimmedFileTwoNameToCheckIfFilesMatch = event.queryStringParameters.fileTwoName.slice(0, 5) + event.queryStringParameters.fileTwoName.slice(9, 28); //trim file two name to just the parts which should match file one name
     let LADCode = event.queryStringParameters.fileOneName.slice(13, 22);
     const currentDate = new Date();
-    const formatedDate = currentDate.toISOString()
+    const formatedDate = currentDate.toISOString().slice(0, -5)
     //Series of checks on file data before pre-signed URLs are created. Checks size of each file isnt 0, checks file type of each file is csv, check if file names match.
     //Need to add file name format verification.
     
-    if(event.queryStringParameters.fileOneSize==="0") {
+    if(event.queryStringParameters.fileOneSize === "0") {
       const result = await isFileEmpty(event.queryStringParameters.fileOneName);
       const resultBody = JSON.parse(result.body);
       logger.logError(event.queryStringParameters.fileOneName.slice(13, 22), event.queryStringParameters.fileOneName, event.queryStringParameters.fileOneSize, result.statusCode, resultBody.message);
       return result;
-    } else  if (event.queryStringParameters.fileTwoSize==="0") {
+    } else  if (event.queryStringParameters.fileTwoSize === "0") {
       const result = await isFileEmpty(event.queryStringParameters.fileTwoName);
       const resultBody = JSON.parse(result.body);
       logger.logError(event.queryStringParameters.fileOneName.slice(13, 22), event.queryStringParameters.fileTwoName, event.queryStringParameters.fileTwoSize, result.statusCode, resultBody.message);
