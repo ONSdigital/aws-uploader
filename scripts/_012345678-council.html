@@ -170,34 +170,13 @@
 
         <form id="form">
            <!-- Error message for extract-upload -->
-<!--          <div class="ons-panel ons-panel&#45;&#45;error ons-panel&#45;&#45;no-title" id="extract-file-error" style="display: none;">-->
-<!--            <span class="ons-panel__assistive-text ons-u-vh">Error: </span>-->
-<!--            <div class="ons-panel__body">-->
-<!--              <p class="ons-panel__error">-->
-<!--                <strong>Select a file that is a CSV</strong>-->
-<!--              </p>-->
-<!--            </div>-->
-<!--          </div>-->
-
-
-          <div class="ons-field" id="extract-field">
-            <div class="ons-panel ons-panel--error ons-panel--no-title" id="extract-file-error" style="display: none;">
-              <span class="ons-panel__assistive-text ons-u-vh">Error: </span>
-              <div class="ons-panel__body">
-                <p class="ons-panel__error">
-                  <strong>Select a file that is a CSV</strong>
-                </p>
-              </div>
+          <div class="ons-panel ons-panel--error ons-panel--no-title" id="extract-file-error" style="display: none;">
+            <span class="ons-panel__assistive-text ons-u-vh">Error: </span>
+            <div class="ons-panel__body">
+              <p class="ons-panel__error">
+                <strong>Select a file that is a CSV</strong>
+              </p>
             </div>
-
-            <label class="ons-label ons-label--with-description" for="extract-upload"
-              aria-describedby="extract-description">Upload the EXTRACT file</label>
-            <span id="extract-description" class="ons-label__description ons-input--with-description">
-              File must be named with the format "CTAX_EXTRACT_012345678_yyyymmdd" where the 8 digits are your LAD code and yyyymmdd is the data run date
-            </span>
-            <input name="fileOne" type="file" id="extract-upload"
-              class="ons-input ons-input--text ons-input-type__input ons-input--upload"
-              accept=".csv" aria-describedby="extract-description" />
           </div>
 
           <!-- Error message for mani-upload -->
@@ -210,16 +189,16 @@
             </div>
           </div>
 
-<!--          <div class="ons-field">-->
-<!--            <div class="ons-field">-->
-<!--              <label class="ons-label ons-label&#45;&#45;with-description" for="file-example-upload"-->
-<!--                aria-describedby="description-hint">Upload the EXTRACT file</label>-->
-<!--              <span id="extract-description" class="ons-label__description  ons-input&#45;&#45;with-description">File must be named with the format "CTAX_EXTRACT_012345678_yyyymmdd" where the 8 digits are your LAD code and yyyymmdd is the data run date</span>-->
-<!--              <input name="fileOne" type="file" id="extract-upload"-->
-<!--                class="ons-input ons-input&#45;&#45;text ons-input-type__input ons-input&#45;&#45;upload" accept=".csv"-->
-<!--                aria-describedby="description-hint" />-->
-<!--            </div>-->
-<!--          </div>-->
+          <div class="ons-field">
+            <div class="ons-field">
+              <label class="ons-label ons-label--with-description" for="file-example-upload"
+                aria-describedby="description-hint">Upload the EXTRACT file</label>
+              <span id="extract-description" class="ons-label__description  ons-input--with-description">File must be named with the format "CTAX_EXTRACT_012345678_yyyymmdd" where the 8 digits are your LAD code and yyyymmdd is the data run date</span>
+              <input name="fileOne" type="file" id="extract-upload"
+                class="ons-input ons-input--text ons-input-type__input ons-input--upload" accept=".csv"
+                aria-describedby="description-hint" />
+            </div>
+          </div>
 
           <div class="ons-field">
             <div class="ons-field">
@@ -389,21 +368,20 @@
 <script>
 document.getElementById('form').addEventListener('submit', function(event) {
   let extractUpload = document.getElementById('extract-upload');
-  let extractField = document.getElementById('extract-field');
+  let maniUpload = document.getElementById('mani-upload');
   let extractFileError = document.getElementById('extract-file-error');
+  let maniFileError = document.getElementById('mani-file-error');
   let valid = true;
 
-  // Reset error state
+  // Reset error messages
   extractFileError.style.display = 'none';
-  extractField.classList.remove('ons-panel--error'); // Remove error styling
+  maniFileError.style.display = 'none';
 
   // Validate extract-upload file
   if (extractUpload.files.length > 0) {
     let extractFile = extractUpload.files[0];
-
     if (extractFile.type !== 'text/csv') {
       extractFileError.style.display = 'block';
-      extractField.classList.add('ons-panel--error'); // Apply error styling
       valid = false;
     }
   }
