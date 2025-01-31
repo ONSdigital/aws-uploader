@@ -6,6 +6,10 @@
       body {
         height: auto;
       }
+
+      #extract-file-error, #mani-file-error {
+        display: none;
+    }
     </style>
 
     <meta charset="utf-8">
@@ -398,94 +402,4 @@ document.getElementById('form').addEventListener('submit', function(event) {
     event.preventDefault();
   }
 });
-
-
-  let form = document.getElementById("form");
-  let spinner = document.getElementById("loading-spinner");
-
-  form.addEventListener("submit", onSubmit);
-
-  async function onSubmit(event) {
-    event.preventDefault(); // Prevent the form from being submitted the usual way.
-
-    // Show the spinner
-    spinner.style.display = "block";
-
-    if (form.fileOne.files.length < 1 || form.fileTwo.files.length < 1) { // Check if user has added 2 files
-      window.location.href = "error.html";
-      spinner.style.display = "none"; // Hide the spinner
-      return false;
-    }
-
-    const fileOne = form.fileOne.files[0]; // First file chosen (EXTRACT file)
-    const fileTwo = form.fileTwo.files[0]; // Second file chosen (MANI file)
-
-    // Extract code from the current URL
-    const currentUrl = window.location.href;
-    const urlParts = currentUrl.split('/');
-    const lastPart = urlParts[urlParts.length - 1];
-    const ladCode = lastPart.split('-')[0];
-    console.log("URL Code found: ", ladCode);
-
-    if (!fileOne.name.includes(ladCode)) {
-      console.log("File name does not contain matching code:", fileOne.name);
-      window.location.href = "LAD_doesnt_match.html";
-      spinner.style.display = "none"; // Hide the spinner
-      return false;
-    }
-
-    if (!fileTwo.name.includes(ladCode)) {
-      console.log("File name does not contain matching code:", fileTwo.name);
-      window.location.href = "LAD_doesnt_match.html";
-      spinner.style.display = "none"; // Hide the spinner
-      return false;
-    }
-
-    const urlWithParameters = url + `?fileOneName=${fileOne.name}&fileOneType=${fileOne.type}&fileTwoName=${fileTwo.name}&fileTwoType=${fileTwo.type}&fileOneSize=${fileOne.size}&fileTwoSize=${fileTwo.size}`;
-
-    fetch(urlWithParameters, options)
-      .then(response => response.json())
-      .then(data => {
-        console.log("message : " + data.message);
-        if (data.message === "file is incorrect type") {
-          window.location.href = "not_CSV_error.html";
-        } else if (data.message === "File is empty") {
-          window.location.href = "empy_file_error.html";
-        } else if (data.message === "file names dont match") {
-          window.location.href = "file_names_dont_match_error.html";
-        } else {
-          uploadFile(data.uploadURLFileOne, fileOne).then(() => {
-            uploadFile(data.uploadURLFileTwo, fileTwo).then(() => {
-              window.location.href = "success.html";
-            }).catch(() => {
-              spinner.style.display = "none"; // Hide the spinner on error
-            });
-          }).catch(() => {
-            spinner.style.display = "none"; // Hide the spinner on error
-          });
-        }
-      }).catch(() => {
-        spinner.style.display = "none"; // Hide the spinner on error
-      });
-  }
-
-  async function uploadFile(uploadURL, file) {
-    console.log("uploading file " + file.name);
-    let uploadResponse = await fetch(uploadURL, {
-      method: "PUT",
-      body: file
-    }).then(resp => {
-      return resp.text().then(body => {
-        const result = {
-          status: resp.status,
-          body,
-        };
-        if (!resp.ok) {
-          return Promise.reject(result);
-        }
-        return result;
-      });
-    });
-  }
-
 </script>
