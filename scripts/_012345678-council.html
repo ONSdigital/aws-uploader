@@ -169,48 +169,39 @@
         <br>
 
         <form id="form">
-           <!-- Error message for extract-upload -->
-          <div class="ons-panel ons-panel--error ons-panel--no-title" id="extract-file-error" style="display: none;">
+          <!-- Error message for extract-upload -->
+          <div class="ons-panel ons-panel--error ons-panel--no-title" id="extract-file-error">
             <span class="ons-panel__assistive-text ons-u-vh">Error: </span>
             <div class="ons-panel__body">
               <p class="ons-panel__error">
-                <strong>Select a file that is a CSV</strong>
+                <strong>Select a .csv file</strong>
               </p>
+              <div class="ons-field">
+                <div class="ons-field">
+                  <label class="ons-label ons-label--with-description" for="extract-upload" aria-describedby="extract-description">Upload the EXTRACT file</label>
+                  <span id="extract-description" class="ons-label__description ons-input--with-description">File must be named with the format "CTAX_EXTRACT_012345678_yyyymmdd" where the 8 digits are your LAD code and yyyymmdd is the data run date</span>
+                  <input name="fileOne" type="file" id="extract-upload" class="ons-input ons-input--text ons-input-type__input ons-input--upload ons-input--error" accept=".csv" aria-describedby="extract-description" />
+                </div>
+              </div>
             </div>
           </div>
 
           <!-- Error message for mani-upload -->
-          <div class="ons-panel ons-panel--error ons-panel--no-title" id="mani-file-error" style="display: none;">
+          <div class="ons-panel ons-panel--error ons-panel--no-title" id="mani-file-error">
             <span class="ons-panel__assistive-text ons-u-vh">Error: </span>
             <div class="ons-panel__body">
               <p class="ons-panel__error">
-                <strong>Select a file that is a CSV</strong>
+                <strong>Select a .csv file</strong>
               </p>
+              <div class="ons-field">
+                <div class="ons-field">
+                  <label class="ons-label ons-label--with-description" for="mani-upload" aria-describedby="mani-description">Upload the MANI file</label>
+                  <span id="mani-description" class="ons-label__description ons-input--with-description">File must be named with the format "CTAX_MANI_012345678_yyyymmdd" where the 8 digits are your LAD code and yyyymmdd is the data run date</span>
+                  <input name="fileTwo" type="file" id="mani-upload" class="ons-input ons-input--text ons-input-type__input ons-input--upload ons-input--error" accept=".csv" aria-describedby="mani-description" />
+                </div>
+              </div>
             </div>
           </div>
-
-          <div class="ons-field">
-            <div class="ons-field">
-              <label class="ons-label ons-label--with-description" for="file-example-upload"
-                aria-describedby="description-hint">Upload the EXTRACT file</label>
-              <span id="extract-description" class="ons-label__description  ons-input--with-description">File must be named with the format "CTAX_EXTRACT_012345678_yyyymmdd" where the 8 digits are your LAD code and yyyymmdd is the data run date</span>
-              <input name="fileOne" type="file" id="extract-upload"
-                class="ons-input ons-input--text ons-input-type__input ons-input--upload" accept=".csv"
-                aria-describedby="description-hint" />
-            </div>
-          </div>
-
-          <div class="ons-field">
-            <div class="ons-field">
-              <label class="ons-label ons-label--with-description" for="file-example-upload"
-                aria-describedby="description-hint">Upload the MANI file</label>
-              <span id="mani-description" class="ons-label__description  ons-input--with-description">File must be named with the format "CTAX_MANI_012345678_yyyymmdd" where the 8 digits are your LAD code and yyyymmdd is the data run date</span>
-              <input name="fileTwo" type="file" id="mani-upload"
-                class="ons-input ons-input--text ons-input-type__input ons-input--upload" accept=".csv"
-                aria-describedby="description-hint" />
-            </div>
-          </div> 
-
           
 		<br>
 		
