@@ -3,7 +3,7 @@
 module "ons_upload_bucket" {
   #checkov:skip=CKV_TF_1:using versioning instead of git commit hashes
   #checkov:skip=CKV_TF_2:logging not needed
-  source      = "git::https://github.com/ONSdigital/aws-s3-bucket.git?ref=secure-policy"
+  source      = "git::https://github.com/ONSdigital/aws-s3-bucket.git?ref=secure-policy.tf"
   bucket_name = var.upload_host_bucket_name
   versioning  = true
   tiering     = false
@@ -159,4 +159,3 @@ resource "aws_s3_object" "result_message" {
   source_hash  = filemd5("${path.module}/scripts/result_message.js")
   content_type = "text/javascript"
 }
-

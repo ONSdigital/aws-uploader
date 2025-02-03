@@ -1,7 +1,7 @@
 module "ons_upload_ingest_bucket" {
   #checkov:skip=CKV_TF_1:using versioning instead of git commit hashes
   #checkov:skip=CKV_TF_2:logging not needed
-  source      = "git::https://github.com/ONSdigital/aws-s3-bucket.git?ref=secure-policy"
+  source      = "git::https://github.com/ONSdigital/aws-s3-bucket.git?ref=secure-policy.tf"
   bucket_name = var.upload_ingest_bucket_name
   versioning  = false
   tiering     = false
@@ -78,5 +78,3 @@ resource "aws_s3_bucket_lifecycle_configuration" "ingest_lifecycle_policy" {
     }
   }
 }
-
-
