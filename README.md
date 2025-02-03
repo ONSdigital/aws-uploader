@@ -13,7 +13,11 @@ The solution deploys:
 		○ Ingest S3 Bucket: Creating the ingest bucket where the files will be uploaded and set the appropriate permissions
 		○ Set up Route 53 DNS: Generates unique URL for each council
 
+# cicd
 
+Image needs updating but shows how the flow will work expect all pull requests against main will apply in dev.
+
+![Alt text](images/git-flow.png)
 
 # Pre Commits
 
