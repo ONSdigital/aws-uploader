@@ -5,7 +5,7 @@ aws:
   access_key: ((ingest_dev_aws_access_key))
   secret_key: ((ingest_dev_aws_secret_key))
 git:
-  repo: aws-Uploader
+  repo: aws-uploader
   branch: main
 terraform:
   tfvars: env/dev.tfvars
