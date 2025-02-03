@@ -2,7 +2,7 @@
 #tfsec:ignore:aws-s3-enable-versioning
 module "ons_upload_bucket" {
   #checkov:skip=CKV_TF_1:using versioning instead of git commit hashes
-  source      = "git::https://github.com/ONSdigital/aws-s3-bucket.git?ref=v6.0.0"
+  source      = "git::https://github.com/ONSdigital/aws-s3-bucket.git?ref=new-outputs"
   bucket_name = var.upload_host_bucket_name
   versioning  = true
   tiering     = false
@@ -54,10 +54,6 @@ data "aws_iam_policy_document" "uploader_bucket" {
 resource "aws_s3_bucket_policy" "uploader_bucket" {
   bucket = module.ons_upload_bucket.bucket_id
   policy = data.aws_iam_policy_document.uploader_bucket.json
-}
-
-data "aws_s3_bucket" "upload_bucket" {
-  bucket = var.upload_host_bucket_name
 }
 
 resource "aws_s3_bucket_website_configuration" "ons_upload_configuration" {
