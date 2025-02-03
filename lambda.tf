@@ -72,3 +72,12 @@ resource "aws_iam_policy" "PreSignedURL_s3_policy" {
   description = "policy for PreSignedURL lambda"
   policy      = data.aws_iam_policy_document.get_s3_object.json
 }
+
+resource "aws_lambda_permission" "presignedurl_permission" {
+  statement_id  = "AllowUploaderAPIInvoke"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.PreSignedURL.function_name
+  principal     = "apigateway.amazonaws.com"
+
+  source_arn = "${aws_apigatewayv2_api.api.execution_arn}/*/*"
+}
