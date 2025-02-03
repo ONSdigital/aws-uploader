@@ -1,0 +1,13 @@
+aws:
+  s3_bucket: tf-state-uploaderdyme
+  tfstate: terraform/aws-uploader.tfstate
+  tflocks: tf-state-uploader-dyme-locks
+  access_key: ((ingest_preprod_aws_access_key))
+  secret_key: ((ingest_preprod_aws_secret_key))
+git:
+  repo: aws-uploader
+  branch: preprod
+terraform:
+  tfvars: env/preprod.tfvars
+concourse:
+  vars: preprod-vars.yml

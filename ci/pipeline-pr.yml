@@ -26,12 +26,12 @@ resource_types:
     repository: teliaoss/github-pr-resource
 
 resources:
-  - name: repo-git
-    type: git
-    source:
-      <<: *github_auth
-      uri: https://github.com/onsdigital/((git.repo))
-      branch: ((git.branch))
+  # - name: repo-git
+  #   type: git
+  #   source:
+  #     <<: *github_auth
+  #     uri: https://github.com/onsdigital/((git.repo))
+  #     branch: ((git.branch))
 
   - name: pull-request
     type: pull-request
@@ -48,9 +48,9 @@ jobs:
   - name: set-pipeline-pr
     plan:
     - get: pull-request
-      trigger: false  
+      trigger: true
     - set_pipeline: self # pipeline's name
-      file: pull-request/ci/pipeline.yml 
+      file: pull-request/ci/pipeline-pr.yml 
       var_files:
         - pull-request/ci/env/((concourse.vars))
 
@@ -144,22 +144,14 @@ jobs:
           path: pull-request
           status: success
 
-  - name: set-pipeline
-    plan:
-    - get: repo-git
-      trigger: true
-    - set_pipeline: self # pipeline's name
-      file: pull-request/ci/pipeline.yml 
-      var_files:
-        - pull-request/ci/env/((concourse.vars))
+
 
   - name: terraform-apply
     plan:
-      - get: repo-git
-        trigger: true
-        passed: [set-pipeline]
+      # - get: repo-git
+      #   trigger: true
       - get: pull-request
-        trigger: false
+        trigger: true #false
         passed: [terraform-plan]  
  
       - task: terraform-apply
