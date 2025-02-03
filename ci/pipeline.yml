@@ -48,7 +48,7 @@ jobs:
   - name: set-pipeline-pr
     plan:
     - get: pull-request
-      trigger: false  
+      trigger: true  
     - set_pipeline: self # pipeline's name
       file: pull-request/ci/pipeline.yml 
       var_files:
