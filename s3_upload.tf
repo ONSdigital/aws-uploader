@@ -7,7 +7,8 @@ module "ons_upload_ingest_bucket" {
   tiering     = false
   logging     = false
 
-  attach_secure_transport_policy = false
+  attach_secure_transport_policy           = false
+  attach_deny_incorrect_encryption_headers = false
 }
 
 resource "aws_s3_bucket_cors_configuration" "uploader" {

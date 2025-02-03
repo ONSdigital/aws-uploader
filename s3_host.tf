@@ -9,7 +9,8 @@ module "ons_upload_bucket" {
   tiering     = false
   logging     = false
 
-  attach_secure_transport_policy = false
+  attach_secure_transport_policy           = false
+  attach_deny_incorrect_encryption_headers = false
 
 }
 
