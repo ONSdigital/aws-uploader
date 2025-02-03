@@ -1,12 +1,13 @@
 module "ons_upload_ingest_bucket" {
   #checkov:skip=CKV_TF_1:using versioning instead of git commit hashes
-  source      = "git::https://github.com/ONSdigital/aws-s3-bucket.git?ref=v6.0.0"
+  source      = "git::https://github.com/ONSdigital/aws-s3-bucket.git?ref=v7.4.0"
   bucket_name = var.upload_ingest_bucket_name
   versioning  = false
   tiering     = false
   logging     = false
 
-  attach_secure_transport_policy = false
+  attach_secure_transport_policy           = false
+  attach_deny_incorrect_encryption_headers = false
 }
 
 resource "aws_s3_bucket_cors_configuration" "uploader" {
@@ -77,5 +78,3 @@ resource "aws_s3_bucket_lifecycle_configuration" "ingest_lifecycle_policy" {
     }
   }
 }
-
-
