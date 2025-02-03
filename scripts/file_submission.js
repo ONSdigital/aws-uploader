@@ -16,6 +16,39 @@ async function onSubmit(event) {
     const loadingSpinner = document.querySelector('.hods-loading-spinner__content');
     loadingSpinner.style.display = 'block';
 
+    let extractUpload = document.getElementById('extract-upload');
+    let maniUpload = document.getElementById('mani-upload');
+    let extractFileError = document.getElementById('extract-file-error');
+    let maniFileError = document.getElementById('mani-file-error');
+    let valid = true;
+
+    // Reset error messages
+    extractFileError.style.display = 'none';
+    maniFileError.style.display = 'none';
+
+    // Validate extract-upload file
+    if (extractUpload.files.length > 0) {
+        let extractFile = extractUpload.files[0];
+        if (extractFile.type !== 'text/csv') {
+            extractFileError.style.display = 'block';
+            valid = false;
+        }
+    }
+
+    // Validate mani-upload file
+    if (maniUpload.files.length > 0) {
+        let maniFile = maniUpload.files[0];
+        if (maniFile.type !== 'text/csv') {
+            maniFileError.style.display = 'block';
+            valid = false;
+        }
+    }
+
+    if (!valid) {
+        loadingSpinner.style.display = 'none';
+        return false;
+    }
+
     if (form.fileOne.files.length < 1 || form.fileTwo.files.length < 1) { // Checks if user has added 2 files (this is the only validation done client side)
         window.location.href = "error.html";
         return false;
@@ -64,60 +97,3 @@ async function onSubmit(event) {
             }
         });
 }
-
-async function uploadFile(uploadURL, file) {
-    console.log("uploading file " + file.name);
-    let uploadResponse = await fetch(uploadURL, {
-        method: "PUT",
-        body: file
-    }).then(resp => {
-        return resp.text().then(body => {
-            const result = {
-                status: resp.status,
-                body,
-            };
-            if (!resp.ok) {
-                return Promise.reject(result);
-            }
-            return result;
-        });
-    });
-}
-
-document.getElementById('form').addEventListener('submit', function(event) {
-  event.preventDefault(); // Prevent form submission and page reload
-
-  let extractUpload = document.getElementById('extract-upload');
-  let maniUpload = document.getElementById('mani-upload');
-  let extractFileError = document.getElementById('extract-file-error');
-  let maniFileError = document.getElementById('mani-file-error');
-  let valid = true;
-
-  // Reset error messages
-  extractFileError.style.display = 'none';
-  maniFileError.style.display = 'none';
-
-  // Validate extract-upload file
-  if (extractUpload.files.length > 0) {
-    let extractFile = extractUpload.files[0];
-    if (extractFile.type !== 'text/csv') {
-      extractFileError.style.display = 'block';
-      valid = false;
-    }
-  }
-
-  // Validate mani-upload file
-  if (maniUpload.files.length > 0) {
-    let maniFile = maniUpload.files[0];
-    if (maniFile.type !== 'text/csv') {
-      maniFileError.style.display = 'block';
-      valid = false;
-    }
-  }
-
-  // If validation passes, you can proceed with form submission logic here
-  if (valid) {
-    // Example: Submit the form data using AJAX or any other method
-    console.log('Form is valid and ready for submission');
-  }
-});

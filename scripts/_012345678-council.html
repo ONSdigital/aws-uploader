@@ -170,7 +170,7 @@
 
         <form id="form">
         <!-- Error message for extract-upload -->
-        <div class="ons-panel ons-panel--error ons-panel--no-title" id="extract-file-error">
+        <div class="ons-panel ons-panel--error ons-panel--no-title" id="extract-file-error" style="display: none;">
           <span class="ons-panel__assistive-text ons-u-vh">Error: </span>
           <div class="ons-panel__body">
             <p class="ons-panel__error">
@@ -179,12 +179,20 @@
             <div class="ons-field">
               <div class="ons-field">
                 <label class="ons-label ons-label--with-description" for="extract-upload" aria-describedby="extract-description">Upload the EXTRACT file</label>
-                <span id="extract-description" class="ons-label__description ons-input--with-description">File must be named with the format "CTAX_EXTRACT_012345678_yyyymmdd" where the 8 digits are your LAD code and yyyymmdd is the data run date</span>
-                <input name="fileOne" type="file" id="extract-upload" class="ons-input ons-input--text ons-input-type__input ons-input--upload" accept=".csv" aria-describedby="extract-description" />
+                <span id="extract-description-error" class="ons-label__description ons-input--with-description">File must be named with the format "CTAX_EXTRACT_012345678_yyyymmdd" where the 8 digits are your LAD code and yyyymmdd is the data run date</span>
+                <input name="fileOne" type="file" id="extract-upload-error" class="ons-input ons-input--text ons-input-type__input ons-input--upload" accept=".csv" aria-describedby="extract-description" />
               </div>
             </div>
             </div>
         </div>
+
+          <div class="ons-field">
+            <div class="ons-field">
+              <label class="ons-label ons-label--with-description" for="extract-upload" aria-describedby="extract-description">Upload the EXTRACT file</label>
+              <span id="extract-description" class="ons-label__description ons-input--with-description">File must be named with the format "CTAX_EXTRACT_012345678_yyyymmdd" where the 8 digits are your LAD code and yyyymmdd is the data run date</span>
+              <input name="fileOne" type="file" id="extract-upload" class="ons-input ons-input--text ons-input-type__input ons-input--upload" accept=".csv" aria-describedby="extract-description" />
+            </div>
+          </div>
 
         <!-- Error message for mani-upload -->
         <div class="ons-panel ons-panel--error ons-panel--no-title" id="mani-file-error" style="display: none;">
