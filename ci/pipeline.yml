@@ -48,7 +48,7 @@ jobs:
   - name: set-pipeline-pr
     plan:
     - get: pull-request
-      trigger: false  
+      trigger: true  
     - set_pipeline: self # pipeline's name
       file: pull-request/ci/pipeline.yml 
       var_files:
@@ -149,9 +149,9 @@ jobs:
     - get: repo-git
       trigger: true
     - set_pipeline: self # pipeline's name
-      file: pull-request/ci/pipeline.yml 
+      file: repo-git/ci/pipeline.yml 
       var_files:
-        - pull-request/ci/env/((concourse.vars))
+        - repo-git/ci/env/((concourse.vars))
 
   - name: terraform-apply
     plan:
@@ -163,7 +163,7 @@ jobs:
         passed: [terraform-plan]  
  
       - task: terraform-apply
-        file: pull-request/ci/tasks/terraform/terraform-apply.yml
+        file: repo-git/ci/tasks/terraform/terraform-apply.yml
         params:
           S3_BUCKET_NAME: ((aws.s3_bucket))
           TF_STATE: ((aws.tfstate))

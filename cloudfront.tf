@@ -19,7 +19,7 @@ resource "aws_cloudfront_distribution" "uploader" {
   #checkov:skip=CKV2_AWS_32:testing cloudfront, fix to be implemented
   #checkov:skip=CKV2_AWS_47:testing cloudfront, fix to be implemented
   origin {
-    domain_name              = data.aws_s3_bucket.upload_bucket.bucket_regional_domain_name
+    domain_name              = module.ons_upload_bucket.bucket_regional_domain_name
     origin_access_control_id = aws_cloudfront_origin_access_control.ons_uploader_cloudfront.id
     origin_id                = "S3Origin"
 
