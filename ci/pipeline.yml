@@ -4,8 +4,8 @@ github_auth: &github_auth
   password: x-oauth-basic
 
 aws_auth: &aws_auth
-  AWS_ACCESS_KEY_ID: ((aws.access_key_preprod))
-  AWS_SECRET_ACCESS_KEY: ((aws.secret_key_preprod))
+  AWS_ACCESS_KEY_ID: ((aws.access_key))
+  AWS_SECRET_ACCESS_KEY: ((aws.secret_key))
 
 groups:
 - name: all
@@ -73,8 +73,8 @@ jobs:
           TF_LOCKS: ((aws.tflocks))
           GIT_PAT: ((github_pat))
           TF_VARS: ((terraform.tfvars))
-          AWS_ACCESS_KEY_ID: ((aws.access_key_preprod))
-          AWS_SECRET_ACCESS_KEY: ((aws.secret_key_preprod))
+          AWS_ACCESS_KEY_ID: ((aws.access_key))
+          AWS_SECRET_ACCESS_KEY: ((aws.secret_key))
         on_failure:
           put: pull-request
           params:
@@ -170,5 +170,5 @@ jobs:
           TF_LOCKS: ((aws.tflocks))
           GIT_PAT: ((github_pat))
           TF_VARS: ((terraform.tfvars))
-          AWS_ACCESS_KEY_ID: ((aws.access_key_preprod))
-          AWS_SECRET_ACCESS_KEY: ((aws.secret_key_preprod))
+          AWS_ACCESS_KEY_ID: ((aws.access_key))
+          AWS_SECRET_ACCESS_KEY: ((aws.secret_key))
