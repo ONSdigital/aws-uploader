@@ -16,7 +16,7 @@ async function onSubmit(event) {
     const loadingSpinner = document.querySelector('.hods-loading-spinner__content');
     loadingSpinner.style.display = 'block';
 
-    let extractUpload = document.getElementById('extract-upload');
+    let extractUpload = document.getElementById('extract-upload-error');
     let maniUpload = document.getElementById('mani-upload');
     let extractFileError = document.getElementById('extract-file-error');
     let maniFileError = document.getElementById('mani-file-error');
