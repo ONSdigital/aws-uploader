@@ -47,6 +47,7 @@ async function onSubmit(event) {
         let maniFile = maniUpload.files[0];
         if (maniFile.type !== 'text/csv') {
             maniFileError.style.display = 'block';
+            extractFileError.classList.add("ons-panel--error", "ons-panel--no-title");
             extractFileErrorText.innerHTML = "Please upload a CSV file";
             extractFileCSVError.style.display = 'block';
             valid = false;
