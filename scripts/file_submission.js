@@ -21,16 +21,23 @@ async function onSubmit(event) {
     let extractFileError = document.getElementById('extract-file-error');
     let maniFileError = document.getElementById('mani-file-error');
     let valid = true;
-
+    let extractFileErrorText = document.getElementById('extract-file-error-text')
+    let extractFileCSVError = document.getElementById('extract-file-csv-error')
+    // extractFileError.classList.add("ons-panel--error", "ons-panel--no-title")
+    // extractFileErrorText.innerHTML = "Please upload a CSV file"
+    // extractFileCSVError.style.display = 'block'
     // Reset error messages
-    extractFileError.style.display = 'none';
-    maniFileError.style.display = 'none';
+    // extractFileError.style.display = 'none';
+    // maniFileError.style.display = 'none';
 
     // Validate extract-upload file
     if (extractUpload.files.length > 0) {
         let extractFile = extractUpload.files[0];
         if (extractFile.type !== 'text/csv') {
             extractFileError.style.display = 'block';
+            extractFileError.classList.add("ons-panel--error", "ons-panel--no-title");
+            extractFileErrorText.innerHTML = "Please upload a CSV file";
+            extractFileCSVError.style.display = 'block';
             valid = false;
         }
     }
