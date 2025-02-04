@@ -11,7 +11,7 @@ form.addEventListener("submit", onSubmit);
 // Once user submits both files, the below function pings the API Gateway with the parameters needed.
 async function onSubmit(event) {
     event.preventDefault(); // Prevents the form from being submitted the usual way.
-
+    // Start of the submit function
     // Show the loading spinner
     const loadingSpinner = document.querySelector('.hods-loading-spinner__content');
     loadingSpinner.style.display = 'block';
