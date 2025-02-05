@@ -115,11 +115,19 @@ async function onSubmit(event) {
             if (data.message === "file is incorrect type") {
                 window.location.href = "not_CSV_error.html";
             } else if (data.message === "File is empty") {
-                window.location.href = "empy_file_error.html";
+                extractFileError.style.display = 'block';
+                extractFileError.classList.add("ons-panel--error", "ons-panel--no-title");
+                extractFileErrorText.innerHTML = "Files are empty";
+                extractFileCSVError.style.display = 'block';
+                valid = false;
+                maniFileError.style.display = 'block';
+                maniFileError.classList.add("ons-panel--error", "ons-panel--no-title");
+                valid = false;
+                // window.location.href = "empy_file_error.html";
             } else if (data.message === "File names do not match") {
                 extractFileError.style.display = 'block';
                 extractFileError.classList.add("ons-panel--error", "ons-panel--no-title");
-                extractFileErrorText.innerHTML = "Please upload two files";
+                extractFileErrorText.innerHTML = "File names do not match";
                 extractFileCSVError.style.display = 'block';
                 valid = false;
                 maniFileError.style.display = 'block';
