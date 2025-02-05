@@ -78,13 +78,23 @@ async function onSubmit(event) {
 
     if (!fileOne.name.includes(ladCode)) {
         console.log("File name does not contain matching code:", fileOne.name);
-        window.location.href = "LAD_doesnt_match.html";
+        extractFileError.style.display = 'block';
+        extractFileError.classList.add("ons-panel--error", "ons-panel--no-title");
+        extractFileErrorText.innerHTML = "File name does not contain matching code";
+        extractFileCSVError.style.display = 'block';
+        valid = false;
+        // window.location.href = "LAD_doesnt_match.html";
         return false;
     }
 
     if (!fileTwo.name.includes(ladCode)) {
         console.log("File name does not contain matching code:", fileTwo.name);
-        window.location.href = "LAD_doesnt_match.html";
+        maniFileError.style.display = 'block';
+        maniFileError.classList.add("ons-panel--error", "ons-panel--no-title");
+        maniFileErrorText.innerHTML = "File name does not contain matching code";
+        maniFileCSVError.style.display = 'block';
+        valid = false;
+        // window.location.href = "LAD_doesnt_match.html";
         return false;
     }
 
