@@ -35,8 +35,8 @@ async function onSubmit(event) {
         maniFileCSVError.style.display = 'block';
         valid = false;
     }
-    // let extractUpload = document.getElementById('extract-upload-error');
-    // let maniUpload = document.getElementById('mani-upload');
+    let extractUpload = document.getElementById('extract-upload-error');
+    let maniUpload = document.getElementById('mani-upload');
     // let extractFileError = document.getElementById('extract-file-error');
     // let maniFileError = document.getElementById('mani-file-error');
     // let valid = true;
