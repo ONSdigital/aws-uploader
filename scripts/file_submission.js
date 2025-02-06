@@ -19,6 +19,7 @@ async function onSubmit(event) {
     function fileOneErrorStyle(displayText) {
         let extractFileErrorText = document.getElementById('extract-file-error-text')
         let extractFileCSVError = document.getElementById('extract-file-csv-error')
+        let extractFileError = document.getElementById('extract-file-error');
         extractFileError.style.display = 'block';
         extractFileError.classList.add("ons-panel--error", "ons-panel--no-title");
         extractFileErrorText.innerHTML = displayText;
@@ -29,6 +30,7 @@ async function onSubmit(event) {
     function fileTwoErrorStyle(displayText) {
         let maniFileErrorText = document.getElementById('mani-file-error-text')
         let maniFileCSVError = document.getElementById('mani-file-csv-error')
+        let maniFileError = document.getElementById('mani-file-error');
         maniFileError.style.display = 'block';
         maniFileError.classList.add("ons-panel--error", "ons-panel--no-title");
         maniFileErrorText.innerHTML = displayText;
