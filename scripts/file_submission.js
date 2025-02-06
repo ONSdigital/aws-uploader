@@ -16,15 +16,15 @@ async function onSubmit(event) {
     const loadingSpinner = document.querySelector('.hods-loading-spinner__content');
     loadingSpinner.style.display = 'block';
 
-    function bothFilesErrorStyle(displayText) {
-        let extractManiFilesErrorText = document.getElementById('extract-mani-files-error-text')
+    function bothFilesErrorStyle() {
+        // let extractManiFilesErrorText = document.getElementById('extract-mani-files-error-text')
         let extractManiFileError = document.getElementById('extract-mani-files-error')
         let extractFileError = document.getElementById('extract-file-error');
         let maniFileError = document.getElementById('mani-file-error');
         let valid = true;
         extractManiFileError.style.display = 'block';
         extractFileError.classList.add("ons-panel--error", "ons-panel--no-title");
-        extractManiFilesErrorText.innerHTML = displayText;
+        // extractManiFilesErrorText.innerHTML = displayText;
         extractManiFileError.style.display = 'block';
         valid = false;
         maniFileError.style.display = 'block';
@@ -53,6 +53,14 @@ async function onSubmit(event) {
         maniFileCSVError.style.display = 'block';
         valid = false;
     }
+
+    function addItem(line) {
+        olObj=document.getElementById("extract-mani-files-error-text")
+        olObj.innerHTML=olObj.innerHTML+"<li>"+line+"</li>"
+    }
+
+
+
     let extractUpload = document.getElementById('extract-upload-error');
     let maniUpload = document.getElementById('mani-upload');
     // let extractFileError = document.getElementById('extract-file-error');
@@ -101,7 +109,9 @@ async function onSubmit(event) {
     }
 
     if (form.fileOne.files.length < 1 || form.fileTwo.files.length < 1) { // Checks if user has added 2 files (this is the only validation done client side)
-        bothFilesErrorStyle("Please upload both files")
+        bothFilesErrorStyle("Your errors")
+        addItem("You need to add a Extract file")
+        addItem("You need to add a Mani file")
         // extractFileError.style.display = 'block';
         // extractFileError.classList.add("ons-panel--error", "ons-panel--no-title");
         // extractFileErrorText.innerHTML = "Please upload two files";
