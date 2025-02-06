@@ -57,7 +57,7 @@ async function onSubmit(event) {
     if (extractUpload.files.length > 0) {
         let extractFile = extractUpload.files[0];
         if (extractFile.type !== 'text/csv') {
-            fileOneErrorStyle("Please upload a CSV file")
+            fileOneErrorStyle("Please upload a CSV file");
             // extractFileError.style.display = 'block';
             // extractFileError.classList.add("ons-panel--error", "ons-panel--no-title");
             // extractFileErrorText.innerHTML = "Please upload a CSV file";
@@ -70,11 +70,12 @@ async function onSubmit(event) {
     if (maniUpload.files.length > 0) {
         let maniFile = maniUpload.files[0];
         if (maniFile.type !== 'text/csv') {
-            maniFileError.style.display = 'block';
-            maniFileError.classList.add("ons-panel--error", "ons-panel--no-title");
-            maniFileErrorText.innerHTML = "Please upload a CSV file";
-            maniFileCSVError.style.display = 'block';
-            valid = false;
+            fileTwoErrorStyle("Please upload a CSV file");
+            // maniFileError.style.display = 'block';
+            // maniFileError.classList.add("ons-panel--error", "ons-panel--no-title");
+            // maniFileErrorText.innerHTML = "Please upload a CSV file";
+            // maniFileCSVError.style.display = 'block';
+            // valid = false;
         }
     }
 
@@ -108,22 +109,24 @@ async function onSubmit(event) {
 
     if (!fileOne.name.includes(ladCode)) {
         console.log("File name does not contain matching code:", fileOne.name);
-        extractFileError.style.display = 'block';
-        extractFileError.classList.add("ons-panel--error", "ons-panel--no-title");
-        extractFileErrorText.innerHTML = "File name does not contain matching code";
-        extractFileCSVError.style.display = 'block';
-        valid = false;
+        fileOneErrorStyle("File name does not contain matching LAD code");
+        // extractFileError.style.display = 'block';
+        // extractFileError.classList.add("ons-panel--error", "ons-panel--no-title");
+        // extractFileErrorText.innerHTML = "File name does not contain matching code";
+        // extractFileCSVError.style.display = 'block';
+        // valid = false;
         // window.location.href = "LAD_doesnt_match.html";
         return false;
     }
 
     if (!fileTwo.name.includes(ladCode)) {
         console.log("File name does not contain matching code:", fileTwo.name);
-        maniFileError.style.display = 'block';
-        maniFileError.classList.add("ons-panel--error", "ons-panel--no-title");
-        maniFileErrorText.innerHTML = "File name does not contain matching code";
-        maniFileCSVError.style.display = 'block';
-        valid = false;
+        fileTwoErrorStyle("File does not contain matching LAD code");
+        // maniFileError.style.display = 'block';
+        // maniFileError.classList.add("ons-panel--error", "ons-panel--no-title");
+        // maniFileErrorText.innerHTML = "File name does not contain matching code";
+        // maniFileCSVError.style.display = 'block';
+        // valid = false;
         // window.location.href = "LAD_doesnt_match.html";
         return false;
     }
