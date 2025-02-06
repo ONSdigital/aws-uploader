@@ -16,6 +16,22 @@ async function onSubmit(event) {
     const loadingSpinner = document.querySelector('.hods-loading-spinner__content');
     loadingSpinner.style.display = 'block';
 
+    function bothFilesErrorStyle(displayText) {
+        let extractManiFilesErrorText = document.getElementById('extract-mani-files-error-text')
+        let extractManiFileError = document.getElementById('extract-mani-files-error')
+        let extractFileError = document.getElementById('extract-file-error');
+        let maniFileError = document.getElementById('mani-file-error');
+        let valid = true;
+        extractManiFileError.style.display = 'block';
+        extractFileError.classList.add("ons-panel--error", "ons-panel--no-title");
+        extractManiFilesErrorText.innerHTML = displayText;
+        extractManiFileError.style.display = 'block';
+        valid = false;
+        maniFileError.style.display = 'block';
+        maniFileError.classList.add("ons-panel--error", "ons-panel--no-title");
+        valid = false;
+    }
+
     function fileOneErrorStyle(displayText) {
         let extractFileErrorText = document.getElementById('extract-file-error-text')
         let extractFileCSVError = document.getElementById('extract-file-csv-error')
@@ -41,7 +57,7 @@ async function onSubmit(event) {
     let maniUpload = document.getElementById('mani-upload');
     // let extractFileError = document.getElementById('extract-file-error');
     // let maniFileError = document.getElementById('mani-file-error');
-    // let valid = true;
+    let valid = true;
     // let extractFileErrorText = document.getElementById('extract-file-error-text')
     // let extractFileCSVError = document.getElementById('extract-file-csv-error')
     // let maniFileErrorText = document.getElementById('mani-file-error-text')
@@ -85,14 +101,15 @@ async function onSubmit(event) {
     }
 
     if (form.fileOne.files.length < 1 || form.fileTwo.files.length < 1) { // Checks if user has added 2 files (this is the only validation done client side)
-        extractFileError.style.display = 'block';
-        extractFileError.classList.add("ons-panel--error", "ons-panel--no-title");
-        extractFileErrorText.innerHTML = "Please upload two files";
-        extractFileCSVError.style.display = 'block';
-        valid = false;
-        maniFileError.style.display = 'block';
-        maniFileError.classList.add("ons-panel--error", "ons-panel--no-title");
-        valid = false;
+        bothFilesErrorStyle("Please upload both files")
+        // extractFileError.style.display = 'block';
+        // extractFileError.classList.add("ons-panel--error", "ons-panel--no-title");
+        // extractFileErrorText.innerHTML = "Please upload two files";
+        // extractFileCSVError.style.display = 'block';
+        // valid = false;
+        // maniFileError.style.display = 'block';
+        // maniFileError.classList.add("ons-panel--error", "ons-panel--no-title");
+        // valid = false;
         // window.location.href = "error.html";
         return false;
     }
