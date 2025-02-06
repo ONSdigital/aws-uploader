@@ -16,15 +16,34 @@ async function onSubmit(event) {
     const loadingSpinner = document.querySelector('.hods-loading-spinner__content');
     loadingSpinner.style.display = 'block';
 
-    let extractUpload = document.getElementById('extract-upload-error');
-    let maniUpload = document.getElementById('mani-upload');
-    let extractFileError = document.getElementById('extract-file-error');
-    let maniFileError = document.getElementById('mani-file-error');
-    let valid = true;
-    let extractFileErrorText = document.getElementById('extract-file-error-text')
-    let extractFileCSVError = document.getElementById('extract-file-csv-error')
-    let maniFileErrorText = document.getElementById('mani-file-error-text')
-    let maniFileCSVError = document.getElementById('mani-file-csv-error')
+    function fileOneErrorStyle(displayText) {
+        let extractFileErrorText = document.getElementById('extract-file-error-text')
+        let extractFileCSVError = document.getElementById('extract-file-csv-error')
+        extractFileError.style.display = 'block';
+        extractFileError.classList.add("ons-panel--error", "ons-panel--no-title");
+        extractFileErrorText.innerHTML = displayText;
+        extractFileCSVError.style.display = 'block';
+        valid = false;
+    }
+
+    function fileTwoErrorStyle(displayText) {
+        let maniFileErrorText = document.getElementById('mani-file-error-text')
+        let maniFileCSVError = document.getElementById('mani-file-csv-error')
+        maniFileError.style.display = 'block';
+        maniFileError.classList.add("ons-panel--error", "ons-panel--no-title");
+        maniFileErrorText.innerHTML = displayText;
+        maniFileCSVError.style.display = 'block';
+        valid = false;
+    }
+    // let extractUpload = document.getElementById('extract-upload-error');
+    // let maniUpload = document.getElementById('mani-upload');
+    // let extractFileError = document.getElementById('extract-file-error');
+    // let maniFileError = document.getElementById('mani-file-error');
+    // let valid = true;
+    // let extractFileErrorText = document.getElementById('extract-file-error-text')
+    // let extractFileCSVError = document.getElementById('extract-file-csv-error')
+    // let maniFileErrorText = document.getElementById('mani-file-error-text')
+    // let maniFileCSVError = document.getElementById('mani-file-csv-error')
     // extractFileError.classList.add("ons-panel--error", "ons-panel--no-title")
     // extractFileErrorText.innerHTML = "Please upload a CSV file"
     // extractFileCSVError.style.display = 'block'
@@ -36,11 +55,12 @@ async function onSubmit(event) {
     if (extractUpload.files.length > 0) {
         let extractFile = extractUpload.files[0];
         if (extractFile.type !== 'text/csv') {
-            extractFileError.style.display = 'block';
-            extractFileError.classList.add("ons-panel--error", "ons-panel--no-title");
-            extractFileErrorText.innerHTML = "Please upload a CSV file";
-            extractFileCSVError.style.display = 'block';
-            valid = false;
+            fileOneErrorStyle("Please upload a CSV file")
+            // extractFileError.style.display = 'block';
+            // extractFileError.classList.add("ons-panel--error", "ons-panel--no-title");
+            // extractFileErrorText.innerHTML = "Please upload a CSV file";
+            // extractFileCSVError.style.display = 'block';
+            // valid = false;
         }
     }
 
