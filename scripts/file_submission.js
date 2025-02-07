@@ -95,7 +95,7 @@ async function onSubmit(event) {
     if (maniUpload.files.length > 0) {
         let maniFile = maniUpload.files[0];
         if (maniFile.type !== 'text/csv') {
-            fileOneErrorStyle("There is 1 problem with this page");
+            fileTwoErrorStyle("There is 1 problem with this page");
             addItem("Please upload a CSV file", "fileOne")
             // maniFileError.style.display = 'block';
             // maniFileError.classList.add("ons-panel--error", "ons-panel--no-title");
@@ -151,7 +151,7 @@ async function onSubmit(event) {
 
     if (!fileTwo.name.includes(ladCode)) {
         console.log("File name does not contain matching code:", fileTwo.name);
-        fileOneErrorStyle("There is 1 problem with this page");
+        fileTwoErrorStyle("There is 1 problem with this page");
         addItem("File name does not contain matching LAD code", "fileTwo")
         // maniFileError.style.display = 'block';
         // maniFileError.classList.add("ons-panel--error", "ons-panel--no-title");
