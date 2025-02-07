@@ -36,6 +36,8 @@ async function onSubmit(event) {
         let extractFileErrorText = document.getElementById('extract-file-error-text')
         let extractFileCSVError = document.getElementById('extract-file-csv-error')
         let extractFileError = document.getElementById('extract-file-error');
+        let extractManiFileError = document.getElementById('extract-mani-files-error')
+        extractManiFileError.style.display = 'block';
         extractFileError.style.display = 'block';
         extractFileError.classList.add("ons-panel--error", "ons-panel--no-title");
         extractFileErrorText.innerHTML = displayText;
@@ -47,6 +49,8 @@ async function onSubmit(event) {
         let maniFileErrorText = document.getElementById('mani-file-error-text')
         let maniFileCSVError = document.getElementById('mani-file-csv-error')
         let maniFileError = document.getElementById('mani-file-error');
+        let extractManiFileError = document.getElementById('extract-mani-files-error')
+        extractManiFileError.style.display = 'block';
         maniFileError.style.display = 'block';
         maniFileError.classList.add("ons-panel--error", "ons-panel--no-title");
         maniFileErrorText.innerHTML = displayText;
