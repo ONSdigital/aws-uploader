@@ -13,8 +13,8 @@ async function onSubmit(event) {
     event.preventDefault(); // Prevents the form from being submitted the usual way.
     // Start of the submit function
     // Show the loading spinner
-    const loadingSpinner = document.querySelector('.hods-loading-spinner__content');
-    loadingSpinner.style.display = 'block';
+    // const loadingSpinner = document.querySelector('.hods-loading-spinner__content');
+    // loadingSpinner.style.display = 'block';
 
     function bothFilesErrorStyle(displayText) {
         let extractManiFilesErrorTitle = document.getElementById('extract-mani-files-error-title')
@@ -54,14 +54,14 @@ async function onSubmit(event) {
         valid = false;
     }
 
-    function addItem(line) {
+    function addItem(line, anchor) {
         olObj=document.getElementById("extract-mani-files-error-text")
-        olObj.innerHTML=olObj.innerHTML+"<li>"+line+"</li>"
+        olObj.innerHTML=olObj.innerHTML+"<li class='ons-list__item'><a class='ons-list__link ons-js-inpagelink' href='#"+anchor+"'>"+line+"</a></li>"
     }
 
 
 
-    let extractUpload = document.getElementById('extract-upload-error');
+    let extractUpload = document.getElementById('fileOne');
     let maniUpload = document.getElementById('mani-upload');
     // let extractFileError = document.getElementById('extract-file-error');
     // let maniFileError = document.getElementById('mani-file-error');
@@ -110,8 +110,8 @@ async function onSubmit(event) {
 
     if (form.fileOne.files.length < 1 || form.fileTwo.files.length < 1) { // Checks if user has added 2 files (this is the only validation done client side)
         bothFilesErrorStyle("You need to fill in both fields")
-        addItem("You need to add a Extract file")
-        // addItem("You need to add a Mani file")
+        addItem("You need to add a Extract file", "fileOne")
+        addItem("You need to add a Mani file")
         // extractFileError.style.display = 'block';
         // extractFileError.classList.add("ons-panel--error", "ons-panel--no-title");
         // extractFileErrorText.innerHTML = "Please upload two files";
@@ -157,7 +157,8 @@ async function onSubmit(event) {
         // window.location.href = "LAD_doesnt_match.html";
         return false;
     }
-
+    const loadingSpinner = document.querySelector('.hods-loading-spinner__content');
+    loadingSpinner.style.display = 'block';
     const urlWithParameters = url + `?fileOneName=$${fileOne.name}&fileOneType=$${fileOne.type}&fileTwoName=$${fileTwo.name}&fileTwoType=$${fileTwo.type}&fileOneSize=$${fileOne.size}&fileTwoSize=$${fileTwo.size}`;
 
     fetch(urlWithParameters, options) // Pings API Gateway which triggers lambda. File verification is carried out by lambda - the message in the response depends on if and why the files fail the checks
@@ -193,6 +194,7 @@ async function onSubmit(event) {
                     window.location.href = "success.html";
                 });
             }
+            loadingSpinner.style.display = "none"
         });
 }
 
