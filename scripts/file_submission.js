@@ -33,27 +33,29 @@ async function onSubmit(event) {
     }
 
     function fileOneErrorStyle(displayText) {
-        let extractFileErrorText = document.getElementById('extract-file-error-text')
+        // let extractFileErrorText = document.getElementById('extract-file-error-text')
+        let extractManiFilesErrorTitle = document.getElementById('extract-mani-files-error-title')
         let extractFileCSVError = document.getElementById('extract-file-csv-error')
         let extractFileError = document.getElementById('extract-file-error');
         let extractManiFileError = document.getElementById('extract-mani-files-error')
         extractManiFileError.style.display = 'block';
         extractFileError.style.display = 'block';
         extractFileError.classList.add("ons-panel--error", "ons-panel--no-title");
-        extractFileErrorText.innerHTML = displayText;
+        extractManiFilesErrorTitle.innerHTML = displayText;
         extractFileCSVError.style.display = 'block';
         valid = false;
     }
 
     function fileTwoErrorStyle(displayText) {
-        let maniFileErrorText = document.getElementById('mani-file-error-text')
+        // let maniFileErrorText = document.getElementById('mani-file-error-text')
+        let extractManiFilesErrorTitle = document.getElementById('extract-mani-files-error-title')
         let maniFileCSVError = document.getElementById('mani-file-csv-error')
         let maniFileError = document.getElementById('mani-file-error');
         let extractManiFileError = document.getElementById('extract-mani-files-error')
         extractManiFileError.style.display = 'block';
         maniFileError.style.display = 'block';
         maniFileError.classList.add("ons-panel--error", "ons-panel--no-title");
-        maniFileErrorText.innerHTML = displayText;
+        extractManiFilesErrorTitle.innerHTML = displayText;
         maniFileCSVError.style.display = 'block';
         valid = false;
     }
