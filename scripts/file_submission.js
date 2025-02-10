@@ -7,15 +7,11 @@ const options = {
 
 let form = document.getElementById("form");
 form.addEventListener("submit", onSubmit);
-// document.getElementById("errorForm").reset();
 
 // Once user submits both files, the below function pings the API Gateway with the parameters needed.
 async function onSubmit(event) {
     event.preventDefault(); // Prevents the form from being submitted the usual way.
     // Start of the submit function
-    // Show the loading spinner
-    // const loadingSpinner = document.querySelector('.hods-loading-spinner__content');
-    // loadingSpinner.style.display = 'block';
 
     function bothFilesErrorStyle(displayText) {
         let extractManiFilesErrorTitle = document.getElementById('extract-mani-files-error-title')
@@ -34,7 +30,6 @@ async function onSubmit(event) {
     }
 
     function fileOneErrorStyle(displayText) {
-        // let extractFileErrorText = document.getElementById('extract-file-error-text')
         let extractManiFilesErrorTitle = document.getElementById('extract-mani-files-error-title')
         let extractFileCSVError = document.getElementById('extract-file-csv-error')
         let extractFileError = document.getElementById('extract-file-error');
@@ -48,7 +43,6 @@ async function onSubmit(event) {
     }
 
     function fileTwoErrorStyle(displayText) {
-        // let maniFileErrorText = document.getElementById('mani-file-error-text')
         let extractManiFilesErrorTitle = document.getElementById('extract-mani-files-error-title')
         let maniFileCSVError = document.getElementById('mani-file-csv-error')
         let maniFileError = document.getElementById('mani-file-error');
@@ -67,23 +61,11 @@ async function onSubmit(event) {
     }
 
 
-    let errorForm = ""
-    errorForm = document.getElementById("errorForm")
+    let errorForm = document.getElementById("errorForm")
+    errorForm = document.getElementById("errorForm").reset()
     let extractUpload = document.getElementById('fileOne');
     let maniUpload = document.getElementById('fileTwo');
-    // let extractFileError = document.getElementById('extract-file-error');
-    // let maniFileError = document.getElementById('mani-file-error');
     let valid = true;
-    // let extractFileErrorText = document.getElementById('extract-file-error-text')
-    // let extractFileCSVError = document.getElementById('extract-file-csv-error')
-    // let maniFileErrorText = document.getElementById('mani-file-error-text')
-    // let maniFileCSVError = document.getElementById('mani-file-csv-error')
-    // extractFileError.classList.add("ons-panel--error", "ons-panel--no-title")
-    // extractFileErrorText.innerHTML = "Please upload a CSV file"
-    // extractFileCSVError.style.display = 'block'
-    // Reset error messages
-    // extractFileError.style.display = 'none';
-    // maniFileError.style.display = 'none';
 
     // Validate extract-upload file
     // if (extractUpload.files.length > 0) {
