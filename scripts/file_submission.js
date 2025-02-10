@@ -67,8 +67,8 @@ async function onSubmit(event) {
     }
 
 
-    let errorForm = document.getElementById("errorForm")
-    errorForm.value = ""
+    let errorForm = ""
+    errorForm = document.getElementById("errorForm")
     let extractUpload = document.getElementById('fileOne');
     let maniUpload = document.getElementById('fileTwo');
     // let extractFileError = document.getElementById('extract-file-error');
