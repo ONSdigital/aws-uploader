@@ -184,7 +184,7 @@ async function onSubmit(event) {
                 // window.location.href = "not_CSV_error.html";
             }  else if (data.message === "maniFile is not .csv") {
                 fileOneErrorStyle("There is 1 problem with this page");
-                addItem("Please upload a CSV file", "fileOne")
+                addItem("Please upload a CSV file", "fileTwo")
             
              } else if (data.message === "File is empty") {
                 bothFilesErrorStyle("There are 2 problems with this page")
