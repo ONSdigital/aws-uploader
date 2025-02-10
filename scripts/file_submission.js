@@ -7,9 +7,12 @@ const options = {
 
 let form = document.getElementById("form");
 form.addEventListener("submit", onSubmit);
+// document.getElementById("errorForm").reset();
 
 // Once user submits both files, the below function pings the API Gateway with the parameters needed.
 async function onSubmit(event) {
+    let errorForm = document.getElementById("extract-mani-files-error")
+    errorForm.value = ""
     event.preventDefault(); // Prevents the form from being submitted the usual way.
     // Start of the submit function
     // Show the loading spinner
