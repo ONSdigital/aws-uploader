@@ -11,8 +11,6 @@ form.addEventListener("submit", onSubmit);
 
 // Once user submits both files, the below function pings the API Gateway with the parameters needed.
 async function onSubmit(event) {
-    let errorForm = document.getElementById("errorForm")
-    errorForm.value = ""
     event.preventDefault(); // Prevents the form from being submitted the usual way.
     // Start of the submit function
     // Show the loading spinner
@@ -69,7 +67,8 @@ async function onSubmit(event) {
     }
 
 
-
+    let errorForm = document.getElementById("errorForm")
+    errorForm.value = ""
     let extractUpload = document.getElementById('fileOne');
     let maniUpload = document.getElementById('fileTwo');
     // let extractFileError = document.getElementById('extract-file-error');
@@ -173,8 +172,8 @@ async function onSubmit(event) {
                 addItem("Please upload a CSV file", "fileOne")
                 // window.location.href = "not_CSV_error.html";
             }  else if (data.message === "maniFile is not .csv") {
-                fileOneErrorStyle("There is 1 problem with this page");
-                addItem("Please upload a mani CSV file", "fileTwo")
+                fileTwoErrorStyle("There is 1 problem with this page");
+                addItem("Please upload a CSV file", "fileTwo")
             
              } else if (data.message === "File is empty") {
                 bothFilesErrorStyle("There are 2 problems with this page")
