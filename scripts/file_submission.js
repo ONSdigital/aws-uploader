@@ -89,7 +89,7 @@ async function onSubmit(event) {
     // Validate extract-upload file
     if (extractUpload.files.length > 0) {
         let extractFile = extractUpload.files[0];
-        if (extractFile.type !== 'text/csv') {
+        if (extractFile.type !== 'csv') {
             fileOneErrorStyle("There is 1 problem with this page");
             addItem("Please upload a CSV file", "fileOne")
             // extractFileError.style.display = 'block';
@@ -103,7 +103,7 @@ async function onSubmit(event) {
     // Validate mani-upload file
     if (maniUpload.files.length > 0) {
         let maniFile = maniUpload.files[0];
-        if (maniFile.type !== 'text/csv') {
+        if (maniFile.type !== 'csv') {
             fileTwoErrorStyle("There is 1 problem with this page");
             addItem("Please upload a CSV file", "fileTwo")
             // maniFileError.style.display = 'block';
