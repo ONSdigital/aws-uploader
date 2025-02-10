@@ -114,10 +114,10 @@ async function onSubmit(event) {
         }
     }
 
-    if (!valid) {
-        loadingSpinner.style.display = 'none';
-        return false;
-    }
+    // if (!valid) {
+    //     loadingSpinner.style.display = 'none';
+    //     return false;
+    // }
 
     if (form.fileOne.files.length < 1 || form.fileTwo.files.length < 1) { // Checks if user has added 2 files (this is the only validation done client side)
         bothFilesErrorStyle("You need to fill in both fields")
@@ -184,7 +184,7 @@ async function onSubmit(event) {
                 // window.location.href = "not_CSV_error.html";
             }  else if (data.message === "maniFile is not .csv") {
                 fileOneErrorStyle("There is 1 problem with this page");
-                addItem("Please upload a CSV file", "fileTwo")
+                addItem("Please upload a mani CSV file", "fileTwo")
             
              } else if (data.message === "File is empty") {
                 bothFilesErrorStyle("There are 2 problems with this page")
