@@ -87,32 +87,22 @@ async function onSubmit(event) {
     // maniFileError.style.display = 'none';
 
     // Validate extract-upload file
-    if (extractUpload.files.length > 0) {
-        let extractFile = extractUpload.files[0];
-        if (extractFile.type !== 'csv') {
-            fileOneErrorStyle("There is 1 problem with this page");
-            addItem("Please upload a CSV file", "fileOne")
-            // extractFileError.style.display = 'block';
-            // extractFileError.classList.add("ons-panel--error", "ons-panel--no-title");
-            // extractFileErrorText.innerHTML = "Please upload a CSV file";
-            // extractFileCSVError.style.display = 'block';
-            // valid = false;
-        }
-    }
+    // if (extractUpload.files.length > 0) {
+    //     let extractFile = extractUpload.files[0];
+    //     if (extractFile.type !== 'csv') {
+    //         fileOneErrorStyle("There is 1 problem with this page");
+    //         addItem("Please upload a CSV file", "fileOne")
+    //     }
+    // }
 
     // Validate mani-upload file
-    if (maniUpload.files.length > 0) {
-        let maniFile = maniUpload.files[0];
-        if (maniFile.type !== 'csv') {
-            fileTwoErrorStyle("There is 1 problem with this page");
-            addItem("Please upload a CSV file", "fileTwo")
-            // maniFileError.style.display = 'block';
-            // maniFileError.classList.add("ons-panel--error", "ons-panel--no-title");
-            // maniFileErrorText.innerHTML = "Please upload a CSV file";
-            // maniFileCSVError.style.display = 'block';
-            // valid = false;
-        }
-    }
+    // if (maniUpload.files.length > 0) {
+    //     let maniFile = maniUpload.files[0];
+    //     if (maniFile.type !== 'csv') {
+    //         fileTwoErrorStyle("There is 1 problem with this page");
+    //         addItem("Please upload a CSV file", "fileTwo")
+    //     }
+    // }
 
     // if (!valid) {
     //     loadingSpinner.style.display = 'none';
