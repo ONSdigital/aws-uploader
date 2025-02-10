@@ -57,7 +57,7 @@ export const handler = async (event, context, callback) => {
       logger.logError(event.queryStringParameters.fileOneName.slice(13, 22), event.queryStringParameters.fileOneName, result.statusCode, resultBody.message);
       return result;
     } else if(event.queryStringParameters.fileTwoType !== "text/csv"){
-      const result = await fileNotCSV(event.queryStringParameters.fileTwoName);
+      const result = await maniFileNotCSV(event.queryStringParameters.fileTwoName);
       const resultBody = JSON.parse(result.body);
       logger.logError(event.queryStringParameters.fileOneName.slice(13, 22), event.queryStringParameters.fileOneName, result.statusCode, resultBody.message);
       return result;
@@ -94,6 +94,21 @@ const fileNotCSV = async (filename) => {
          },
       "body": JSON.stringify({
         "message": "File is not .csv",
+        "filename" : filename
+      })
+    })
+  }) 
+}
+
+const maniFileNotCSV = async (filename) => {
+  return new Promise((resolve, reject) => {
+      resolve({
+      "statusCode": 403,
+      "isBase64Encoded": false,
+      "headers": { 'Access-Control-Allow-Origin': '*'
+         },
+      "body": JSON.stringify({
+        "message": "maniFile is not .csv",
         "filename" : filename
       })
     })

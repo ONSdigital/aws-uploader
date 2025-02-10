@@ -178,11 +178,15 @@ async function onSubmit(event) {
         .then(response => response.json())
         .then(data => {
             console.log("message : " + data.message);
-            if (data.message === "file is incorrect type") {
+            if (data.message === "File is not .csv") {
                 fileOneErrorStyle("There is 1 problem with this page");
                 addItem("Please upload a CSV file", "fileOne")
                 // window.location.href = "not_CSV_error.html";
-            } else if (data.message === "File is empty") {
+            }  else if (data.message === "maniFile is not .csv") {
+                fileOneErrorStyle("There is 1 problem with this page");
+                addItem("Please upload a CSV file", "fileOne")
+            
+             } else if (data.message === "File is empty") {
                 bothFilesErrorStyle("There are 2 problems with this page")
                 addItem("Excract file is empty", "fileOne")
                 addItem("Mani file is empty", "fileTwo")
