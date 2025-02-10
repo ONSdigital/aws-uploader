@@ -7,6 +7,7 @@
         height: auto;
       }
     </style>
+
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -166,38 +167,85 @@
 		 <div>
         <br>
         <br>
-
-        <form id="form">
-
-          <div class="ons-field">
-            <div class="ons-field">
-              <label class="ons-label ons-label--with-description" for="file-example-upload"
-                aria-describedby="description-hint">Upload the EXTRACT file</label>
-              <span id="extract-description" class="ons-label__description  ons-input--with-description">File must be named with the format "CTAX_EXTRACT_E12345678_yyyymmdd" where the 8 digits are your LAD code and yyyymmdd is the data run date</span>
-              <input name="fileOne" type="file" id="extract-upload"
-                class="ons-input ons-input--text ons-input-type__input ons-input--upload" accept=".csv"
-                aria-describedby="description-hint" />
-            </div>
+        <div aria-labelledby="alert" role="alert" tabindex="-1" class="ons-panel ons-panel--error" id="extract-mani-files-error" style="display:none">
+          <div class="ons-panel__header" id="extract-mani-files-error-title">
+            <h2 id="alert" data-qa="error-header" class="ons-panel__title ons-u-fs-r--b"></h2>
           </div>
-
-          <div class="ons-field">
+          <div class="ons-panel__body">
+            <ol class="ons-list" id="extract-mani-files-error-text">
+              <!-- <li class="ons-list__item">
+                <a href="#container-test-number" class="ons-list__link ons-js-inpagelink"></a> -->
+              </li>
+            </ol>
+          </div>
+        </div>
+        <form id="errorForm">
+        <div class="ons-panel__body">
+          <p class="ons-panel__error" id="extract-mani-files-error" style="display: none">
+            <strong id="extract-mani-files-error-text"></strong>
+          </p>
+          </div>
+        </form>
+        <form id="form">
+        <!-- Error message for extract-upload -->
+        <div class="ons-panel" id="extract-file-error"><!-- ons-panel--error ons-panel--no-title" id="extract-file-error" style="display: ">-->
+          <span class="ons-panel__assistive-text ons-u-vh">Error: </span>
+          <div class="ons-panel__body">
+            <p class="ons-panel__error" id="extract-file-csv-error" style="display: none">
+              <strong id="extract-file-error-text"></strong>
+            </p>
             <div class="ons-field">
-              <label class="ons-label ons-label--with-description" for="file-example-upload"
-                aria-describedby="description-hint">Upload the MANI file</label>
-              <span id="mani-description" class="ons-label__description  ons-input--with-description">File must be named with the format "CTAX_MANI_E12345678_yyyymmdd" where the 8 digits are your LAD code and yyyymmdd is the data run date</span>
-              <input name="fileTwo" type="file" id="mani-upload"
-                class="ons-input ons-input--text ons-input-type__input ons-input--upload" accept=".csv"
-                aria-describedby="description-hint" />
+              <div class="ons-field">
+                <label class="ons-label ons-label--with-description" for="extract-upload" aria-describedby="extract-description">Upload the EXTRACT file</label>
+                <span id="extract-description-error" class="ons-label__description ons-input--with-description">File must be named with the format "CTAX_EXTRACT_E12345678_yyyymmdd" where the 8 digits are your LAD code and yyyymmdd is the data run date</span>
+                <input name="fileOne" type="file" id="fileOne" class="ons-input ons-input--text ons-input-type__input ons-input--upload" accept=".csv" aria-describedby="extract-description" />
+              </div>
             </div>
-          </div> 
+            </div>
+        </div>
+
+          <!-- <div class="ons-field">
+            <div class="ons-field">
+              <label class="ons-label ons-label--with-description" for="extract-upload" aria-describedby="extract-description">Upload the EXTRACT file</label>
+              <span id="extract-description" class="ons-label__description ons-input--with-description">File must be named with the format "CTAX_EXTRACT_012345678_yyyymmdd" where the 8 digits are your LAD code and yyyymmdd is the data run date</span>
+              <input name="fileOne" type="file" id="extract-upload" class="ons-input ons-input--text ons-input-type__input ons-input--upload" accept=".csv" aria-describedby="extract-description" />
+            </div>
+          </div> -->
+
+        <!-- Error message for mani-upload -->
+        <div class="ons-panel" id="mani-file-error"><!-- ons-panel--error ons-panel--no-title" id="mani-file-error" style="display: ">-->
+          <span class="ons-panel__assistive-text ons-u-vh">Error: </span>
+          <div class="ons-panel__body">
+            <p class="ons-panel__error" id="mani-file-csv-error" style="display: none">
+              <strong id="mani-file-error-text"></strong>
+            </p>
+
+        <div class="ons-field">
+          <div class="ons-field">
+            <label class="ons-label ons-label--with-description" for="mani-upload" aria-describedby="mani-description">Upload the MANI file</label>
+            <span id="mani-description" class="ons-label__description ons-input--with-description">File must be named with the format "CTAX_MANI_E12345678_yyyymmdd" where the 8 digits are your LAD code and yyyymmdd is the data run date</span>
+            <input name="fileTwo" type="file" id="fileTwo" class="ons-input ons-input--text ons-input-type__input ons-input--upload" accept=".csv" aria-describedby="mani-description" />
+          </div>
+        </div>
 		<br>
 		
 
 
 		<button type="submit" class="ons-btn">
-  <span class="ons-btn__inner"><span class="ons-btn__text">Submit</span>
-  </span>
-</button>
+          <span class="ons-btn__inner"><span class="ons-btn__text">Submit</span>
+          </span>
+        </button>
+
+        <div class="hods-loading-spinner">
+          <div
+            class="hods-loading-spinner__spinner"
+            aria-live="polite"
+            role="status"
+          ></div>
+          <div style="display: none" class="hods-loading-spinner__content">
+            <h1 class="govuk-heading-m">Loading...</h1>
+          </div>
+        </div>
 
         </form>
 
@@ -317,15 +365,15 @@
         </div>
       </footer>
     </div>
-
-    <script type="text/javascript" src="file_submission.js"> </script>
     
+    <script type="text/javascript" src="file_submission.js"> </script>
+
     <div class="embeddable"></div>
-    <style>
+    <!-- <style>
       body {
         height: auto;
       }
-    </style>
+    </style> -->
 
   </body>
 
