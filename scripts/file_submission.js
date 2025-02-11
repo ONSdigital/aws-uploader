@@ -144,7 +144,7 @@ async function onSubmit(event) {
 
     if (fileTwo.name.includes(ladCode) && !fileTwo.name.match(patTwo)) {
         console.log("ManiFile name does not follow the right pattern", fileTwo.name);
-        fileOneErrorStyle();
+        fileTwoErrorStyle();
         addItem("Mani File name does not follow the right pattern", "fileTwo")
         valid=false;
         errCount=++errCount;
