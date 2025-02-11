@@ -74,14 +74,7 @@ async function onSubmit(event) {
 
     clearErrors()
 
-    // let errorForm = document.getElementById("errorForm")
-    // errorForm = document.getElementById("errorForm").reset()
     let valid = true;
-
-    // if (!valid) {
-    //     loadingSpinner.style.display = 'none';
-    //     return false;
-    // }
 
     if (form.fileOne.files.length < 1 || form.fileTwo.files.length < 1) { // Checks if user has added 2 files (this is the only validation done client side)
         bothFilesErrorStyle("You need to fill in both fields")
@@ -104,7 +97,6 @@ async function onSubmit(event) {
         console.log("File name does not contain matching code:", fileOne.name);
         fileOneErrorStyle("There is 1 problem with this page");
         addItem("File name does not contain matching LAD code", "fileOne")
-        clearErrors
         return false;
     }
 
@@ -112,7 +104,6 @@ async function onSubmit(event) {
         console.log("File name does not contain matching code:", fileTwo.name);
         fileTwoErrorStyle("There is 1 problem with this page");
         addItem("File name does not contain matching LAD code", "fileTwo")
-        clearErrors
         return false;
     }
     const loadingSpinner = document.querySelector('.hods-loading-spinner__content');
@@ -126,22 +117,19 @@ async function onSubmit(event) {
             if (data.message === "File is not .csv") {
                 fileOneErrorStyle("There is 1 problem with this page");
                 addItem("Please upload a CSV file", "fileOne")
-                clearErrors
-                // window.location.href = "not_CSV_error.html";
+
             }  else if (data.message === "maniFile is not .csv") {
                 fileTwoErrorStyle("There is 1 problem with this page");
                 addItem("Please upload a CSV file", "fileTwo")
-                clearErrors
             
              } else if (data.message === "File is empty") {
                 bothFilesErrorStyle("There are 2 problems with this page")
                 addItem("Excract file is empty", "fileOne")
                 addItem("Mani file is empty", "fileTwo")
-                clearErrors
+
             } else if (data.message === "File names do not match") {
                 bothFilesErrorStyle("There is 1 problem with this page")
                 addItem("File names do not match", "fileOne")
-                clearErrors
 
             } else {
                 uploadFile(data.uploadURLFileOne, fileOne).then(data => { // If all file verification checks pass, each file is uploaded to its individual pre-signed URL which puts file in s3 bucket
