@@ -116,9 +116,9 @@ resource "aws_s3_object" "file_names_dont_match_page" {
 
 resource "aws_s3_object" "_012345678-council" {
   bucket       = module.ons_upload_bucket.bucket_id
-  key          = "council-tax/_012345678-council.html"
-  source       = "${path.module}/scripts/_012345678-council.html"
-  source_hash  = filemd5("${path.module}/scripts/_012345678-council.html")
+  key          = "council-tax/E12345678-council.html"
+  source       = "${path.module}/scripts/E12345678-council.html"
+  source_hash  = filemd5("${path.module}/scripts/E12345678-council.html")
   content_type = "text/html"
 }
 
