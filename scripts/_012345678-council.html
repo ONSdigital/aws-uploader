@@ -167,25 +167,25 @@
 		 <div>
         <br>
         <br>
-        <div aria-labelledby="alert" role="alert" tabindex="-1" class="ons-panel ons-panel--error" id="extract-mani-files-error" style="display:none">
-          <div class="ons-panel__header" id="extract-mani-files-error-title">
+        <div aria-labelledby="alert" role="alert" tabindex="-1" class="ons-panel ons-panel--error" id="errors-list" style="display:none">
+          <div class="ons-panel__header" id="errors-list-title">
             <h2 id="alert" data-qa="error-header" class="ons-panel__title ons-u-fs-r--b"></h2>
           </div>
           <div class="ons-panel__body">
-            <ol class="ons-list" id="extract-mani-files-error-text">
+            <ol class="ons-list" id="errors-list-item">
               <!-- <li class="ons-list__item">
                 <a href="#container-test-number" class="ons-list__link ons-js-inpagelink"></a> -->
               </li>
             </ol>
           </div>
         </div>
-        <form id="errorForm">
+
         <div class="ons-panel__body">
-          <p class="ons-panel__error" id="extract-mani-files-error" style="display: none">
-            <strong id="extract-mani-files-error-text"></strong>
+          <p class="ons-panel__error" id="errors-list" style="display: none">
+            <strong id="errors-list-text"></strong>
           </p>
           </div>
-        </form>
+  
         <form id="form">
         <!-- Error message for extract-upload -->
         <div class="ons-panel" id="extract-file-error"><!-- ons-panel--error ons-panel--no-title" id="extract-file-error" style="display: ">-->
@@ -204,13 +204,6 @@
             </div>
         </div>
 
-          <!-- <div class="ons-field">
-            <div class="ons-field">
-              <label class="ons-label ons-label--with-description" for="extract-upload" aria-describedby="extract-description">Upload the EXTRACT file</label>
-              <span id="extract-description" class="ons-label__description ons-input--with-description">File must be named with the format "CTAX_EXTRACT_012345678_yyyymmdd" where the 8 digits are your LAD code and yyyymmdd is the data run date</span>
-              <input name="fileOne" type="file" id="extract-upload" class="ons-input ons-input--text ons-input-type__input ons-input--upload" accept=".csv" aria-describedby="extract-description" />
-            </div>
-          </div> -->
 
         <!-- Error message for mani-upload -->
         <div class="ons-panel" id="mani-file-error"><!-- ons-panel--error ons-panel--no-title" id="mani-file-error" style="display: ">-->

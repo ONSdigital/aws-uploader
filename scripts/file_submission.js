@@ -14,8 +14,8 @@ async function onSubmit(event) {
     // Start of the submit function
 
     function bothFilesErrorStyle(displayText) {
-        let extractManiFilesErrorTitle = document.getElementById('extract-mani-files-error-title')
-        let extractManiFileError = document.getElementById('extract-mani-files-error')
+        let extractManiFilesErrorTitle = document.getElementById('errors-list-title')
+        let extractManiFileError = document.getElementById('errors-list')
         let extractFileError = document.getElementById('extract-file-error');
         let maniFileError = document.getElementById('mani-file-error');
         let valid = true;
@@ -30,10 +30,10 @@ async function onSubmit(event) {
     }
 
     function fileOneErrorStyle(displayText) {
-        let extractManiFilesErrorTitle = document.getElementById('extract-mani-files-error-title')
+        let extractManiFilesErrorTitle = document.getElementById('errors-list-title')
         let extractFileCSVError = document.getElementById('extract-file-csv-error')
         let extractFileError = document.getElementById('extract-file-error');
-        let extractManiFileError = document.getElementById('extract-mani-files-error')
+        let extractManiFileError = document.getElementById('errors-list')
         extractManiFileError.style.display = 'block';
         extractFileError.style.display = 'block';
         extractFileError.classList.add("ons-panel--error", "ons-panel--no-title");
@@ -43,10 +43,10 @@ async function onSubmit(event) {
     }
 
     function fileTwoErrorStyle(displayText) {
-        let extractManiFilesErrorTitle = document.getElementById('extract-mani-files-error-title')
+        let extractManiFilesErrorTitle = document.getElementById('errors-list-title')
         let maniFileCSVError = document.getElementById('mani-file-csv-error')
         let maniFileError = document.getElementById('mani-file-error');
-        let extractManiFileError = document.getElementById('extract-mani-files-error')
+        let extractManiFileError = document.getElementById('errors-list')
         extractManiFileError.style.display = 'block';
         maniFileError.style.display = 'block';
         maniFileError.classList.add("ons-panel--error", "ons-panel--no-title");
@@ -56,34 +56,14 @@ async function onSubmit(event) {
     }
 
     function addItem(line, anchor) {
-        olObj=document.getElementById("extract-mani-files-error-text")
+        olObj=document.getElementById("errors-list-item")
         olObj.innerHTML=olObj.innerHTML+"<li class='ons-list__item'><a class='ons-list__link ons-js-inpagelink' href='#"+anchor+"'>"+line+"</a></li>"
     }
 
 
-    let errorForm = document.getElementById("errorForm")
-    errorForm = document.getElementById("errorForm").reset()
-    let extractUpload = document.getElementById('fileOne');
-    let maniUpload = document.getElementById('fileTwo');
+    // let errorForm = document.getElementById("errorForm")
+    // errorForm = document.getElementById("errorForm").reset()
     let valid = true;
-
-    // Validate extract-upload file
-    // if (extractUpload.files.length > 0) {
-    //     let extractFile = extractUpload.files[0];
-    //     if (extractFile.type !== 'csv') {
-    //         fileOneErrorStyle("There is 1 problem with this page");
-    //         addItem("Please upload a CSV file", "fileOne")
-    //     }
-    // }
-
-    // Validate mani-upload file
-    // if (maniUpload.files.length > 0) {
-    //     let maniFile = maniUpload.files[0];
-    //     if (maniFile.type !== 'csv') {
-    //         fileTwoErrorStyle("There is 1 problem with this page");
-    //         addItem("Please upload a CSV file", "fileTwo")
-    //     }
-    // }
 
     // if (!valid) {
     //     loadingSpinner.style.display = 'none';
@@ -94,15 +74,6 @@ async function onSubmit(event) {
         bothFilesErrorStyle("You need to fill in both fields")
         addItem("You need to add a Extract file", "fileOne")
         addItem("You need to add a Mani file", "fileTwo")
-        // extractFileError.style.display = 'block';
-        // extractFileError.classList.add("ons-panel--error", "ons-panel--no-title");
-        // extractFileErrorText.innerHTML = "Please upload two files";
-        // extractFileCSVError.style.display = 'block';
-        // valid = false;
-        // maniFileError.style.display = 'block';
-        // maniFileError.classList.add("ons-panel--error", "ons-panel--no-title");
-        // valid = false;
-        // window.location.href = "error.html";
         return false;
     }
 
@@ -120,12 +91,6 @@ async function onSubmit(event) {
         console.log("File name does not contain matching code:", fileOne.name);
         fileOneErrorStyle("There is 1 problem with this page");
         addItem("File name does not contain matching LAD code", "fileOne")
-        // extractFileError.style.display = 'block';
-        // extractFileError.classList.add("ons-panel--error", "ons-panel--no-title");
-        // extractFileErrorText.innerHTML = "File name does not contain matching code";
-        // extractFileCSVError.style.display = 'block';
-        // valid = false;
-        // window.location.href = "LAD_doesnt_match.html";
         return false;
     }
 
@@ -133,12 +98,6 @@ async function onSubmit(event) {
         console.log("File name does not contain matching code:", fileTwo.name);
         fileTwoErrorStyle("There is 1 problem with this page");
         addItem("File name does not contain matching LAD code", "fileTwo")
-        // maniFileError.style.display = 'block';
-        // maniFileError.classList.add("ons-panel--error", "ons-panel--no-title");
-        // maniFileErrorText.innerHTML = "File name does not contain matching code";
-        // maniFileCSVError.style.display = 'block';
-        // valid = false;
-        // window.location.href = "LAD_doesnt_match.html";
         return false;
     }
     const loadingSpinner = document.querySelector('.hods-loading-spinner__content');
@@ -161,27 +120,11 @@ async function onSubmit(event) {
                 bothFilesErrorStyle("There are 2 problems with this page")
                 addItem("Excract file is empty", "fileOne")
                 addItem("Mani file is empty", "fileTwo")
-                // extractFileError.style.display = 'block';
-                // extractFileError.classList.add("ons-panel--error", "ons-panel--no-title");
-                // extractFileErrorText.innerHTML = "Files are empty";
-                // extractFileCSVError.style.display = 'block';
-                // valid = false;
-                // maniFileError.style.display = 'block';
-                // maniFileError.classList.add("ons-panel--error", "ons-panel--no-title");
-                // valid = false;
-                // window.location.href = "empy_file_error.html";
+
             } else if (data.message === "File names do not match") {
                 bothFilesErrorStyle("There is 1 problem with this page")
                 addItem("File names do not match", "fileOne")
-                // extractFileError.style.display = 'block';
-                // extractFileError.classList.add("ons-panel--error", "ons-panel--no-title");
-                // extractFileErrorText.innerHTML = "File names do not match";
-                // extractFileCSVError.style.display = 'block';
-                // valid = false;
-                // maniFileError.style.display = 'block';
-                // maniFileError.classList.add("ons-panel--error", "ons-panel--no-title");
-                // valid = false;
-                // window.location.href = "file_names_dont_match_error.html";
+
             } else {
                 uploadFile(data.uploadURLFileOne, fileOne).then(data => { // If all file verification checks pass, each file is uploaded to its individual pre-signed URL which puts file in s3 bucket
                 });
