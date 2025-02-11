@@ -1,5 +1,6 @@
 const url = "${api_url}pre-signed-url"; // API Gateway URL. Once API Gateway is called, the lambda is triggered which
 // carries out file validation and returns pre-signed URLs if files pass checks
+const clientSideValidation=true
 
 const options = {
     method: 'GET',
@@ -36,13 +37,11 @@ async function onSubmit(event) {
 
 
     function bothFilesErrorStyle() {
-        let extractManiFilesErrorTitle = document.getElementById('errors-list-title')
         let extractFileError = document.getElementById('extract-file-error');
         let maniFileError = document.getElementById('mani-file-error');
         extractFileError.classList.add("ons-panel--error", "ons-panel--no-title");
         maniFileError.style.display = 'block';
         maniFileError.classList.add("ons-panel--error", "ons-panel--no-title");
-        
     }
 
     function fileOneErrorStyle() {
@@ -80,82 +79,83 @@ async function onSubmit(event) {
 
     clearErrors()
 
-    let valid = true;
-    let errCount=0;
-    // if (!valid) {
-    //     loadingSpinner.style.display = 'none';
-    //     return false;
-    // }
+    if (clientSideValidation) {
+        let valid = true;
+        let errCount=0;
+        // if (!valid) {
+        //     loadingSpinner.style.display = 'none';
+        //     return false;
+        // }
 
-    if (form.fileOne.files.length < 1 ) {
-        fileOneErrorStyle();
-        addItem("You need to add a Extract file", "fileOne")
-        valid=false;
-    }
-    if (form.fileTwo.files.length < 1 ) {
-        fileTwoErrorStyle();
-        addItem("You need to add a Mani file", "fileTwo")
-        valid=false;
-    }
-    if (!valid) {
-        commonErrorStyle("You need to fill in both fields")
-        //if we don't have both then we're going to stop checking here.
-        return(false)
-    }
+        if (form.fileOne.files.length < 1 ) {
+            fileOneErrorStyle();
+            addItem("You need to add a Extract file", "fileOne")
+            valid=false;
+        }
+        if (form.fileTwo.files.length < 1 ) {
+            fileTwoErrorStyle();
+            addItem("You need to add a Mani file", "fileTwo")
+            valid=false;
+        }
+        if (!valid) {
+            commonErrorStyle("You need to fill in both fields")
+            //if we don't have both then we're going to stop checking here.
+            return(false)
+        }
 
-    const fileOne = form.fileOne.files[0]; // First file chosen (EXTRACT file)
-    const fileTwo = form.fileTwo.files[0]; // Second file chosen (MANI file)
+        const fileOne = form.fileOne.files[0]; // First file chosen (EXTRACT file)
+        const fileTwo = form.fileTwo.files[0]; // Second file chosen (MANI file)
 
-    // Extract code from the current URL
-    const currentUrl = window.location.href;
-    const urlParts = currentUrl.split('/');
-    const lastPart = urlParts[urlParts.length - 1];
-    const ladCode = lastPart.split('-')[0];
-    console.log("URL Code found: ", ladCode);
+        // Extract code from the current URL
+        const currentUrl = window.location.href;
+        const urlParts = currentUrl.split('/');
+        const lastPart = urlParts[urlParts.length - 1];
+        const ladCode = lastPart.split('-')[0];
+        console.log("URL Code found: ", ladCode);
+        
+        const patOne=new RegExp("CTAX_EXTRACT_"+ladCode+'_\\d{8}\\.csv',"i")
+        console.log(patOne)
+        if (!fileOne.name.includes(ladCode)) {
+            console.log("File name does not contain matching code:", fileOne.name);
+            fileOneErrorStyle();
+            addItem("File name does not contain matching LAD code", "fileOne")
+            valid=false;
+            errCount=++errCount;
+        }
+
+        if (fileOne.name.includes(ladCode) && !fileOne.name.match(patOne)) {
+            console.log("Extract File name does not follow the right pattern", fileOne.name);
+            fileOneErrorStyle();
+            addItem("Extract File name does not follow the right pattern", "fileOne")
+            valid=false;
+            errCount=++errCount;
+        }
+
+        const patTwo=new RegExp("CTAX_MANI_"+ladCode+'_\\d{8}\\.csv',"i")
     
-    const patOne=new RegExp("CTAX_EXTRACT_"+ladCode+'_\\d{8}\\.csv',"i")
-    console.log(patOne)
-    if (!fileOne.name.includes(ladCode)) {
-        console.log("File name does not contain matching code:", fileOne.name);
-        fileOneErrorStyle();
-        addItem("File name does not contain matching LAD code", "fileOne")
-        valid=false;
-        errCount=++errCount;
+
+        if (!fileTwo.name.includes(ladCode)) {
+            console.log("File name does not contain matching code:", fileTwo.name);
+            fileTwoErrorStyle();
+            addItem("File name does not contain matching LAD code", "fileTwo")
+            valid=false;
+            errCount=++errCount;
+        }
+
+        if (fileTwo.name.includes(ladCode) && !fileTwo.name.match(patTwo)) {
+            console.log("ManiFile name does not follow the right pattern", fileTwo.name);
+            fileTwoErrorStyle();
+            addItem("Mani File name does not follow the right pattern", "fileTwo")
+            valid=false;
+            errCount=++errCount;
+        }
+
+        if (!valid) { 
+            commonErrorStyle(errCount);
+            return false;
+        }
+
     }
-
-    if (fileOne.name.includes(ladCode) && !fileOne.name.match(patOne)) {
-        console.log("Extract File name does not follow the right pattern", fileOne.name);
-        fileOneErrorStyle();
-        addItem("Extract File name does not follow the right pattern", "fileOne")
-        valid=false;
-        errCount=++errCount;
-    }
-
-    const patTwo=new RegExp("CTAX_MANI_"+ladCode+'_\\d{8}\\.csv',"i")
-   
-
-    if (!fileTwo.name.includes(ladCode)) {
-        console.log("File name does not contain matching code:", fileTwo.name);
-        fileTwoErrorStyle();
-        addItem("File name does not contain matching LAD code", "fileTwo")
-        valid=false;
-        errCount=++errCount;
-    }
-
-    if (fileTwo.name.includes(ladCode) && !fileTwo.name.match(patTwo)) {
-        console.log("ManiFile name does not follow the right pattern", fileTwo.name);
-        fileTwoErrorStyle();
-        addItem("Mani File name does not follow the right pattern", "fileTwo")
-        valid=false;
-        errCount=++errCount;
-    }
-
-    if (!valid) { 
-        commonErrorStyle(errCount);
-        return false;
-    }
-
-
     const loadingSpinner = document.querySelector('.hods-loading-spinner__content');
     loadingSpinner.style.display = 'block';
     const urlWithParameters = url + `?fileOneName=$${fileOne.name}&fileOneType=$${fileOne.type}&fileTwoName=$${fileTwo.name}&fileTwoType=$${fileTwo.type}&fileOneSize=$${fileOne.size}&fileTwoSize=$${fileTwo.size}`;
