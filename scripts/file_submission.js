@@ -81,7 +81,6 @@ async function onSubmit(event) {
     clearErrors()
 
     let valid = true;
-<<<<<<< HEAD
     let errCount=0;
     // if (!valid) {
     //     loadingSpinner.style.display = 'none';
