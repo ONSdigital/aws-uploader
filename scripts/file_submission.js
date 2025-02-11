@@ -13,46 +13,52 @@ async function onSubmit(event) {
     event.preventDefault(); // Prevents the form from being submitted the usual way.
     // Start of the submit function
 
-    function bothFilesErrorStyle(displayText) {
+
+
+    function commonErrorStyle(message){
+        console.log(Number.isInteger(message))
+        if (Number.isInteger(message)) {
+            if (message==1) {
+                displayText="There is 1 problem with this page"
+            } else {
+                displayText="There are "+message+" problems with this page"
+            }
+        } else {
+            displayText=message
+        }
+
         let extractManiFilesErrorTitle = document.getElementById('errors-list-title')
         let extractManiFileError = document.getElementById('errors-list')
-        let extractFileError = document.getElementById('extract-file-error');
-        let maniFileError = document.getElementById('mani-file-error');
-        let valid = true;
         extractManiFileError.style.display = 'block';
-        extractFileError.classList.add("ons-panel--error", "ons-panel--no-title");
         extractManiFilesErrorTitle.innerHTML = displayText;
-        extractManiFileError.style.display = 'block';
-        valid = false;
-        maniFileError.style.display = 'block';
-        maniFileError.classList.add("ons-panel--error", "ons-panel--no-title");
-        valid = false;
+    
     }
 
-    function fileOneErrorStyle(displayText) {
+
+    function bothFilesErrorStyle() {
         let extractManiFilesErrorTitle = document.getElementById('errors-list-title')
+        let extractFileError = document.getElementById('extract-file-error');
+        let maniFileError = document.getElementById('mani-file-error');
+        extractFileError.classList.add("ons-panel--error", "ons-panel--no-title");
+        maniFileError.style.display = 'block';
+        maniFileError.classList.add("ons-panel--error", "ons-panel--no-title");
+        
+    }
+
+    function fileOneErrorStyle() {
         let extractFileCSVError = document.getElementById('extract-file-csv-error')
         let extractFileError = document.getElementById('extract-file-error');
         let extractManiFileError = document.getElementById('errors-list')
-        extractManiFileError.style.display = 'block';
-        extractFileError.style.display = 'block';
         extractFileError.classList.add("ons-panel--error", "ons-panel--no-title");
-        extractManiFilesErrorTitle.innerHTML = displayText;
         extractFileCSVError.style.display = 'block';
-        valid = false;
     }
 
-    function fileTwoErrorStyle(displayText) {
-        let extractManiFilesErrorTitle = document.getElementById('errors-list-title')
+    function fileTwoErrorStyle() {
         let maniFileCSVError = document.getElementById('mani-file-csv-error')
         let maniFileError = document.getElementById('mani-file-error');
-        let extractManiFileError = document.getElementById('errors-list')
-        extractManiFileError.style.display = 'block';
         maniFileError.style.display = 'block';
         maniFileError.classList.add("ons-panel--error", "ons-panel--no-title");
-        extractManiFilesErrorTitle.innerHTML = displayText;
         maniFileCSVError.style.display = 'block';
-        valid = false;
     }
 
     function addItem(line, anchor) {
@@ -77,17 +83,27 @@ async function onSubmit(event) {
     // let errorForm = document.getElementById("errorForm")
     // errorForm = document.getElementById("errorForm").reset()
     let valid = true;
-
+    let errCount=0;
     // if (!valid) {
     //     loadingSpinner.style.display = 'none';
     //     return false;
     // }
 
-    if (form.fileOne.files.length < 1 || form.fileTwo.files.length < 1) { // Checks if user has added 2 files (this is the only validation done client side)
-        bothFilesErrorStyle("You need to fill in both fields")
+    if (form.fileOne.files.length < 1 ) {
+        
+        fileOneErrorStyle();
         addItem("You need to add a Extract file", "fileOne")
+        valid=false;
+    }
+    if (form.fileTwo.files.length < 1 ) {
+        fileTwoErrorStyle();
         addItem("You need to add a Mani file", "fileTwo")
-        return false;
+        valid=false;
+    }
+    if (!valid) {
+        commonErrorStyle("You need to fill in both fields")
+        //if we don't have both then we're going to stop checking here.
+        return(false)
     }
 
     const fileOne = form.fileOne.files[0]; // First file chosen (EXTRACT file)
@@ -99,22 +115,50 @@ async function onSubmit(event) {
     const lastPart = urlParts[urlParts.length - 1];
     const ladCode = lastPart.split('-')[0];
     console.log("URL Code found: ", ladCode);
-
+    
+    const patOne=new RegExp("CTAX_EXTRACT_"+ladCode+"_.{8}\.csv","i")
+    console.log(patOne)
     if (!fileOne.name.includes(ladCode)) {
         console.log("File name does not contain matching code:", fileOne.name);
-        fileOneErrorStyle("There is 1 problem with this page");
+        fileOneErrorStyle();
         addItem("File name does not contain matching LAD code", "fileOne")
-        clearErrors
-        return false;
+        valid=false;
+        errCount=++errCount;
     }
+
+    if (fileOne.name.includes(ladCode) && !fileOne.name.match(patOne)) {
+        console.log("Extract File name does not follow the right pattern", fileOne.name);
+        fileOneErrorStyle();
+        addItem("Extract File name does not follow the right pattern", "fileOne")
+        valid=false;
+        errCount=++errCount;
+    }
+
+    const patTwo=new RegExp("CTAX_MANI_"+ladCode+"_\d{8}\.csv","i")
+   
 
     if (!fileTwo.name.includes(ladCode)) {
         console.log("File name does not contain matching code:", fileTwo.name);
-        fileTwoErrorStyle("There is 1 problem with this page");
+        fileTwoErrorStyle();
         addItem("File name does not contain matching LAD code", "fileTwo")
-        clearErrors
+        valid=false;
+        errCount=++errCount;
+    }
+
+    if (fileTwo.name.includes(ladCode) && !fileTwo.name.match(patTwo)) {
+        console.log("ManiFile name does not follow the right pattern", fileTwo.name);
+        fileOneErrorStyle();
+        addItem("Mani File name does not follow the right pattern", "fileTwo")
+        valid=false;
+        errCount=++errCount;
+    }
+
+    if (!valid) { 
+        commonErrorStyle(errCount);
         return false;
     }
+
+
     const loadingSpinner = document.querySelector('.hods-loading-spinner__content');
     loadingSpinner.style.display = 'block';
     const urlWithParameters = url + `?fileOneName=$${fileOne.name}&fileOneType=$${fileOne.type}&fileTwoName=$${fileTwo.name}&fileTwoType=$${fileTwo.type}&fileOneSize=$${fileOne.size}&fileTwoSize=$${fileTwo.size}`;
@@ -124,24 +168,22 @@ async function onSubmit(event) {
         .then(data => {
             console.log("message : " + data.message);
             if (data.message === "File is not .csv") {
-                fileOneErrorStyle("There is 1 problem with this page");
+                fileOneErrorStyle();
                 addItem("Please upload a CSV file", "fileOne")
-                clearErrors
-                // window.location.href = "not_CSV_error.html";
+                commonErrorStyle(1);
             }  else if (data.message === "maniFile is not .csv") {
-                fileTwoErrorStyle("There is 1 problem with this page");
+                fileTwoErrorStyle();
                 addItem("Please upload a CSV file", "fileTwo")
-                clearErrors
-            
+                commonErrorStyle(1);
              } else if (data.message === "File is empty") {
-                bothFilesErrorStyle("There are 2 problems with this page")
-                addItem("Excract file is empty", "fileOne")
+                bothFilesErrorStyle()
+                addItem("Extract file is empty", "fileOne")
                 addItem("Mani file is empty", "fileTwo")
-                clearErrors
+                commonErrorStyle(2);
             } else if (data.message === "File names do not match") {
-                bothFilesErrorStyle("There is 1 problem with this page")
+                bothFilesErrorStyle()
                 addItem("File names do not match", "fileOne")
-                clearErrors
+                commonErrorStyle(2);
 
             } else {
                 uploadFile(data.uploadURLFileOne, fileOne).then(data => { // If all file verification checks pass, each file is uploaded to its individual pre-signed URL which puts file in s3 bucket
