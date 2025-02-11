@@ -81,7 +81,6 @@ async function onSubmit(event) {
     clearErrors()
 
     let valid = true;
-<<<<<<< HEAD
     let errCount=0;
     // if (!valid) {
     //     loadingSpinner.style.display = 'none';
@@ -114,7 +113,7 @@ async function onSubmit(event) {
     const ladCode = lastPart.split('-')[0];
     console.log("URL Code found: ", ladCode);
     
-    const patOne=new RegExp("CTAX_EXTRACT_"+ladCode+"_.{8}\.csv","i")
+    const patOne=new RegExp("CTAX_EXTRACT_"+ladCode+'_\\d{8}\\.csv',"i")
     console.log(patOne)
     if (!fileOne.name.includes(ladCode)) {
         console.log("File name does not contain matching code:", fileOne.name);
@@ -132,7 +131,7 @@ async function onSubmit(event) {
         errCount=++errCount;
     }
 
-    const patTwo=new RegExp("CTAX_MANI_"+ladCode+"_\d{8}\.csv","i")
+    const patTwo=new RegExp("CTAX_MANI_"+ladCode+'_\\d{8}\\.csv',"i")
    
 
     if (!fileTwo.name.includes(ladCode)) {
