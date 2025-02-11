@@ -89,13 +89,7 @@ async function onSubmit(event) {
     // }
 
     if (form.fileOne.files.length < 1 ) {
-        
         fileOneErrorStyle();
-=======
-
-    if (form.fileOne.files.length < 1 || form.fileTwo.files.length < 1) { // Checks if user has added 2 files (this is the only validation done client side)
-        bothFilesErrorStyle("You need to fill in both fields")
->>>>>>> 7b8c78aaf35d7e9b301390675c461963127b1ef5
         addItem("You need to add a Extract file", "fileOne")
         valid=false;
     }
@@ -126,12 +120,8 @@ async function onSubmit(event) {
         console.log("File name does not contain matching code:", fileOne.name);
         fileOneErrorStyle();
         addItem("File name does not contain matching LAD code", "fileOne")
-<<<<<<< HEAD
         valid=false;
         errCount=++errCount;
-=======
-        return false;
->>>>>>> 7b8c78aaf35d7e9b301390675c461963127b1ef5
     }
 
     if (fileOne.name.includes(ladCode) && !fileOne.name.match(patOne)) {
@@ -149,7 +139,6 @@ async function onSubmit(event) {
         console.log("File name does not contain matching code:", fileTwo.name);
         fileTwoErrorStyle();
         addItem("File name does not contain matching LAD code", "fileTwo")
-<<<<<<< HEAD
         valid=false;
         errCount=++errCount;
     }
@@ -164,8 +153,6 @@ async function onSubmit(event) {
 
     if (!valid) { 
         commonErrorStyle(errCount);
-=======
->>>>>>> 7b8c78aaf35d7e9b301390675c461963127b1ef5
         return false;
     }
 
@@ -181,36 +168,20 @@ async function onSubmit(event) {
             if (data.message === "File is not .csv") {
                 fileOneErrorStyle();
                 addItem("Please upload a CSV file", "fileOne")
-<<<<<<< HEAD
                 commonErrorStyle(1);
-=======
-
->>>>>>> 7b8c78aaf35d7e9b301390675c461963127b1ef5
             }  else if (data.message === "maniFile is not .csv") {
                 fileTwoErrorStyle();
                 addItem("Please upload a CSV file", "fileTwo")
-<<<<<<< HEAD
                 commonErrorStyle(1);
-=======
-            
->>>>>>> 7b8c78aaf35d7e9b301390675c461963127b1ef5
              } else if (data.message === "File is empty") {
                 bothFilesErrorStyle()
                 addItem("Extract file is empty", "fileOne")
                 addItem("Mani file is empty", "fileTwo")
-<<<<<<< HEAD
                 commonErrorStyle(2);
-=======
-
->>>>>>> 7b8c78aaf35d7e9b301390675c461963127b1ef5
             } else if (data.message === "File names do not match") {
                 bothFilesErrorStyle()
                 addItem("File names do not match", "fileOne")
-<<<<<<< HEAD
                 commonErrorStyle(2);
-=======
->>>>>>> 7b8c78aaf35d7e9b301390675c461963127b1ef5
-
             } else {
                 uploadFile(data.uploadURLFileOne, fileOne).then(data => { // If all file verification checks pass, each file is uploaded to its individual pre-signed URL which puts file in s3 bucket
                 });
