@@ -55,7 +55,7 @@ async function onSubmit(event) {
     function fileTwoErrorStyle() {
         let maniFileCSVError = document.getElementById('mani-file-csv-error')
         let maniFileError = document.getElementById('mani-file-error');
-        maniFileError.style.display = 'block';
+        // maniFileError.style.display = 'block';
         maniFileError.classList.add("ons-panel--error", "ons-panel--no-title");
         maniFileCSVError.style.display = 'block';
     }
