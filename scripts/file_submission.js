@@ -1,6 +1,6 @@
 const url = "${api_url}pre-signed-url"; // API Gateway URL. Once API Gateway is called, the lambda is triggered which
 // carries out file validation and returns pre-signed URLs if files pass checks
-const clientSideValidation=false
+const clientSideValidation=true
 
 const options = {
     method: 'GET',
