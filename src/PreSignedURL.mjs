@@ -51,12 +51,12 @@ export const handler = async (event, context, callback) => {
       const resultBody = JSON.parse(result.body);
       logger.logError(event.queryStringParameters.fileOneName.slice(13, 22), event.queryStringParameters.fileOneName, result.statusCode, resultBody.message);
       return result;
-    } else if(event.queryStringParameters.fileOneType !== "csv"){
+    } else if(event.queryStringParameters.fileOneType !== "text/csv"){
       const result = await fileNotCSV(event.queryStringParameters.fileOneName);
       const resultBody = JSON.parse(result.body);
       logger.logError(event.queryStringParameters.fileOneName.slice(13, 22), event.queryStringParameters.fileOneName, result.statusCode, resultBody.message);
       return result;
-    } else if(event.queryStringParameters.fileTwoType !== "csv"){
+    } else if(event.queryStringParameters.fileTwoType !== "text/csv"){
       const result = await maniFileNotCSV(event.queryStringParameters.fileTwoName);
       const resultBody = JSON.parse(result.body);
       logger.logError(event.queryStringParameters.fileOneName.slice(13, 22), event.queryStringParameters.fileOneName, result.statusCode, resultBody.message);

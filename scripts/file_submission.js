@@ -112,7 +112,7 @@ async function onSubmit(event) {
         const lastPart = urlParts[urlParts.length - 1];
         const ladCode = lastPart.split('-')[0];
         console.log("URL Code found: ", ladCode);
-        
+        console.log("File name is:", fileOne.name)
         const patOne=new RegExp("CTAX_EXTRACT_"+ladCode+'_\\d{8}\\.csv',"i")
         console.log(patOne)
         if (!fileOne.name.includes(ladCode)) {
