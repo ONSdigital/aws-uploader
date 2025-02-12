@@ -1,6 +1,6 @@
 const url = "${api_url}pre-signed-url"; // API Gateway URL. Once API Gateway is called, the lambda is triggered which
 // carries out file validation and returns pre-signed URLs if files pass checks
-const clientSideValidation=true
+// const clientSideValidation=true
 
 const options = {
     method: 'GET',
@@ -79,7 +79,7 @@ async function onSubmit(event) {
 
     clearErrors()
 
-    if (clientSideValidation) {
+    // if (clientSideValidation) {
         let valid = true;
         let errCount=0;
         // if (!valid) {
@@ -155,7 +155,7 @@ async function onSubmit(event) {
             return false;
         }
 
-    }
+    //}
     const loadingSpinner = document.querySelector('.hods-loading-spinner__content');
     loadingSpinner.style.display = 'block';
     const urlWithParameters = url + `?fileOneName=$${fileOne.name}&fileOneType=$${fileOne.type}&fileTwoName=$${fileTwo.name}&fileTwoType=$${fileTwo.type}&fileOneSize=$${fileOne.size}&fileTwoSize=$${fileTwo.size}`;
