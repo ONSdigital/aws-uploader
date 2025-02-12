@@ -1,0 +1,13 @@
+aws:
+  s3_bucket: tf-state-uploader-tqsb
+  tfstate: terraform/aws-uploader.tfstate
+  tflocks: tf-state-uploader-tqsb-locks
+  access_key: ((ingest_prod_aws_access_key))
+  secret_key: ((ingest_prod_aws_secret_key))
+git:
+  repo: aws-uploader
+  branch: prod
+terraform:
+  tfvars: env/prod.tfvars
+concourse:
+  vars: prod-vars.yml
