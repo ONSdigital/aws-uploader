@@ -6,6 +6,12 @@ module "ons_upload_ingest_bucket" {
   tiering     = false
   logging     = false
 
+  sqs_notifications = {
+    id      = var.sqs_notification_id
+    sqs_arn = data.aws_sqs_queue.nifi_sqs.arn
+    events  = ["s3:ObjectCreated:*"]
+  }
+
   attach_secure_transport_policy           = false
   attach_deny_incorrect_encryption_headers = false
 }
