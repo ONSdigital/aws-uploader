@@ -42,3 +42,8 @@ variable "domain_name" {
   type        = string
   description = "Domain name for the DNS within an account to use."
 }
+
+variable "sqs_notification_id" {
+  type        = string
+  description = "sqs_notification_id"
+}
