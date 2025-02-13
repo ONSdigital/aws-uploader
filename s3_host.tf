@@ -69,6 +69,7 @@ resource "aws_s3_object" "council_tax_folder" {
   bucket  = module.ons_upload_bucket.bucket_id
   key     = "council-tax/"
   content = ""
+  content_type = "text/html"
 }
 
 resource "aws_s3_object" "home_page" {
