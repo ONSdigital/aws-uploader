@@ -191,6 +191,9 @@ async function onSubmit(event) {
                 })
                 .catch(error => {
                     console.error('Error uploading files:', error);
+                    bothFilesErrorStyle()
+                    addItem("Files failed to load", "fileOne")
+                    commonErrorStyle(2);
                 });
             }
             loadingSpinner.style.display = "none"
