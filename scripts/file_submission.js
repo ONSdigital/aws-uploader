@@ -192,7 +192,7 @@ async function onSubmit(event) {
                 .catch(error => {
                     console.error('Error uploading files:', error);
                     bothFilesErrorStyle()
-                    addItem("There has been an issue with the upload, please contact ingest.support@ons.gov.uk", "fileOne")
+                    addItem("There has been an issue with the upload, please contact ingest.service@ons.gov.uk", "fileOne")
                     commonErrorStyle(2);
                 });
             }
