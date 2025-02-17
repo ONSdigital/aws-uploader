@@ -183,8 +183,8 @@ async function onSubmit(event) {
                 commonErrorStyle(2);
             } else {
                 Promise.all([
-                    uploadFile(data.uploadURLFileOne, fileOne),
-                    uploadFile(data.uploadURLFileTwo, fileTwo)
+                    failingUploadFile(data.uploadURLFileOne, fileOne),
+                    failingUploadFile(data.uploadURLFileTwo, fileTwo)
                 ])
                 .then(results => {
                     window.location.href = "success.html";
@@ -198,6 +198,12 @@ async function onSubmit(event) {
             }
             loadingSpinner.style.display = "none"
         });
+}
+
+function failingUploadFile(url, file) {
+    return uploadFile(url, file).then(() => {
+        throw new Error('Forced error for testing');
+    });
 }
 
 async function uploadFile(uploadURL, file) {
