@@ -70,6 +70,7 @@ export const handler = async (event, context, callback) => {
       const result = await getUploadURL(event, LADCode, formatedDate);
       const resultBody = JSON.parse(result.body);
       logger.logSuccess(LADCode, event.queryStringParameters.fileOneName, resultBody.uploadURLFileOne, result.statusCode);
+      logger.logSuccess(LADCode, event.queryStringParameters.fileTwoName, resultBody.uploadURLFileTwo, result.statusCode);
       return result;
     }
   } catch (error){
@@ -168,8 +169,8 @@ const getUploadURL = async (event,LADCode,formatedDate) => {
     
     
   }) 
-   let uploadURLFileOne = await getSignedUrl(s3, s3ParamsFileOne, { expiresIn: 90 })
-    let uploadURLFileTwo = await getSignedUrl(s3, s3ParamsFileTwo, { expiresIn: 90 })
+   let uploadURLFileOne = await getSignedUrl(s3, s3ParamsFileOne, { expiresIn: 180 })
+    let uploadURLFileTwo = await getSignedUrl(s3, s3ParamsFileTwo, { expiresIn: 180 })
 return new Promise((resolve, reject) => {
    
       resolve({

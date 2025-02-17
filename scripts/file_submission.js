@@ -187,16 +187,18 @@ async function onSubmit(event) {
                     uploadFile(data.uploadURLFileTwo, fileTwo)
                 ])
                 .then(results => {
+                    loadingSpinner.style.display = "none"
                     window.location.href = "success.html";
                 })
                 .catch(error => {
+                    loadingSpinner.style.display = "none"
                     console.error('Error uploading files:', error);
                     bothFilesErrorStyle()
                     addItem("There has been an issue with the upload, please contact ingest.service@ons.gov.uk", "fileOne")
                     commonErrorStyle(2);
                 });
             }
-            loadingSpinner.style.display = "none"
+
         });
 }
 
