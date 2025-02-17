@@ -73,9 +73,17 @@ resource "aws_s3_object" "council_tax_folder" {
 
 resource "aws_s3_object" "home_page" {
   bucket       = module.ons_upload_bucket.bucket_id
-  key          = "council-tax/index.html"
+  key          = "index.html"
   source       = "${path.module}/scripts/index.html"
   source_hash  = filemd5("${path.module}/scripts/index.html")
+  content_type = "text/html"
+}
+
+resource "aws_s3_object" "council_home_page" {
+  bucket       = module.ons_upload_bucket.bucket_id
+  key          = "council-tax/index.html"
+  source       = "${path.module}/scripts/council-tax/index.html"
+  source_hash  = filemd5("${path.module}/scripts/council-tax/index.html")
   content_type = "text/html"
 }
 

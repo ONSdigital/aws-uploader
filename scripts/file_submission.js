@@ -182,13 +182,23 @@ async function onSubmit(event) {
                 addItem("File names do not match", "fileOne")
                 commonErrorStyle(2);
             } else {
-                uploadFile(data.uploadURLFileOne, fileOne).then(data => { // If all file verification checks pass, each file is uploaded to its individual pre-signed URL which puts file in s3 bucket
-                });
-                uploadFile(data.uploadURLFileTwo, fileTwo).then(data => {
+                Promise.all([
+                    uploadFile(data.uploadURLFileOne, fileOne),
+                    uploadFile(data.uploadURLFileTwo, fileTwo)
+                ])
+                .then(results => {
+                    loadingSpinner.style.display = "none"
                     window.location.href = "success.html";
+                })
+                .catch(error => {
+                    loadingSpinner.style.display = "none"
+                    console.error('Error uploading files:', error);
+                    bothFilesErrorStyle()
+                    addItem("There has been an issue with the upload, please contact ingest.service@ons.gov.uk", "fileOne")
+                    commonErrorStyle(2);
                 });
             }
-            loadingSpinner.style.display = "none"
+
         });
 }
 
