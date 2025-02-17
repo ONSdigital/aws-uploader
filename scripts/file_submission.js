@@ -201,9 +201,8 @@ async function onSubmit(event) {
 }
 
 function failingUploadFile(url, file) {
-    return uploadFile(url, file).then(() => {
-        throw new Error('Forced error for testing');
-    });
+    // Immediately reject the promise instead of trying to upload first
+    return Promise.reject(new Error('Forced error for testing'));
 }
 
 async function uploadFile(uploadURL, file) {
