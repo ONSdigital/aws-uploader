@@ -130,3 +130,11 @@ resource "aws_cloudfront_response_headers_policy" "custom_security_headers" {
     }
   }
 }
+
+resource "aws_cloudfront_function" "rewrite_default_index_request" {
+  name    = "RewriteDefaultIndexRequest"
+  runtime = "cloudfront-js-2.0"
+  comment = "function for using a second index page"
+  publish = true
+  code    = filemd5("${path.module}/scripts/second_index.js")
+}
