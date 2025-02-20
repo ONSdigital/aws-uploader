@@ -4,11 +4,11 @@ async function handler(event) {
     
     // Check whether the URI is missing a file name.
     if (uri.endsWith('/')) {
-        request.uri += 'index.html';
+        request.uri += 'council-tax/index.html';
     } 
     // Check whether the URI is missing a file extension.
     else if (!uri.includes('.')) {
-        request.uri += '/index.html';
+        request.uri += '/council-tax/index.html';
     }
 
     return request;
