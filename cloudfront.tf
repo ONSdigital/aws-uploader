@@ -136,5 +136,5 @@ resource "aws_cloudfront_function" "rewrite_default_index_request" {
   runtime = "cloudfront-js-2.0"
   comment = "function for using a second index page"
   publish = true
-  code    = filemd5("${path.module}/scripts/second_index.js")
+  code    = file("${path.module}/scripts/second_index.js")
 }
