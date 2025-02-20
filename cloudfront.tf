@@ -61,15 +61,15 @@ resource "aws_cloudfront_distribution" "uploader" {
   }
 
   ordered_cache_behavior {
-    path_pattern = file("${path.module}/scripts/council-tax/index.html")
-    allowed_methods            = ["GET", "HEAD", "OPTIONS"]
-    cached_methods             = ["GET", "HEAD"]
-    target_origin_id           = "S3Origin"
+    path_pattern           = ("council-tax/index.html")
+    allowed_methods        = ["GET", "HEAD", "OPTIONS"]
+    cached_methods         = ["GET", "HEAD"]
+    target_origin_id       = "S3Origin"
     viewer_protocol_policy = "redirect-to-https"
 
     function_association {
 
-      event_type = "viewer-request"
+      event_type   = "viewer-request"
       function_arn = aws_cloudfront_function.rewrite_default_index_request.arn
 
     }
