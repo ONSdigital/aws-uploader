@@ -60,6 +60,26 @@ resource "aws_cloudfront_distribution" "uploader" {
     max_ttl                = 86400
   }
 
+  ordered_cache_behavior {
+    path_pattern = file("${path.module}/scripts/council-tax/index.html")
+    allowed_methods            = ["GET", "HEAD", "OPTIONS"]
+    cached_methods             = ["GET", "HEAD"]
+    target_origin_id           = "S3Origin"
+    origin_request_policy_id   = "acba4595-bd28-49b8-b9fe-13317c0390fa" # Managed-CORS-CustomOrigin policy ID
+    response_headers_policy_id = aws_cloudfront_response_headers_policy.custom_security_headers.id
+    cache_policy_id            = "658327ea-f89d-4fab-a63d-7e88639e58f6"
+    viewer_protocol_policy = "redirect-to-https"
+    min_ttl                = 0
+    default_ttl            = 3600
+    max_ttl                = 86400
+
+    function_association {
+
+      event_type = "viewer-request"
+      function_arn = aws_cloudfront_function.rewrite_default_index_request.arn
+
+    }
+  }
 
   price_class = "PriceClass_100"
 
@@ -137,5 +157,4 @@ resource "aws_cloudfront_function" "rewrite_default_index_request" {
   comment = "function for using a second index page"
   publish = true
   code    = file("${path.module}/scripts/second_index.js")
-  status = ""
 }
