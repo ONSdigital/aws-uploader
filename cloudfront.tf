@@ -61,7 +61,7 @@ resource "aws_cloudfront_distribution" "uploader" {
   }
 
   ordered_cache_behavior {
-    path_pattern           = ("Default(*)")
+    path_pattern           = ("Default")
     allowed_methods        = ["GET", "HEAD", "OPTIONS"]
     cached_methods         = ["GET", "HEAD"]
     target_origin_id       = "S3Origin"
