@@ -65,11 +65,11 @@ resource "aws_s3_bucket_website_configuration" "ons_upload_configuration" {
   }
 }
 
-resource "aws_s3_object" "council_tax_folder" {
-  bucket  = module.ons_upload_bucket.bucket_id
-  key     = "council-tax/"
-  content = ""
-}
+# resource "aws_s3_object" "council_tax_folder" {
+#   bucket  = module.ons_upload_bucket.bucket_id
+#   key     = "council-tax/"
+#   content = ""
+# }
 
 resource "aws_s3_object" "home_page" {
   bucket       = module.ons_upload_bucket.bucket_id
