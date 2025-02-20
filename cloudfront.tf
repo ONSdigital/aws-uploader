@@ -67,6 +67,14 @@ resource "aws_cloudfront_distribution" "uploader" {
     target_origin_id       = "S3Origin"
     viewer_protocol_policy = "redirect-to-https"
 
+    forwarded_values {
+      query_string = false
+
+      cookies {
+        forward = "none"
+      }
+    }
+
     function_association {
 
       event_type   = "viewer-request"
