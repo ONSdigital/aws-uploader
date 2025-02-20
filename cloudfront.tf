@@ -137,5 +137,5 @@ resource "aws_cloudfront_function" "rewrite_default_index_request" {
   comment = "function for using a second index page"
   publish = true
   code    = file("${path.module}/scripts/second_index.js")
-  status = "ASSOCIATED"
+  status = ""
 }
