@@ -108,7 +108,7 @@ resource "aws_cloudfront_distribution" "uploader" {
     ssl_support_method       = "sni-only"
   }
 
-  provisioner "local-exec" {
+  provisioner "local-exec" {  #cloudfront invalidation
     command = "aws cloudfront create-invalidation --distribution-id ${self.id} --paths 'council-tax/*'"
   }
 
