@@ -31,6 +31,8 @@ resource "aws_cloudfront_distribution" "uploader" {
   web_acl_id          = aws_wafv2_web_acl.uploader_waf_cloudfront.arn #
   http_version        = "http2and3"
   default_root_object = "index.html"
+
+
   logging_config { #CKV_AWS_86
     bucket = aws_s3_bucket.cloudfront_logging_bucket.bucket_domain_name
     prefix = "logging"
@@ -105,6 +107,11 @@ resource "aws_cloudfront_distribution" "uploader" {
     minimum_protocol_version = "TLSv1.2_2021"
     ssl_support_method       = "sni-only"
   }
+
+  provisioner "local-exec" {
+    command = "aws cloudfront create-invalidation --distribution-id ${self.id} --paths 'council-tax/*'"
+  }
+
 
 }
 
