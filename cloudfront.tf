@@ -118,7 +118,6 @@ resource "null_resource" "invalidate_cf_cache" {
   triggers = {
     website_version_changed = aws_s3_object.error_page.version_id
   }
-
 }
 
 
