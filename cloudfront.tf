@@ -112,11 +112,13 @@ resource "aws_cloudfront_distribution" "uploader" {
 }
 
 resource "terraform_data" "invalidate_cf_cache" {
-  provisioner "local-exec" {
-    command = "aws cloudfront create-invalidation --distribution-id ${self.id} --paths 'council-tax/*'"
-  }
+
   triggers_replace = {
     website_version_changed = aws_s3_object.error_page.version_id
+  }
+
+  provisioner "local-exec" {
+    command = "aws cloudfront create-invalidation --distribution-id ${self.id} --paths 'council-tax/*'"
   }
 }
 
