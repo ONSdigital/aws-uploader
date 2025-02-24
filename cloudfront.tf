@@ -108,12 +108,19 @@ resource "aws_cloudfront_distribution" "uploader" {
     ssl_support_method       = "sni-only"
   }
 
-  provisioner "local-exec" {  #cloudfront invalidation
-    command = "aws cloudfront create-invalidation --distribution-id ${self.id} --paths 'council-tax/*'"
-  }
-
 
 }
+
+resource "null_resource" "invalidate_cf_cache" {
+  provisioner "local-exec" {
+    command = "aws cloudfront create-invalidation --distribution-id ${self.id} --paths 'council-tax/*'"
+  }
+  triggers = {
+    website_version_changed = aws_s3_object.error_page.version_id
+  }
+
+}
+
 
 resource "aws_cloudfront_response_headers_policy" "custom_security_headers" {
   name    = "csp-security-headers"
