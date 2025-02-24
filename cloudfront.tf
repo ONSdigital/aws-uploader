@@ -118,7 +118,7 @@ resource "terraform_data" "invalidate_cf_cache" {
   }
 
   provisioner "local-exec" {
-    command = "aws cloudfront create-invalidation --distribution-id ${self.id} --paths 'council-tax/*'"
+    command = "aws cloudfront create-invalidation --distribution-id ${self.id} --paths '/*'"
   }
 }
 
