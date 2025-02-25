@@ -114,7 +114,7 @@ resource "aws_cloudfront_distribution" "uploader" {
 resource "terraform_data" "invalidate_cf_caches" {
 
   provisioner "local-exec" {
-    command = "aws cloudfront create-invalidation --distribution-id ${self.id} --paths 'council-tax/*'"
+    command = "aws cloudfront create-invalidation --distribution-id ${aws_cloudfront_distribution.uploader.id} --paths 'council-tax/*'"
   }
 
   triggers_replace = {
