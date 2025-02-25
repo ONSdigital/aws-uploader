@@ -118,9 +118,15 @@ resource "terraform_data" "invalidate_cf_caches" {
   }
 
   triggers_replace = {
-    website_version_changed = aws_s3_object.error_page.version_id
+    website_error_page = aws_s3_object.error_page.version_id
+    website_home_page = aws_s3_object.home_page.version_id
+    website_council_home_page = aws_s3_object.council_home_page.version_id
+    website_012345678_council_page = aws_s3_object._012345678-council.version_id
+    website_newark_sherwood_page = aws_s3_object.newark-sherwood.version_id
+    website_success_page = aws_s3_object.success_page.version_id
+    website_file_submission_script = aws_s3_object.file_submission.version_id
+    website_result_message_script = aws_s3_object.result_message.version_id
   }
-
 }
 
 

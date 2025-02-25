@@ -127,7 +127,7 @@ resource "aws_s3_object" "_012345678-council" {
   content_type = "text/html"
 }
 
-resource "aws_s3_object" "_012345678-council2" {
+resource "aws_s3_object" "newark-sherwood" {
   bucket       = module.ons_upload_bucket.bucket_id
   key          = "council-tax/E07000175-Newark&Sherwood.html"
   source       = "${path.module}/scripts/E07000175-Newark&Sherwood.html"
