@@ -5,8 +5,8 @@ image_resource:
   source:
     repository: 013353241801.dkr.ecr.eu-west-2.amazonaws.com/awscli_terraform
     tag: latest
-    # aws_access_key_id: ((aws.access_key))
-    # aws_secret_acess_key: ((aws.secret_key))
+    aws_access_key_id: ((AWS_ACCESS_KEY_ID))
+    aws_secret_acess_key: ((AWS_SECRET_ACCESS_KEY))
 inputs:
   - name: pull-request
 outputs:
