@@ -7,6 +7,7 @@ image_resource:
     tag: latest
     aws_access_key_id: ((aws_access_key))
     aws_secret_acess_key: ((aws_secret_key))
+    region: eu-west-2
 inputs:
   - name: pull-request
 outputs:

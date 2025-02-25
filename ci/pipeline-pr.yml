@@ -159,6 +159,9 @@ jobs:
  
       - task: terraform-apply
         file: pull-request/ci/tasks/terraform/terraform-apply.yml
+        vars: 
+          aws_access_key: ((aws.access_key))
+          aws_secret_key: ((aws.secret_key))
         params:
           S3_BUCKET_NAME: ((aws.s3_bucket))
           TF_STATE: ((aws.tfstate))
