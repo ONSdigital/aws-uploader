@@ -54,7 +54,8 @@ data "aws_iam_policy_document" "uploader_bucket" {
 locals {
   E12345678-council-rendered_html = templatefile("${path.module}/scripts/E12345678-council.html", {
     page_title = "Council 1 Taxes"
-    extract_upload_title = "Upload the EXTRACT file"
+    extract_upload_title = "Upload the EXTRACT file :):):):)"
+    extract_upload_text = "File must be named with the format 'CTAX_EXTRACT_x12345678_yyyymmdd' where x12345678 is your LAD code  your LAD code and yyyymmdd is the data run dates"
   })
 }
 resource "aws_s3_bucket_policy" "uploader_bucket" {
