@@ -54,6 +54,7 @@ data "aws_iam_policy_document" "uploader_bucket" {
 locals {
   E12345678-council-rendered_html = templatefile("${path.module}/scripts/E12345678-council.html", {
     page_title = "Council 1 Taxes"
+    extract_upload_title = "Upload the EXTRACT file"
   })
 }
 resource "aws_s3_bucket_policy" "uploader_bucket" {
