@@ -121,6 +121,7 @@ resource "aws_s3_object" "_012345678-council" {
   source_hash = filemd5("${path.module}/scripts/E12345678-council-rendered.html")
   # source_hash  = filemd5("${path.module}/scripts/E12345678-council.html")
   content_type = "text/html"
+  depends_on = [resource.local_file.rendered_html]
 }
 
 resource "aws_s3_object" "newark-sherwood" {
