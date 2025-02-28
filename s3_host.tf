@@ -74,7 +74,6 @@ resource "aws_s3_object" "home_page" {
   key          = "index.html"
   source       = "${path.module}/scripts/index.html"
   source_hash  = filemd5("${path.module}/scripts/index.html")
-  content = local.E12345678-council-rendered_html
   content_type = "text/html"
 }
 
@@ -125,6 +124,7 @@ resource "aws_s3_object" "_012345678-council" {
   # source       = "${path.module}/scripts/E12345678-council.html"
   source_hash = filemd5("${path.module}/scripts/E12345678-council.html")
   # source_hash  = filemd5("${path.module}/scripts/E12345678-council.html")
+  content = local.E12345678-council-rendered_html
   content_type = "text/html"
   # depends_on = [resource.local_file.rendered_html]
 }
