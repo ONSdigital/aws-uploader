@@ -11,12 +11,12 @@
 #     description = "this is the rendered html"
 # }
 
-resource "local_file" "rendered_html" {
-  content = templatefile("${path.module}/scripts/E12345678-council.html", {
-    page_title = "Council Taxes"
-  })
-  filename = "${path.module}/scripts/E12345678-council-rendered.html"
-}
+# resource "local_file" "rendered_html" {
+#   content = templatefile("${path.module}/scripts/E12345678-council.html", {
+#     page_title = "Council Taxes"
+#   })
+#   filename = "${path.module}/scripts/E12345678-council-rendered.html"
+# }
 
 # resource "local_file" "rendered_html" {
 #   content = templatefile("${path.module}/scripts/E12345678-council.html", {

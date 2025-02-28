@@ -51,7 +51,11 @@ data "aws_iam_policy_document" "uploader_bucket" {
   }
 }
 
-
+locals {
+  E12345678-council-rendered_html = templatefile("${path.module}/scripts/E12345678-council.html", {
+    page_title = "Council 1 Taxes"
+  })
+}
 resource "aws_s3_bucket_policy" "uploader_bucket" {
   bucket = module.ons_upload_bucket.bucket_id
   policy = data.aws_iam_policy_document.uploader_bucket.json
@@ -70,6 +74,7 @@ resource "aws_s3_object" "home_page" {
   key          = "index.html"
   source       = "${path.module}/scripts/index.html"
   source_hash  = filemd5("${path.module}/scripts/index.html")
+  content = local.E12345678-council-rendered_html
   content_type = "text/html"
 }
 

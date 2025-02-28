@@ -14,10 +14,10 @@ terraform {
       source  = "hashicorp/archive"
       version = ">= 2.7.0"
     }
-    local = {
-      source  = "hashicorp/local"
-      version = ">= 2.1.0"
-    }
+    # local = {
+    #   source  = "hashicorp/local"
+    #   version = ">= 2.1.0"
+    # }
   }
 }
 
