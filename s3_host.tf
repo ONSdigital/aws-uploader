@@ -51,12 +51,12 @@ data "aws_iam_policy_document" "uploader_bucket" {
   }
 }
 
-# locals {
-#   E12345678-council-rendered_html = templatefile("${path.module}/scripts/E12345678-council.html", {
-#     extract_upload_text = "File must be named with the format 'CTAX_EXTRACT_x12345678_yyyymmdd' where x12345678 is your LAD code  your LAD code and yyyymmdd is the data run date"
-#     mani_upload_text = "File must be named with the format 'CTAX_MANI_x12345678_yyyymmdd' where x12345678 is your LAD code and yyyymmdd is the data run date"
-#   })
-# }
+locals {
+  E12345678-council-rendered_html = templatefile("${path.module}/scripts/E12345678-council.html", {
+    council_name = "Council E12345678"
+    lad_code = "E12345678"
+  })
+}
 resource "aws_s3_bucket_policy" "uploader_bucket" {
   bucket = module.ons_upload_bucket.bucket_id
   policy = data.aws_iam_policy_document.uploader_bucket.json
@@ -126,12 +126,12 @@ resource "aws_s3_object" "_012345678-council" {
     lad_code = "E12345678"
   })
   # source       = "${path.module}/scripts/E12345678-council.html"
-  source_hash  = sha256(templatefile("${path.module}/scripts/E12345678-council.html", {
-    council_name = "Council E12345678"
-    lad_code = "E12345678"
-  }))
-  # source_hash  = filemd5("${path.module}/scripts/E12345678-council.html")
-  # content = local.E12345678-council-rendered_html
+  # source_hash  = sha256(templatefile("${path.module}/scripts/E12345678-council.html", {
+  #   council_name = "Council E12345678"
+  #   lad_code = "E12345678"
+  # }))
+  source_hash  = filemd5("${path.module}/scripts/E12345678-council.html")
+  content = local.E12345678-council-rendered_html
   content_type = "text/html"
   # depends_on = [resource.local_file.rendered_html]
 }
