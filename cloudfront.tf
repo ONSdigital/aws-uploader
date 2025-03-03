@@ -69,28 +69,7 @@ resource "aws_cloudfront_distribution" "uploader" {
     }
   }
 
-  # ordered_cache_behavior {
-  #   path_pattern           = ("council-tax/")
-  #   allowed_methods        = ["GET", "HEAD", "OPTIONS"]
-  #   cached_methods         = ["GET", "HEAD"]
-  #   target_origin_id       = "S3Origin"
-  #   viewer_protocol_policy = "redirect-to-https"
 
-  #   forwarded_values {
-  #     query_string = false
-
-  #     cookies {
-  #       forward = "none"
-  #     }
-  #   }
-
-  #   function_association {
-
-  #     event_type   = "viewer-request"
-  #     function_arn = aws_cloudfront_function.rewrite_default_index_request.arn
-
-  #   }
-  # }
 
   price_class = "PriceClass_100"
 
