@@ -127,8 +127,8 @@ resource "aws_s3_object" "_012345678-council" {
   })
   # source       = "${path.module}/scripts/E12345678-council.html"
   source_hash  = filemd5(templatefile("${path.module}/scripts/E12345678-council.html", {
-    council_name = "Council 1"
-    lad_code = "1234"
+    council_name = "Council E12345678"
+    lad_code = "E12345678"
   }))
   # source_hash  = filemd5("${path.module}/scripts/E12345678-council.html")
   # content = local.E12345678-council-rendered_html
