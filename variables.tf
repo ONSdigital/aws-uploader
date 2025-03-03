@@ -47,3 +47,13 @@ variable "sqs_notification_id" {
   type        = string
   description = "sqs_notification_id"
 }
+
+variable "lad_code" {
+  type        = string
+  description = "lad code for councils"
+}
+
+variable "council_name" {
+  type        = string
+  description = "name of the council"
+}
