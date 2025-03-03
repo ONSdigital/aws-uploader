@@ -51,15 +51,12 @@ data "aws_iam_policy_document" "uploader_bucket" {
   }
 }
 
-locals {
-  E12345678-council-rendered_html = templatefile("${path.module}/scripts/E12345678-council.html", {
-    page_title = "Council 1 Taxes"
-    extract_upload_title = "Upload the EXTRACT file"
-    extract_upload_text = "File must be named with the format 'CTAX_EXTRACT_x12345678_yyyymmdd' where x12345678 is your LAD code  your LAD code and yyyymmdd is the data run date"
-    mani_upload_title = "Upload the MANI file"
-    mani_upload_text = "File must be named with the format 'CTAX_MANI_x12345678_yyyymmdd' where x12345678 is your LAD code and yyyymmdd is the data run date"
-  })
-}
+# locals {
+#   E12345678-council-rendered_html = templatefile("${path.module}/scripts/E12345678-council.html", {
+#     extract_upload_text = "File must be named with the format 'CTAX_EXTRACT_x12345678_yyyymmdd' where x12345678 is your LAD code  your LAD code and yyyymmdd is the data run date"
+#     mani_upload_text = "File must be named with the format 'CTAX_MANI_x12345678_yyyymmdd' where x12345678 is your LAD code and yyyymmdd is the data run date"
+#   })
+# }
 resource "aws_s3_bucket_policy" "uploader_bucket" {
   bucket = module.ons_upload_bucket.bucket_id
   policy = data.aws_iam_policy_document.uploader_bucket.json
@@ -124,11 +121,17 @@ resource "aws_s3_object" "file_names_dont_match_page" {
 resource "aws_s3_object" "_012345678-council" {
   bucket = module.ons_upload_bucket.bucket_id
   key    = "council-tax/E12345678-council.html"
-  # source = "${path.module}/scripts/E12345678-council-rendered.html"
+  source       = templatefile("${path.module}/scripts/E12345678-council.html", {
+    council_name = "Council E12345678"
+    lad_code = "E12345678"
+  })
   # source       = "${path.module}/scripts/E12345678-council.html"
-  source_hash = filemd5("${path.module}/scripts/E12345678-council.html")
+  source_hash  = filemd5(templatefile("${path.module}/scripts/E12345678-council.html", {
+    council_name = "Council 1"
+    lad_code = "1234"
+  }))
   # source_hash  = filemd5("${path.module}/scripts/E12345678-council.html")
-  content = local.E12345678-council-rendered_html
+  # content = local.E12345678-council-rendered_html
   content_type = "text/html"
   # depends_on = [resource.local_file.rendered_html]
 }
