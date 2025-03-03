@@ -121,19 +121,9 @@ resource "aws_s3_object" "file_names_dont_match_page" {
 resource "aws_s3_object" "_012345678-council" {
   bucket = module.ons_upload_bucket.bucket_id
   key    = "council-tax/E12345678-council.html"
-  # source       = templatefile("${path.module}/scripts/E12345678-council.html", {
-  #   council_name = "Council E12345678"
-  #   lad_code = "E12345678"
-  # })
-  # source       = "${path.module}/scripts/E12345678-council.html"
-  # source_hash  = sha256(templatefile("${path.module}/scripts/E12345678-council.html", {
-  #   council_name = "Council E12345678"
-  #   lad_code = "E12345678"
-  # }))
   source_hash  = md5(local.E12345678-council-rendered-html)
   content = local.E12345678-council-rendered-html
   content_type = "text/html"
-  # depends_on = [resource.local_file.rendered_html]
 }
 
 resource "aws_s3_object" "newark-sherwood" {
