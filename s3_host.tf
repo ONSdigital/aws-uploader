@@ -130,7 +130,7 @@ resource "aws_s3_object" "_012345678-council" {
   #   council_name = "Council E12345678"
   #   lad_code = "E12345678"
   # }))
-  source_hash  = filemd5(local.E12345678-council-rendered_html)
+  source_hash  = md5(local.E12345678-council-rendered_html)
   content = local.E12345678-council-rendered_html
   content_type = "text/html"
   # depends_on = [resource.local_file.rendered_html]
