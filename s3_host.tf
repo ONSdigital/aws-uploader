@@ -56,6 +56,11 @@ locals {
     council_name = "Council Newark & Sherwood"
     lad_code     = "E07000175"
   })
+
+  E07000175-council-rendered-html = templatefile("${path.module}/scripts/E07000175-Newark&Sherwood.html", {
+    council_name = "Council Newark & Sherwood"
+    lad_code     = "E07000175"
+  })
 }
 resource "aws_s3_bucket_policy" "uploader_bucket" {
   bucket = module.ons_upload_bucket.bucket_id
@@ -129,8 +134,8 @@ resource "aws_s3_object" "_012345678-council" {
 resource "aws_s3_object" "newark-sherwood" {
   bucket       = module.ons_upload_bucket.bucket_id
   key          = "council-tax/E07000175-Newark&Sherwood.html"
-  source_hash  = md5(local.E12345678-council-rendered-html)
-  content      = local.E12345678-council-rendered-html
+  source_hash  = md5(local.E07000175-council-rendered-html)
+  content      = local.E07000175-council-rendered-html
   content_type = "text/html"
 }
 
