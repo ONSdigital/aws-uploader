@@ -126,7 +126,7 @@ resource "aws_s3_object" "_012345678-council" {
     lad_code = "E12345678"
   })
   # source       = "${path.module}/scripts/E12345678-council.html"
-  source_hash  = filemd5(templatefile("${path.module}/scripts/E12345678-council.html", {
+  source_hash  = filesha256(templatefile("${path.module}/scripts/E12345678-council.html", {
     council_name = "Council E12345678"
     lad_code = "E12345678"
   }))
