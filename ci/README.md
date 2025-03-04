@@ -87,3 +87,4 @@ To declare a secret, you need to store the secret within AWS Secret Manager unde
 /concourse/team_name/pipeline_name/secret
 ```
 - This secret will be available only for pipelines within the given team and given pipeline
+

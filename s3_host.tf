@@ -52,6 +52,17 @@ data "aws_iam_policy_document" "uploader_bucket" {
 }
 
 
+locals {
+  E12345678-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
+    council_name = "Council Tax"
+    lad_code     = "E12345678"
+  })
+
+  E07000175-council-rendered-html = templatefile("${path.module}/scripts/E07000175-Newark&Sherwood.html", {
+    council_name = "Council Newark & Sherwood"
+    lad_code     = "E07000175"
+  })
+}
 resource "aws_s3_bucket_policy" "uploader_bucket" {
   bucket = module.ons_upload_bucket.bucket_id
   policy = data.aws_iam_policy_document.uploader_bucket.json
@@ -63,12 +74,6 @@ resource "aws_s3_bucket_website_configuration" "ons_upload_configuration" {
   index_document {
     suffix = "index.html"
   }
-}
-
-resource "aws_s3_object" "council_tax_folder" {
-  bucket  = module.ons_upload_bucket.bucket_id
-  key     = "council-tax/"
-  content = ""
 }
 
 resource "aws_s3_object" "home_page" {
@@ -122,16 +127,16 @@ resource "aws_s3_object" "file_names_dont_match_page" {
 resource "aws_s3_object" "_012345678-council" {
   bucket       = module.ons_upload_bucket.bucket_id
   key          = "council-tax/E12345678-council.html"
-  source       = "${path.module}/scripts/E12345678-council.html"
-  source_hash  = filemd5("${path.module}/scripts/E12345678-council.html")
+  source_hash  = md5(local.E12345678-council-rendered-html)
+  content      = local.E12345678-council-rendered-html
   content_type = "text/html"
 }
 
-resource "aws_s3_object" "_012345678-council2" {
+resource "aws_s3_object" "newark-sherwood" {
   bucket       = module.ons_upload_bucket.bucket_id
   key          = "council-tax/E07000175-Newark&Sherwood.html"
-  source       = "${path.module}/scripts/E07000175-Newark&Sherwood.html"
-  source_hash  = filemd5("${path.module}/scripts/E07000175-Newark&Sherwood.html")
+  source_hash  = md5(local.E07000175-council-rendered-html)
+  content      = local.E07000175-council-rendered-html
   content_type = "text/html"
 }
 

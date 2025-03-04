@@ -154,7 +154,7 @@
               <div
                 class="ons-grid ons-grid--gutterless ons-grid--flex ons-grid--between ons-grid--vertical-center ons-grid--no-wrap">
                 <div class="ons-grid__col ons-col-auto ons-u-flex-shrink">
-                  <div class="ons-header__title">Council Tax</div>
+                  <div class="ons-header__title">${council_name}</div>
                 </div>
               </div>
             </div>
@@ -195,7 +195,7 @@
             <div class="ons-field">
               <div class="ons-field">
                 <label class="ons-label ons-label--with-description" for="extract-upload" aria-describedby="extract-description">Upload the EXTRACT file</label>
-                <span id="extract-description-error" class="ons-label__description ons-input--with-description">File must be named with the format "CTAX_EXTRACT_E12345678_yyyymmdd" where the 8 digits are your LAD code and yyyymmdd is the data run date</span>
+                <span id="extract-description-error" class="ons-label__description ons-input--with-description">File must be named with the format "CTAX_EXTRACT_${lad_code}_yyyymmdd" where the 8 digits are your LAD code and yyyymmdd is the date</span>
                 <input name="extractFile" type="file" id="fileOne" class="ons-input ons-input--text ons-input-type__input ons-input--upload" accept=".csv" aria-describedby="extract-description" />
               </div>
             </div>
@@ -214,16 +214,17 @@
         <div class="ons-field">
           <div class="ons-field">
             <label class="ons-label ons-label--with-description" for="mani-upload" aria-describedby="mani-description">Upload the MANI file</label>
-            <span id="mani-description" class="ons-label__description ons-input--with-description">File must be named with the format "CTAX_MANI_E12345678_yyyymmdd" where the 8 digits are your LAD code and yyyymmdd is the data run date</span>
+            <span id="mani-description" class="ons-label__description ons-input--with-description">File must be named with the format "CTAX_MANI_${lad_code}_yyyymmdd" where the 8 digits are your LAD code and yyyymmdd is the date</span>
             <input name="maniFile" type="file" id="fileTwo" class="ons-input ons-input--text ons-input-type__input ons-input--upload" accept=".csv" aria-describedby="mani-description" />
           </div>
         </div>
-        <br>
-		<button type="submit" class="ons-btn">
+
+        <div>
+		<button type="submit" class="ons-btn" style="margin-top: 3%;">
           <span class="ons-btn__inner"><span class="ons-btn__text">Submit</span>
           </span>
         </button>
-
+      </div>
         <div class="hods-loading-spinner">
           <div
             class="hods-loading-spinner__spinner"

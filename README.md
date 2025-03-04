@@ -85,6 +85,41 @@ Run terraform plan
 ```
 terraform plan -var-file=env/env.tfvars
 ```
+### Creating council pages using templates
+This is a guide to create Council Tax upload pages:
+
+- Move to s3_host.tf and create another variable inside locals, you can copy one of the other Council's template file.
+
+- Name the variable using the Council Lad Code like this: LadCode-council-rendered-html.
+
+- Point "templatefile" to template/council-tax-template.html.
+
+- Update the "council_name" and "lad_code" to match the new Council.
+
+- After that, create another aws_s3_object. You can copy one of the other Council's s3 object.
+
+- Change the s3 object name to the matching council.
+
+- Update the "key" to the match Council LadCode and Name.
+
+- Update "source_hash" to point to the new local variable.
+
+- Update the "content" to point to the new local variable.
+
+- Example of local variable:
+  E12345678-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
+    council_name = "Council Tax"
+    lad_code     = "E12345678"
+	})
+
+- Example of s3 object resource:
+resource "aws_s3_object" "newark-sherwood" {
+  bucket       = module.ons_upload_bucket.bucket_id
+  key          = "council-tax/E07000175-Newark&Sherwood.html"
+  source_hash  = md5(local.E07000175-council-rendered-html)
+  content      = local.E07000175-council-rendered-html
+  content_type = "text/html"
+}
 
 ## Github Automatic reviewers
 
