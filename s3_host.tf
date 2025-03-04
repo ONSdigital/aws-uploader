@@ -51,6 +51,7 @@ data "aws_iam_policy_document" "uploader_bucket" {
   }
 }
 
+
 locals {
   E12345678-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
     council_name = "Council Tax"
