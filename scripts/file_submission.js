@@ -206,7 +206,9 @@ async function uploadFile(uploadURL, file) {
     console.log("uploading file " + file.name)
     let uploadResponse = await fetch(uploadURL, {
         method: "PUT",
-        body: file
+        body: file,
+        timeout: 0,
+        keepalive: true
             }).then(resp => {
                 return resp.text().then(body => {
                     
