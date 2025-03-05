@@ -64,98 +64,141 @@ function clearErrors() {
     };
 }
 
-async function uploadFile(uploadURL, file) {
-  // Calculate the optimal chunk size (40MB)
-  const CHUNK_SIZE = 40 * 1024 * 1024; // 40MB in bytes
-  const fileSize = file.size;
-  const chunks = [];
-
-  // Split file into chunks
-  let start = 0;
-  while (start < fileSize) {
-      const end = Math.min(start + CHUNK_SIZE, fileSize);
-      chunks.push(file.slice(start, end));
-      start = end;
-  }
-
-  try {
-      // Upload each chunk using the provided URLs
-      const uploadPromises = uploadURL.partUrls.map(async (part, index) => {
-          const chunk = chunks[index];
-          if (!chunk) return null;
-
-          const uploadResponse = await fetch(part.url, {
-              method: "PUT",
-              body: chunk
-          });
-
-          if (!uploadResponse.ok) {
-              throw new Error(`Failed to upload part $${part.partNumber}`);  // Escaped ${
-          }
-
-          // Get the ETag from the response headers
-          const eTag = uploadResponse.headers.get('ETag');
-          return {
-              PartNumber: part.partNumber,
-              ETag: eTag
-          };
-      });
-
-      const results = await Promise.all(uploadPromises);
-      return results.filter(result => result !== null);
-
-  } catch (error) {
-      console.error('Error during multipart upload:', error);
-      throw error;
-  }
-}
-
 async function onSubmit(event) {
-  // Previous validation code remains the same
+    event.preventDefault();
+    clearErrors();
 
-  const urlWithParameters = url + `?fileOneName=$${fileOne.name}&fileOneType=$${fileOne.type}&fileTwoName=$${fileTwo.name}&fileTwoType=$${fileTwo.type}&fileOneSize=$${fileOne.size}&fileTwoSize=$${fileTwo.size}`;  // Escaped ${
+    let valid = true;
+    let errCount = 0;
 
-  try {
-      const response = await fetch(urlWithParameters, options);
-      const data = await response.json();
+    if (form.fileOne.files.length < 1) {
+        fileOneErrorStyle();
+        addItem("You need to add a Extract file", "fileOne");
+        valid = false;
+    }
+    if (form.fileTwo.files.length < 1) {
+        fileTwoErrorStyle();
+        addItem("You need to add a Mani file", "fileTwo");
+        valid = false;
+    }
+    if (!valid) {
+        commonErrorStyle("You need to fill in both fields");
+        return false;
+    }
 
-      if (data.message === "File is not .csv") {
-          // Error handling code remains the same
-      } else {
-          // Handle multipart uploads
-          const [fileOneUploadResults, fileTwoUploadResults] = await Promise.all([
-              uploadFile(data.fileOne, fileOne),
-              uploadFile(data.fileTwo, fileTwo)
-          ]);
+    const fileOne = form.fileOne.files[0];
+    const fileTwo = form.fileTwo.files[0];
 
-          // Call completion endpoint to finalize the uploads
-          const completionResponse = await fetch(`$${api_url}complete-multipart`, {  // Escaped ${
-              method: 'POST',
-              headers: {
-                  'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                  fileOne: {
-                      uploadId: data.fileOne.uploadId,
-                      key: data.fileOne.key,
-                      parts: fileOneUploadResults
-                  },
-                  fileTwo: {
-                      uploadId: data.fileTwo.uploadId,
-                      key: data.fileTwo.key,
-                      parts: fileTwoUploadResults
-                  }
-              })
-          });
+    // Extract code from the current URL
+    const currentUrl = window.location.href;
+    const urlParts = currentUrl.split('/');
+    const lastPart = urlParts[urlParts.length - 1];
+    const ladCode = lastPart.split('-')[0];
+    console.log("URL Code found: ", ladCode);
+    console.log("File name is:", fileOne.name);
 
-          if (!completionResponse.ok) {
-              throw new Error('Failed to complete multipart upload');
-          }
+    const patOne = new RegExp("CTAX_EXTRACT_" + ladCode + '_\\d{8}\\.csv', "i");
+    console.log(patOne);
+    if (!fileOne.name.includes(ladCode)) {
+        console.log("File name does not contain matching code:", fileOne.name);
+        fileOneErrorStyle();
+        addItem("File name does not contain matching LAD code", "fileOne");
+        valid = false;
+        errCount = ++errCount;
+    }
 
-          loadingSpinner.style.display = "none";
-          window.location.href = "success.html";
-      }
-  } catch (error) {
+    if (fileOne.name.includes(ladCode) && !fileOne.name.match(patOne)) {
+        console.log("Extract File name does not follow the right pattern", fileOne.name);
+        fileOneErrorStyle();
+        addItem("Extract File name does not follow the right pattern", "fileOne");
+        valid = false;
+        errCount = ++errCount;
+    }
+
+    const patTwo = new RegExp("CTAX_MANI_" + ladCode + '_\\d{8}\\.csv', "i");
+
+    if (!fileTwo.name.includes(ladCode)) {
+        console.log("File name does not contain matching code:", fileTwo.name);
+        fileTwoErrorStyle();
+        addItem("File name does not contain matching LAD code", "fileTwo");
+        valid = false;
+        errCount = ++errCount;
+    }
+
+    if (fileTwo.name.includes(ladCode) && !fileTwo.name.match(patTwo)) {
+        console.log("ManiFile name does not follow the right pattern", fileTwo.name);
+        fileTwoErrorStyle();
+        addItem("Mani File name does not follow the right pattern", "fileTwo");
+        valid = false;
+        errCount = ++errCount;
+    }
+
+    if (!valid) {
+        commonErrorStyle(errCount);
+        return false;
+    }
+
+    const loadingSpinner = document.querySelector('.hods-loading-spinner__content');
+    loadingSpinner.style.display = 'block';
+
+    const urlWithParameters = url + `?fileOneName=$${fileOne.name}&fileOneType=$${fileOne.type}&fileTwoName=$${fileTwo.name}&fileTwoType=$${fileTwo.type}&fileOneSize=$${fileOne.size}&fileTwoSize=$${fileTwo.size}`;
+
+    try {
+        const response = await fetch(urlWithParameters, options);
+        const data = await response.json();
+
+        if (data.message === "File is not .csv") {
+            fileOneErrorStyle();
+            addItem("Please upload a CSV file", "fileOne");
+            commonErrorStyle(1);
+        } else if (data.message === "maniFile is not .csv") {
+            fileTwoErrorStyle();
+            addItem("Please upload a CSV file", "fileTwo");
+            commonErrorStyle(1);
+        } else if (data.message === "File is empty") {
+            bothFilesErrorStyle();
+            addItem("Extract file is empty", "fileOne");
+            addItem("Mani file is empty", "fileTwo");
+            commonErrorStyle(2);
+        } else if (data.message === "File names do not match") {
+            bothFilesErrorStyle();
+            addItem("File names do not match", "fileOne");
+            commonErrorStyle(2);
+        } else {
+            // Handle multipart uploads
+            const [fileOneUploadResults, fileTwoUploadResults] = await Promise.all([
+                uploadFile(data.fileOne, fileOne),
+                uploadFile(data.fileTwo, fileTwo)
+            ]);
+
+            // Call completion endpoint to finalize the uploads
+            const completionResponse = await fetch(`${api_url}complete-multipart`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    fileOne: {
+                        uploadId: data.fileOne.uploadId,
+                        key: data.fileOne.key,
+                        parts: fileOneUploadResults
+                    },
+                    fileTwo: {
+                        uploadId: data.fileTwo.uploadId,
+                        key: data.fileTwo.key,
+                        parts: fileTwoUploadResults
+                    }
+                })
+            });
+
+            if (!completionResponse.ok) {
+                throw new Error('Failed to complete multipart upload');
+            }
+
+            loadingSpinner.style.display = "none";
+            window.location.href = "success.html";
+        }
+    } catch (error) {
         loadingSpinner.style.display = "none";
         console.error('Error uploading files:', error);
         bothFilesErrorStyle();
