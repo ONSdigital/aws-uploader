@@ -99,6 +99,9 @@ resource "aws_s3_object" "file_submission" {
   content = templatefile("${path.module}/scripts/file_submission.js", {
     api_url = aws_apigatewayv2_stage.api.invoke_url
   })
+  source_hash = filemd5(templatefile("${path.module}/scripts/file_submission.js", {
+    api_url = aws_apigatewayv2_stage.api.invoke_url
+  }))
   content_type = "text/javascript"
 }
 
