@@ -58,7 +58,7 @@ locals {
     lad_code     = "E12345678"
   })
 
-  E07000175-council-rendered-html = templatefile("${path.module}/scripts/E07000175-Newark&Sherwood.html", {
+  E07000175-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
     council_name = "Council Newark & Sherwood"
     lad_code     = "E07000175"
   })
