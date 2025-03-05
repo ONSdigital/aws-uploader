@@ -56,6 +56,22 @@ data "aws_iam_policy_document" "uploader_bucket" {
   }
 }
 
+
+locals {
+  file_submission_js = templatefile("${path.module}/scripts/file_submission.js", {
+    api_url = aws_apigatewayv2_stage.api.invoke_url
+  })
+
+  E12345678-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
+    council_name = "Council Tax"
+    lad_code     = "E12345678"
+  })
+
+  E07000175-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
+    council_name = "Council Newark & Sherwood"
+    lad_code     = "E07000175"
+  })
+}
 resource "aws_s3_bucket_policy" "uploader_bucket" {
   bucket = module.ons_upload_bucket.bucket_id
   policy = data.aws_iam_policy_document.uploader_bucket.json
@@ -94,14 +110,10 @@ resource "aws_s3_object" "success_page" {
 }
 
 resource "aws_s3_object" "file_submission" {
-  bucket = module.ons_upload_bucket.bucket_id
-  key    = "council-tax/file_submission.js"
-  content = templatefile("${path.module}/scripts/file_submission.js", {
-    api_url = aws_apigatewayv2_stage.api.invoke_url
-  })
-  source_hash = filemd5(templatefile("${path.module}/scripts/file_submission.js", {
-    api_url = aws_apigatewayv2_stage.api.invoke_url
-  }))
+  bucket       = module.ons_upload_bucket.bucket_id
+  key          = "council-tax/file_submission.js"
+  content      = local.file_submission_js
+  source_hash  = md5(local.file_submission_js)
   content_type = "text/javascript"
 }
 
