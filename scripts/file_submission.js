@@ -203,40 +203,25 @@ async function onSubmit(event) {
 }
 
 async function uploadFile(uploadURL, file) {
-    console.log("uploading file " + file.name);
-    try {
-        let uploadResponse = await fetch(uploadURL, {
-            method: "PUT",
-            body: file,
-            headers: {
-                'Content-Type': file.type,
-                'Content-Length': file.size.toString()
-            },
-            // Disable timeout for large files
-            timeout: 0,
-            // Add keep-alive to maintain connection
-            keepalive: true
-        });
-
-        const result = {
-            status: uploadResponse.status,
-            body: await uploadResponse.text()
-        };
-
-        if (!uploadResponse.ok) {
-            console.error('Upload failed:', result);
-            return Promise.reject(result);
-        }
-
-        return result;
-    } catch (error) {
-        console.error('Upload error:', error);
-        // Add more specific error handling
-        if (error.name === 'TimeoutError') {
-            throw new Error('Upload timed out. Please try again.');
-        }
-        throw error;
+    console.log("uploading file " + file.name)
+    let uploadResponse = await fetch(uploadURL, {
+        method: "PUT",
+        body: file,
+        timeout: 0,
+        keepalive: true
+            }).then(resp => {
+                return resp.text().then(body => {
+                    
+                    const result = {
+                        status: resp.status,
+                        body,
+                    };
+                    if (!resp.ok) {
+                        return Promise.reject(result);
+                    }
+                    return result;
+                 });
+            });
     }
-}
     
     (window);
