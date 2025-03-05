@@ -18,7 +18,7 @@ resource "aws_iam_role" "PreSignedURL_role" {
 
 data "archive_file" "PreSignedURL" {
   type        = "zip"
-  source_file = "${path.module}/src/PreSignedURL.mjs"
+  source_file = "${path.module}/src/multiparturl.mjs"
   output_path = "${path.module}/PreSignedURL.zip"
 }
 
