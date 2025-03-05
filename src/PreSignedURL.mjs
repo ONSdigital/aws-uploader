@@ -193,11 +193,11 @@ const getUploadURL = async (event, formatedDate, councilName) => {
 
 
   })
-  let uploadURLFileOne = await getSignedUrl(s3, s3ParamsFileOne, { expiresIn: 1800 })
-  let uploadURLFileTwo = await getSignedUrl(s3, s3ParamsFileTwo, { expiresIn: 1800 })
-  return new Promise((resolve, reject) => {
+  let uploadURLFileOne = await getSignedUrl(s3, s3ParamsFileOne, { expiresIn: 3600 })
+  let uploadURLFileTwo = await getSignedUrl(s3, s3ParamsFileTwo, { expiresIn: 3600 })
+return new Promise((resolve, reject) => {
 
-    resolve({
+      resolve({
       "statusCode": 200,
       "isBase64Encoded": false,
       "headers": {
