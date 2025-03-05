@@ -97,11 +97,8 @@ resource "terraform_data" "invalidate_cf_caches" {
   }
 
   triggers_replace = {
-    website_error_page             = aws_s3_object.error_page.source_hash
     website_home_page              = aws_s3_object.home_page.source_hash
     website_council_home_page      = aws_s3_object.council_home_page.source_hash
-    website_012345678_council_page = aws_s3_object._012345678-council.source_hash
-    website_newark_sherwood_page   = aws_s3_object.newark-sherwood.source_hash
     website_success_page           = aws_s3_object.success_page.source_hash
     website_file_submission_script = aws_s3_object.file_submission.source_hash
     website_result_message_script  = aws_s3_object.result_message.source_hash
