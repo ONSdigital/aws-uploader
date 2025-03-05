@@ -62,6 +62,10 @@ locals {
     api_url = aws_apigatewayv2_stage.api.invoke_url
   })
 
+  multi_file_submission_js = templatefile("${path.module}/scripts/multi_file_submission.js", {
+    api_url = aws_apigatewayv2_stage.api.invoke_url
+  })
+
   E12345678-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
     council_name = "Council Tax"
     lad_code     = "E12345678"
@@ -114,6 +118,14 @@ resource "aws_s3_object" "file_submission" {
   key          = "council-tax/file_submission.js"
   content      = local.file_submission_js
   source_hash  = md5(local.file_submission_js)
+  content_type = "text/javascript"
+}
+
+resource "aws_s3_object" "multi_file_submission" {
+  bucket       = module.ons_upload_bucket.bucket_id
+  key          = "council-tax/multi_file_submission.js"
+  content      = local.multi_file_submission_js
+  source_hash  = md5(local.multi_file_submission_js)
   content_type = "text/javascript"
 }
 
