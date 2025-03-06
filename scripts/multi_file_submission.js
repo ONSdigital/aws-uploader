@@ -38,7 +38,7 @@ async function uploadFileMultipart(uploadData, file) {
             }
 
             const eTag = response.headers.get('ETag');
-            console.log(`headers back are: ${response.headers}`);
+            console.log(`headers back are: $${response.headers}`);
             console.log(`Part $${partNumber} uploaded successfully. ETag: $${eTag}`);
             parts.push({
                 PartNumber: partNumber,
