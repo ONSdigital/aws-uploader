@@ -36,8 +36,6 @@ resource "aws_cloudfront_distribution" "uploader" {
   logging_config { #CKV_AWS_86
     bucket = aws_s3_bucket.cloudfront_logging_bucket.bucket_domain_name
     prefix = "logging"
-
-
   }
 
   default_cache_behavior {
@@ -47,19 +45,7 @@ resource "aws_cloudfront_distribution" "uploader" {
     origin_request_policy_id   = "acba4595-bd28-49b8-b9fe-13317c0390fa" # Managed-CORS-CustomOrigin policy ID
     response_headers_policy_id = aws_cloudfront_response_headers_policy.custom_security_headers.id
     cache_policy_id            = "658327ea-f89d-4fab-a63d-7e88639e58f6"
-
-    # forwarded_values {
-    #   query_string = false
-
-    #   cookies {
-    #     forward = "none"
-    #   }
-    # }
-
-    viewer_protocol_policy = "redirect-to-https"
-    min_ttl                = 0
-    default_ttl            = 3600
-    max_ttl                = 86400
+    viewer_protocol_policy     = "redirect-to-https"
 
     function_association {
 
@@ -68,9 +54,6 @@ resource "aws_cloudfront_distribution" "uploader" {
 
     }
   }
-
-
-
   price_class = "PriceClass_100"
 
   restrictions {
@@ -79,8 +62,6 @@ resource "aws_cloudfront_distribution" "uploader" {
       locations        = ["GB"]
     }
   }
-
-
   viewer_certificate {
     acm_certificate_arn      = aws_acm_certificate.uploader.arn
     minimum_protocol_version = "TLSv1.2_2021"
@@ -89,7 +70,6 @@ resource "aws_cloudfront_distribution" "uploader" {
 }
 
 resource "terraform_data" "invalidate_cf_caches" {
-
   provisioner "local-exec" {
     command = "aws cloudfront create-invalidation --distribution-id ${aws_cloudfront_distribution.uploader.id} --paths '/council-tax/*'"
   }

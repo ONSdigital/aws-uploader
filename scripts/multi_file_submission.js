@@ -36,9 +36,12 @@ async function uploadFileMultipart(uploadData, file) {
             if (!response.ok) {
                 throw new Error(`Failed to upload part $${partNumber}`);
             }
-
-            const eTag = response.headers.get('ETag');
-            console.log(`headers back are: $${response.headers}`);
+            const headers = {};
+            response.headers.forEach((value, key) => {
+                headers[key] = value;
+            });
+            console.log('All response headers:', headers);
+            const eTag = response.headers.get('etag');
             console.log(`Part $${partNumber} uploaded successfully. ETag: $${eTag}`);
             parts.push({
                 PartNumber: partNumber,
