@@ -86,8 +86,6 @@ resource "aws_cloudfront_distribution" "uploader" {
     minimum_protocol_version = "TLSv1.2_2021"
     ssl_support_method       = "sni-only"
   }
-
-
 }
 
 resource "terraform_data" "invalidate_cf_caches" {
@@ -102,6 +100,7 @@ resource "terraform_data" "invalidate_cf_caches" {
     website_success_page           = aws_s3_object.success_page.source_hash
     website_file_submission_script = aws_s3_object.file_submission.source_hash
     website_result_message_script  = aws_s3_object.result_message.source_hash
+    website_multipart_script       = aws_s3_object.multi_file_submission.source_hash
   }
 }
 
