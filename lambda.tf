@@ -24,7 +24,7 @@ resource "aws_iam_role" "PreSignedURL_role" {
 
 data "archive_file" "PreSignedURL" {
   type        = "zip"
-  source_file = "${path.module}/src/multiparturl.mjs"
+  source_file = "${path.module}/src/PreSignedURL.mjs"
   output_path = "${path.module}/PreSignedURL.zip"
 }
 
@@ -38,7 +38,7 @@ resource "aws_lambda_function" "PreSignedURL" {
   filename         = data.archive_file.PreSignedURL.output_path
   function_name    = var.lambda_PreSignedURL_function
   role             = aws_iam_role.PreSignedURL_role.arn
-  handler          = "multiparturl.handler"
+  handler          = "PreSignedURL.handler"
   source_code_hash = data.archive_file.PreSignedURL.output_base64sha256
   # tflint-ignore: aws_lambda_function_invalid_runtime
   runtime = "nodejs22.x"
