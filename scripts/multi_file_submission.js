@@ -220,8 +220,8 @@ async function onSubmit(event) {
             } else {
                 console.log("Starting multipart upload for files");
                 Promise.all([
-                    uploadFileMultipart(data.fileOneUploadData, fileOne),
-                    uploadFileMultipart(data.fileTwoUploadData, fileTwo)
+                    uploadFileMultipart(data.fileOne, fileOne),
+                    uploadFileMultipart(data.fileTwo, fileTwo)
                 ])
                 .then(results => {
                     console.log("Upload results:", results); // Log upload results
