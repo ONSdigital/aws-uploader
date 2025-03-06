@@ -57,11 +57,8 @@ async function uploadFileMultipart(uploadData, file) {
     }
 }
 
-// Once user submits both files, the below function pings the API Gateway with the parameters needed.
 async function onSubmit(event) {
     event.preventDefault(); // Prevents the form from being submitted the usual way.
-    // Start of the submit function
-
     function commonErrorStyle(message){
         console.log(Number.isInteger(message))
         if (Number.isInteger(message)) {
@@ -197,7 +194,7 @@ async function onSubmit(event) {
     fetch(urlWithParameters, options)
         .then(response => response.json())
         .then(data => {
-            console.log("Full Lambda Response:", data); // Log the full response
+            console.log("Full Lambda Response:", data); 
             console.log("message : " + data.message);
             
             if (data.message === "File is not .csv") {
@@ -224,23 +221,10 @@ async function onSubmit(event) {
                     uploadFileMultipart(data.fileTwo, fileTwo)
                 ])
                 .then(results => {
-                    console.log("Upload results:", results); // Log upload results
-                    // Send completion request to backend if needed
+                    console.log("Upload results:", results);
                     return Promise.all(results.map(result => {
                         if (result.success) {
                             console.log('Successfully uploaded file with key:', result.key);
-                            // You might need to add an API call here to complete the multipart upload
-                            return fetch(`$${url}/complete`, {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                },
-                                body: JSON.stringify({
-                                    uploadId: result.uploadId,
-                                    key: result.key,
-                                    parts: result.parts
-                                })
-                            });
                         }
                     }));
                 })
