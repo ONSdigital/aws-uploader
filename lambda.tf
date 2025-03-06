@@ -32,7 +32,7 @@ resource "aws_lambda_function" "PreSignedURL" {
   filename         = data.archive_file.PreSignedURL.output_path
   function_name    = var.lambda_PreSignedURL_function
   role             = aws_iam_role.PreSignedURL_role.arn
-  handler          = "PreSignedURL.handler"
+  handler          = "multiparturl.handler"
   source_code_hash = data.archive_file.PreSignedURL.output_base64sha256
   # tflint-ignore: aws_lambda_function_invalid_runtime
   runtime = "nodejs20.x"
