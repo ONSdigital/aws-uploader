@@ -203,23 +203,28 @@ async function onSubmit(event) {
 }
 
 async function uploadFile(uploadURL, file) {
-    console.log("uploading file " + file.name)
+    console.log("uploading file " + file.name);
+    
+    const controller = new AbortController();
+    const signal = controller.signal;
+    
     let uploadResponse = await fetch(uploadURL, {
         method: "PUT",
-        body: file
-            }).then(resp => {
-                return resp.text().then(body => {
-                    
-                    const result = {
-                        status: resp.status,
-                        body,
-                    };
-                    if (!resp.ok) {
-                        return Promise.reject(result);
-                    }
-                    return result;
-                 });
-            });
-    }
+        body: file,
+        signal: signal,
+        timeout: 0  // Set to 0 to disable timeout
+    }).then(resp => {
+        return resp.text().then(body => {
+            const result = {
+                status: resp.status,
+                body,
+            };
+            if (!resp.ok) {
+                return Promise.reject(result);
+            }
+            return result;
+        });
+    });
+}
     
     (window);
