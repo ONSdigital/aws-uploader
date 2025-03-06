@@ -169,8 +169,8 @@ const getUploadURL = async (event,LADCode,formatedDate) => {
     
     
   }) 
-   let uploadURLFileOne = await getSignedUrl(s3, s3ParamsFileOne, { expiresIn: 180 })
-    let uploadURLFileTwo = await getSignedUrl(s3, s3ParamsFileTwo, { expiresIn: 180 })
+   let uploadURLFileOne = await getSignedUrl(s3, s3ParamsFileOne, { expiresIn: 1800 })
+    let uploadURLFileTwo = await getSignedUrl(s3, s3ParamsFileTwo, { expiresIn: 1800 })
 return new Promise((resolve, reject) => {
    
       resolve({
