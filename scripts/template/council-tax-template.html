@@ -7,18 +7,19 @@
         height: auto;
       }
     </style>
+
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Example: Default base page template</title>
-    <link rel="stylesheet" href="https://cdn.ons.gov.uk/sdc/design-system/70.0.8/css/main.css">
-    <link rel="stylesheet" media="print" href="https://cdn.ons.gov.uk/sdc/design-system/70.0.8/css/print.css">
+    <title>ONS-Uploader</title>
+    <link rel="stylesheet" href="https://cdn.ons.gov.uk/sdc/design-system/70.0.4/css/main.css">
+    <link rel="stylesheet" media="print" href="https://cdn.ons.gov.uk/sdc/design-system/70.0.4/css/print.css">
     <meta name="theme-color" content="#206095" />
     <!-- Open Graph -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="">
     <meta property="og:title" content="">
-    <meta property="og:image" content="https://cdn.ons.gov.uk/sdc/design-system/70.0.8/favicons/opengraph.png">
+    <meta property="og:image" content="https://cdn.ons.gov.uk/sdc/design-system/70.0.4/favicons/opengraph.png">
     <meta property="og:image:type" content="image/png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
@@ -26,23 +27,19 @@
     <meta property="og:site_name" content="Service name">
     <meta property="og:locale" content="en">
     <!-- Favicons -->
-    <link rel="icon" type="image/x-icon" href="https://cdn.ons.gov.uk/sdc/design-system/70.0.8/favicons/favicon.ico">
-    <link rel="icon" type="image/png" href="https://cdn.ons.gov.uk/sdc/design-system/70.0.8/favicons/favicon-32x32.png"
+    <link rel="icon" type="image/x-icon" href="https://cdn.ons.gov.uk/sdc/design-system/70.0.4/favicons/favicon.ico">
+    <link rel="icon" type="image/png" href="https://cdn.ons.gov.uk/sdc/design-system/70.0.4/favicons/favicon-32x32.png"
       sizes="32x32">
-    <link rel="icon" type="image/png" href="https://cdn.ons.gov.uk/sdc/design-system/70.0.8/favicons/favicon-16x16.png"
+    <link rel="icon" type="image/png" href="https://cdn.ons.gov.uk/sdc/design-system/70.0.4/favicons/favicon-16x16.png"
       sizes="16x16">
-    <link rel="mask-icon" href="https://cdn.ons.gov.uk/sdc/design-system/70.0.8/favicons/safari-pinned-tab.svg"
+    <link rel="mask-icon" href="https://cdn.ons.gov.uk/sdc/design-system/70.0.4/favicons/safari-pinned-tab.svg"
       color="#000000">
     <link rel="apple-touch-icon" type="image/png"
-      href="https://cdn.ons.gov.uk/sdc/design-system/70.0.8/favicons/apple-touch-icon.png" sizes="180x180">
-    <link rel="manifest" href="https://cdn.ons.gov.uk/sdc/design-system/70.0.8/favicons/manifest.json">
+      href="https://cdn.ons.gov.uk/sdc/design-system/70.0.4/favicons/apple-touch-icon.png" sizes="180x180">
+    <link rel="manifest" href="https://cdn.ons.gov.uk/sdc/design-system/70.0.4/favicons/manifest.json">
   </head>
 
   <body>
-    <script>
-      document.body.className = ((document.body.className) ? document.body.className + ' ons-js-enabled' :
-        'ons-js-enabled');
-    </script>
     <div class="ons-page">
       <div class="ons-page__content">
         <a class="ons-skip-to-content" href="#main-content">Skip to main content</a>
@@ -157,7 +154,7 @@
               <div
                 class="ons-grid ons-grid--gutterless ons-grid--flex ons-grid--between ons-grid--vertical-center ons-grid--no-wrap">
                 <div class="ons-grid__col ons-col-auto ons-u-flex-shrink">
-                  <div class="ons-header__title">Service name</div>
+                  <div class="ons-header__title">${council_name}</div>
                 </div>
               </div>
             </div>
@@ -167,28 +164,84 @@
           <div class="ons-grid">
             <div class="ons-grid__col ons-col-12@m ">
               <main id="main-content" class="ons-page__main ">
-                <h1>Error Summary</h1>
+		 <div>
+        <div aria-labelledby="alert" role="alert" tabindex="-1" class="ons-panel ons-panel--error" id="errors-list" style="display:none">
+          <div class="ons-panel__header" id="errors-list-title">
+            <h2 id="alert" data-qa="error-header" class="ons-panel__title ons-u-fs-r--b"></h2>
+          </div>
+          <div class="ons-panel__body">
+            <ol class="ons-list" id="errors-list-item">
+              <!-- <li class="ons-list__item">
+                <a href="#container-test-number" class="ons-list__link ons-js-inpagelink"></a> -->
+              </li>
+            </ol>
+          </div>
+        </div>
 
-<div aria-labelledby="alert" role="alert" tabindex="-1" class="ons-panel ons-panel--error">
-  <div class="ons-panel__header">
-    <h2 id="alert" data-qa="error-header" class="ons-panel__title ons-u-fs-r--b">There are 1 or more problems with your upload:
-    </h2>
-  </div>
-  <div class="ons-panel__body">
-    <ol class="ons-list">
-      <li class="ons-list__item">
-        <a href="#container-test-number" class="ons-list__link ons-js-inpagelink">Please upload two files</a>
-      </li>
-    </ol>
-  </div>
-</div>
-		<a href="index.html" >
-		<button type="submit" class="ons-btn">
- 			 <span class="ons-btn__inner"><span class="ons-btn__text">Try Again</span>
-  			</span>
-		</button>
-		</a>
+        <div class="ons-panel__body">
+          <p class="ons-panel__error" id="errors-list" style="display: none">
+            <strong id="errors-list-text"></strong>
+          </p>
+          </div>
+  
+        <form id="form">
+        <!-- Error message for extract-upload -->
+        <div class="ons-panel" id="extract-file-error"><!-- ons-panel--error ons-panel--no-title" id="extract-file-error" style="display: ">-->
+          <span class="ons-panel__assistive-text ons-u-vh">Error: </span>
+          <div class="ons-panel__body">
+            <p class="ons-panel__error" id="extract-file-csv-error" style="display: none">
+              <strong id="extract-file-error-text"></strong>
+            </p>
+            <div class="ons-field">
+              <div class="ons-field">
+                <label class="ons-label ons-label--with-description" for="extract-upload" aria-describedby="extract-description">Upload the EXTRACT file</label>
+                <span id="extract-description-error" class="ons-label__description ons-input--with-description">File must be named with the format 'CTAX_EXTRACT_${lad_code}_yyyymmdd' where x12345678 is your LAD code  your LAD code and yyyymmdd is the data run date</span>
+                <input name="extractFile" type="file" id="fileOne" class="ons-input ons-input--text ons-input-type__input ons-input--upload" accept=".csv" aria-describedby="extract-description" />
+              </div>
+            </div>
+            </div>
+        </div>
+
+
+        <!-- Error message for mani-upload -->
+        <div class="ons-panel" id="mani-file-error"><!-- ons-panel--error ons-panel--no-title" id="mani-file-error" style="display: ">-->
+          <span class="ons-panel__assistive-text ons-u-vh">Error: </span>
+          <div class="ons-panel__body">
+            <p class="ons-panel__error" id="mani-file-csv-error" style="display: none">
+              <strong id="mani-file-error-text"></strong>
+            </p>
+
+        <div class="ons-field">
+          <div class="ons-field">
+            <label class="ons-label ons-label--with-description" for="mani-upload" aria-describedby="mani-description">Upload the MANI file</label>
+            <span id="mani-description" class="ons-label__description ons-input--with-description">File must be named with the format 'CTAX_MANI_${lad_code}_yyyymmdd' where x12345678 is your LAD code  your LAD code and yyyymmdd is the data run date</span>
+            <input name="maniFile" type="file" id="fileTwo" class="ons-input ons-input--text ons-input-type__input ons-input--upload" accept=".csv" aria-describedby="mani-description" />
+          </div>
+        </div>
 		
+
+
+		<button type="submit" class="ons-btn" style="margin-top: 3%;">
+          <span class="ons-btn__inner"><span class="ons-btn__text">Submit</span>
+          </span>
+        </button>
+
+        <div class="hods-loading-spinner">
+          <div
+            class="hods-loading-spinner__spinner"
+            aria-live="polite"
+            role="status"
+          ></div>
+          <div style="display: none" class="hods-loading-spinner__content">
+            <h1 class="govuk-heading-m">Loading...</h1>
+          </div>
+        </div>
+
+        </form>
+
+
+    </div>
+
               </main>
             </div>
           </div>
@@ -302,10 +355,19 @@
         </div>
       </footer>
     </div>
-    <script type="text/javascript" src="result_message.js"></script>
     
+    <script type="text/javascript" src="file_submission.js"> </script>
+
     <div class="embeddable"></div>
+    <!-- <style>
+      body {
+        height: auto;
+      }
+    </style> -->
 
   </body>
+
+
+
 
 </html>
