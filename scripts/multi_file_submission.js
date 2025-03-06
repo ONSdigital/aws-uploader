@@ -24,7 +24,7 @@ async function uploadFileMultipart(uploadData, file) {
 
             const partData = partUrls.find(p => p.partNumber === partNumber);
             if (!partData) {
-                throw new Error(`No presigned URL found for part ${partNumber}`);
+                throw new Error(`No presigned URL found for part $${partNumber}`);
             }
 
             console.log(`Uploading part $${partNumber} of $${totalParts} for file $${file.name}`);
@@ -34,11 +34,11 @@ async function uploadFileMultipart(uploadData, file) {
             });
 
             if (!response.ok) {
-                throw new Error(`Failed to upload part ${partNumber}`);
+                throw new Error(`Failed to upload part $${partNumber}`);
             }
 
             const eTag = response.headers.get('ETag');
-            console.log(`Part ${partNumber} uploaded successfully. ETag: ${eTag}`);
+            console.log(`Part $${partNumber} uploaded successfully. ETag: $${eTag}`);
             parts.push({
                 PartNumber: partNumber,
                 ETag: eTag
@@ -230,7 +230,7 @@ async function onSubmit(event) {
                         if (result.success) {
                             console.log('Successfully uploaded file with key:', result.key);
                             // You might need to add an API call here to complete the multipart upload
-                            return fetch(`${url}/complete`, {
+                            return fetch(`$${url}/complete`, {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json',
