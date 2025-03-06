@@ -36,8 +36,6 @@ resource "aws_cloudfront_distribution" "uploader" {
   logging_config { #CKV_AWS_86
     bucket = aws_s3_bucket.cloudfront_logging_bucket.bucket_domain_name
     prefix = "logging"
-
-
   }
 
   default_cache_behavior {
