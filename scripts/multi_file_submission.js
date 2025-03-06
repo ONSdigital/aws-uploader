@@ -27,7 +27,7 @@ async function uploadFileMultipart(uploadData, file) {
                 throw new Error(`No presigned URL found for part ${partNumber}`);
             }
 
-            console.log(`Uploading part ${partNumber} of ${totalParts} for file ${file.name}`);
+            console.log(`Uploading part $${partNumber} of $${totalParts} for file $${file.name}`);
             const response = await fetch(partData.url, {
                 method: 'PUT',
                 body: chunk
