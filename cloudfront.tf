@@ -30,7 +30,9 @@ resource "aws_cloudfront_distribution" "uploader" {
   is_ipv6_enabled     = false                                         #CKV_AWS_68 change to true
   web_acl_id          = aws_wafv2_web_acl.uploader_waf_cloudfront.arn #
   http_version        = "http2and3"
-  default_root_object = "council-tax/index.html"
+  default_root_object = "index.html"
+
+
   logging_config { #CKV_AWS_86
     bucket = aws_s3_bucket.cloudfront_logging_bucket.bucket_domain_name
     prefix = "logging"
@@ -45,39 +47,44 @@ resource "aws_cloudfront_distribution" "uploader" {
     origin_request_policy_id   = "acba4595-bd28-49b8-b9fe-13317c0390fa" # Managed-CORS-CustomOrigin policy ID
     response_headers_policy_id = aws_cloudfront_response_headers_policy.custom_security_headers.id
     cache_policy_id            = "658327ea-f89d-4fab-a63d-7e88639e58f6"
+    viewer_protocol_policy     = "redirect-to-https"
+    function_association {
 
-    # forwarded_values {
-    #   query_string = false
+      event_type   = "viewer-request"
+      function_arn = aws_cloudfront_function.rewrite_default_index_request.arn
 
-    #   cookies {
-    #     forward = "none"
-    #   }
-    # }
-
-    viewer_protocol_policy = "redirect-to-https"
-    min_ttl                = 0
-    default_ttl            = 3600
-    max_ttl                = 86400
+    }
   }
-
-
   price_class = "PriceClass_100"
-
   restrictions {
     geo_restriction {
       restriction_type = "whitelist"
       locations        = ["GB"]
     }
   }
-
-
   viewer_certificate {
     acm_certificate_arn      = aws_acm_certificate.uploader.arn
     minimum_protocol_version = "TLSv1.2_2021"
     ssl_support_method       = "sni-only"
   }
-
 }
+
+resource "terraform_data" "invalidate_cf_caches" {
+  provisioner "local-exec" {
+    command = "aws cloudfront create-invalidation --distribution-id ${aws_cloudfront_distribution.uploader.id} --paths '/council-tax/*'"
+  }
+
+  triggers_replace = {
+    website_home_page              = aws_s3_object.home_page.source_hash
+    website_council_home_page      = aws_s3_object.council_home_page.source_hash
+    website_success_page           = aws_s3_object.success_page.source_hash
+    website_file_submission_script = aws_s3_object.file_submission.source_hash
+    website_result_message_script  = aws_s3_object.result_message.source_hash
+    test_page                      = aws_s3_object._012345678-council.source_hash
+    newark_sherwood                = aws_s3_object.newark-sherwood.source_hash
+  }
+}
+
 
 resource "aws_cloudfront_response_headers_policy" "custom_security_headers" {
   name    = "csp-security-headers"
@@ -129,4 +136,12 @@ resource "aws_cloudfront_response_headers_policy" "custom_security_headers" {
       override   = true
     }
   }
+}
+
+resource "aws_cloudfront_function" "rewrite_default_index_request" {
+  name    = "RewriteDefaultIndexRequest"
+  runtime = "cloudfront-js-2.0"
+  comment = "function for using a second index page"
+  publish = true
+  code    = file("${path.module}/scripts/second_index.js")
 }

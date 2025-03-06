@@ -67,6 +67,9 @@ jobs:
 
       - task: terraform-plan
         file: pull-request/ci/tasks/terraform/terraform-plan.yml
+        vars: 
+          access_key: ((aws.access_key))
+          secret_key: ((aws.secret_key))
         params:
           S3_BUCKET_NAME: ((aws.s3_bucket))
           TF_STATE: ((aws.tfstate))
@@ -164,6 +167,9 @@ jobs:
  
       - task: terraform-apply
         file: repo-git/ci/tasks/terraform/terraform-apply.yml
+        vars: 
+          access_key: ((aws.access_key))
+          secret_key: ((aws.secret_key))
         params:
           S3_BUCKET_NAME: ((aws.s3_bucket))
           TF_STATE: ((aws.tfstate))
