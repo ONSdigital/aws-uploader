@@ -32,7 +32,8 @@ async function onSubmit(event) {
         let extractManiFileError = document.getElementById('errors-list')
         extractManiFileError.style.display = 'block';
         extractManiFilesErrorTitle.innerHTML = displayText;
-    
+        let extractManiParagraphFileError = document.getElementById('errors-list-paragraph')
+        extractManiParagraphFileError.style.display = 'block';    
     }
 
 
