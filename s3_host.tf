@@ -84,7 +84,7 @@ locals {
   })
 
  E08000546-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
-    council_name = "Council Tax - Example 4"
+    council_name = "Council Tax - Example 5"
     lad_code     = "E08000546"
   })
 
