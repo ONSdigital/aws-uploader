@@ -59,32 +59,32 @@ locals {
   })
 
   E07000175-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
-    council_name = "Council Newark & Sherwood"
+    council_name = "Council Tax - Newark & Sherwood"
     lad_code     = "E07000175"
   })
 
   E02000346-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
-    council_name = "Council Example 1"
+    council_name = "Council Tax - Example 1"
     lad_code     = "E02000346"
   })
 
   E04000143-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
-    council_name = "Council Example 2"
+    council_name = "Council Tax - Example 2"
     lad_code     = "E04000143"
   })
 
  E06000682-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
-    council_name = "Council Example 3"
+    council_name = "Council Tax - Example 3"
     lad_code     = "E06000682"
   })
 
  E01000713-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
-    council_name = "Council Example 4"
+    council_name = "Council Tax - Example 4"
     lad_code     = "E01000713"
   })
 
  E08000546-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
-    council_name = "Council Example 4"
+    council_name = "Council Tax - Example 4"
     lad_code     = "E08000546"
   })
 
