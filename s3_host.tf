@@ -65,38 +65,38 @@ locals {
 
   E02000346-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
     council_name = "Council Tax - Example 1" # "Council Tax - Gloucester"
-    lad_code     = "E02000346" # "E07000081"
+    lad_code     = "E02000346"               # "E07000081"
   })
 
   E04000143-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
     council_name = "Council Tax - Example 2" # "Council Tax - Kirklees"
-    lad_code     = "E04000143" # "E08000034"
+    lad_code     = "E04000143"               # "E08000034"
   })
 
- E06000682-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
+  E06000682-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
     council_name = "Council Tax - Example 3" # "Council Tax - Shepway (Folkstone-Hythe)"
-    lad_code     = "E06000682" # "W07000112"
+    lad_code     = "E06000682"               # "W07000112"
   })
 
- E01000713-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
+  E01000713-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
     council_name = "Council Tax - Example 4" # "Council Tax - Merthyr Tydfil"
-    lad_code     = "E01000713" # "W06000024"
+    lad_code     = "E01000713"               # "W06000024"
   })
 
- E08000546-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
+  E08000546-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
     council_name = "Council Tax - Example 5" # "Council Tax - Monmouthshire"
-    lad_code     = "E08000546" # "W06000021"
+    lad_code     = "E08000546"               # "W06000021"
   })
- 
-#  W06000020-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
-#     council_name = "Council Tax - Torfaen"
-#     lad_code     = "W06000020" 
-#   })
 
-#  W06000014-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
-#     council_name = "Council Tax - Vale Of Glamorgan"
-#     lad_code     = "W06000014" 
-#   })
+  #  W06000020-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
+  #     council_name = "Council Tax - Torfaen"
+  #     lad_code     = "W06000020" 
+  #   })
+
+  #  W06000014-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
+  #     council_name = "Council Tax - Vale Of Glamorgan"
+  #     lad_code     = "W06000014" 
+  #   })
 }
 resource "aws_s3_bucket_policy" "uploader_bucket" {
   bucket = module.ons_upload_bucket.bucket_id
