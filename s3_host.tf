@@ -64,40 +64,66 @@ locals {
   })
 
   E02000346-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
-    council_name = "Council Tax - Example 1" # "Council Tax - Gloucester"
-    lad_code     = "E02000346"               # "E07000081"
+    council_name = "Council Tax - Example 1"
+    lad_code     = "E02000346"
   })
 
   E04000143-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
-    council_name = "Council Tax - Example 2" # "Council Tax - Kirklees"
-    lad_code     = "E04000143"               # "E08000034"
+    council_name = "Council Tax - Example 2"
+    lad_code     = "E04000143"
   })
 
   E06000682-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
-    council_name = "Council Tax - Example 3" # "Council Tax - Shepway (Folkstone-Hythe)"
-    lad_code     = "E06000682"               # "W07000112"
+    council_name = "Council Tax - Example 3"
+    lad_code     = "E06000682"
   })
 
   E01000713-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
-    council_name = "Council Tax - Example 4" # "Council Tax - Merthyr Tydfil"
-    lad_code     = "E01000713"               # "W06000024"
+    council_name = "Council Tax - Example 4"
+    lad_code     = "E01000713"
   })
 
   E08000546-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
-    council_name = "Council Tax - Example 5" # "Council Tax - Monmouthshire"
-    lad_code     = "E08000546"               # "W06000021"
+    council_name = "Council Tax - Example 5"
+    lad_code     = "E08000546"
   })
 
-  #  W06000020-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
-  #     council_name = "Council Tax - Torfaen"
-  #     lad_code     = "W06000020" 
-  #   })
+  E07000081-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
+    council_name = "Council Tax - Gloucester"
+    lad_code     = "E07000081"
+  })
 
-  #  W06000014-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
-  #     council_name = "Council Tax - Vale Of Glamorgan"
-  #     lad_code     = "W06000014" 
-  #   })
+  E08000034-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
+    council_name = "Council Tax - Kirklees"
+    lad_code     = "E08000034"
+  })
+
+  W07000112-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
+    council_name = "Council Tax - Shepway (Folkstone-Hythe)"
+    lad_code     = "W07000112"
+  })
+
+  W06000024-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
+    council_name = "Council Tax - Merthyr Tydfil"
+    lad_code     = "W06000024"
+  })
+
+  W06000021-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
+    council_name = "Council Tax - Monmouthshire"
+    lad_code     = "W06000021"
+  })
+
+  W06000020-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
+    council_name = "Council Tax - Torfaen"
+    lad_code     = "W06000020"
+  })
+
+  W06000014-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
+    council_name = "Council Tax - Vale Of Glamorgan"
+    lad_code     = "W06000014"
+  })
 }
+
 resource "aws_s3_bucket_policy" "uploader_bucket" {
   bucket = module.ons_upload_bucket.bucket_id
   policy = data.aws_iam_policy_document.uploader_bucket.json
@@ -180,6 +206,62 @@ resource "aws_s3_object" "council-example-5" {
   key          = "council-tax/E08000546-Council-Example-5.html"
   source_hash  = md5(local.E08000546-council-rendered-html)
   content      = local.E08000546-council-rendered-html
+  content_type = "text/html"
+}
+
+resource "aws_s3_object" "gloucester" {
+  bucket       = module.ons_upload_bucket.bucket_id
+  key          = "council-tax/E07000081-Gloucester.html"
+  source_hash  = md5(local.E07000081-council-rendered-html)
+  content      = local.E07000081-council-rendered-html
+  content_type = "text/html"
+}
+
+resource "aws_s3_object" "kirklees" {
+  bucket       = module.ons_upload_bucket.bucket_id
+  key          = "council-tax/E08000034-Kirklees.html"
+  source_hash  = md5(local.E08000034-council-rendered-html)
+  content      = local.E08000034-council-rendered-html
+  content_type = "text/html"
+}
+
+resource "aws_s3_object" "shepway-folkstone-hythe" {
+  bucket       = module.ons_upload_bucket.bucket_id
+  key          = "council-tax/W07000112-Shepway(Folkstone-Hythe).html"
+  source_hash  = md5(local.W07000112-council-rendered-html)
+  content      = local.W07000112-council-rendered-html
+  content_type = "text/html"
+}
+
+resource "aws_s3_object" "merthyr-tydfil" {
+  bucket       = module.ons_upload_bucket.bucket_id
+  key          = "council-tax/W06000024-Merthyr-Tydfil.html"
+  source_hash  = md5(local.W06000024-council-rendered-html)
+  content      = local.W06000024-council-rendered-html
+  content_type = "text/html"
+}
+
+resource "aws_s3_object" "monmouthshire" {
+  bucket       = module.ons_upload_bucket.bucket_id
+  key          = "council-tax/W06000021-Monmouthshire.html"
+  source_hash  = md5(local.W06000021-council-rendered-html)
+  content      = local.W06000021-council-rendered-html
+  content_type = "text/html"
+}
+
+resource "aws_s3_object" "torfaen" {
+  bucket       = module.ons_upload_bucket.bucket_id
+  key          = "council-tax/W06000020-Torfaen.html"
+  source_hash  = md5(local.W06000020-council-rendered-html)
+  content      = local.W06000020-council-rendered-html
+  content_type = "text/html"
+}
+
+resource "aws_s3_object" "vale-of-glamorgan" {
+  bucket       = module.ons_upload_bucket.bucket_id
+  key          = "council-tax/W06000014-Vale-Of-Glamorgan.html"
+  source_hash  = md5(local.W06000014-council-rendered-html)
+  content      = local.W06000014-council-rendered-html
   content_type = "text/html"
 }
 
