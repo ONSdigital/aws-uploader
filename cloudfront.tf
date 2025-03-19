@@ -86,7 +86,7 @@ resource "terraform_data" "invalidate_cf_caches" {
     kirklees                       = aws_s3_object.kirklees.source_hash
     shepway_folkstone_hythe        = aws_s3_object.shepway-folkstone-hythe.source_hash
     merthyr_tydfil                 = aws_s3_object.merthyr-tydfil.source_hash
-    monmouthshire                  = aws_s3_object.monnouthshire.source_hash
+    monmouthshire                  = aws_s3_object.monmouthshire.source_hash
     torfaen                        = aws_s3_object.torfaen.source_hash
     vale_of_glamorgan              = aws_s3_object.vale-of-glamorgan.source_hash
   }
