@@ -75,7 +75,10 @@ resource "aws_s3_bucket_acl" "cloudfront" {
 }
  
  resource "aws_athena_database" "access_logs" {
-  #checkov:skip=CKV_AWS_77 :
   name = "s3_access_logs"
   bucket = aws_s3_bucket.cloudfront_logging_bucket.id
+
+  encryption_configuration {
+    encryption_option = "SSE_S3"
+  }
  }
