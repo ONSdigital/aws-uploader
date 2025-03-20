@@ -74,8 +74,8 @@ resource "aws_s3_bucket_acl" "cloudfront" {
 
 }
  
-#  resource "aws_athena_database" "access_logs" {
+ resource "aws_athena_database" "access_logs" {
   
-#   name = "s3_access_logs"
-#   bucket = aws_s3_bucket.cloudfront_logging_bucket.id
-#  }
+  name = "s3_access_logs"
+  bucket = aws_s3_bucket.cloudfront_logging_bucket.id
+ }
