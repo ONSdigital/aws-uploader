@@ -152,7 +152,7 @@ const fileNamesDontMatch = async (event) => {
 }
 
 //if all checks pass, then the pre-signed url for each file is created and returned to user which triggers automatic upload of each file to s3 bucket
-const getUploadURL = async (event,LADCode,formatedDate,CouncilName) => {
+const getUploadURL = async (event,formatedDate,CouncilName) => {
   
   
   const  s3ParamsFileOne = new PutObjectCommand({
