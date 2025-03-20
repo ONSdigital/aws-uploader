@@ -73,9 +73,9 @@ resource "aws_s3_bucket_acl" "cloudfront" {
   depends_on = [aws_s3_bucket_ownership_controls.cloudfront_logging_bucket]
 
 }
- #checkov:skip=CKV_AWS_77 :
+ 
  resource "aws_athena_database" "access_logs" {
-  
+  #checkov:skip=CKV_AWS_77 :
   name = "s3_access_logs"
   bucket = aws_s3_bucket.cloudfront_logging_bucket.id
  }
