@@ -83,6 +83,19 @@ resource "aws_s3_bucket_acl" "cloudfront" {
   }
  }
 
+resource "aws_athena_workgroup" "access_logs" {
+  name = "athena-s3"
+
+  configuration {
+    enforce_workgroup_configuration    = false
+    publish_cloudwatch_metrics_enabled = true
+  
+  result_configuration {
+    output_location = "s3://${aws_s3_bucket.cloudfront_logging_bucket.bucket}/query_results/"
+    }
+  }
+}
+
  resource "aws_athena_named_query" "create_athena_s3_table" {
   database  = aws_athena_database.access_logs.name
   name      = "create_athena_s3_logs_table"
@@ -127,4 +140,5 @@ FIELDS TERMINATED BY '\t'
 LOCATION 's3://cloudfront-logging-ost-dev/'
 TBLPROPERTIES ( 'skip.header.line.count'='2' )
 EOF
+  workgroup = aws_athena_workgroup.access_logs.name
  }
