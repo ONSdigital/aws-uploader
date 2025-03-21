@@ -84,7 +84,7 @@ resource "aws_s3_bucket_acl" "cloudfront" {
  }
 
  resource "aws_athena_named_query" "create_athena_s3_table" {
-  database  = aws_athena_database.athena-s3.name
+  database  = aws_athena_database.access_logs.name
   name      = "create_athena_s3_logs_table"
   query     = <<EOF
 CREATE EXTERNAL TABLE IF NOT EXISTS cloudfront_standard_logs (
