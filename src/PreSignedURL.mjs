@@ -35,8 +35,11 @@ export const handler = async (event, context, callback) => {
     //create variables to complete file verificatin checks
     let trimmedFileOneNameToCheckIfFilesMatch = event.queryStringParameters.fileOneName.slice(0, 5) + event.queryStringParameters.fileOneName.slice(12, 31); //trim file one name to just the parts which should exactly match file two
     let trimmedFileTwoNameToCheckIfFilesMatch = event.queryStringParameters.fileTwoName.slice(0, 5) + event.queryStringParameters.fileTwoName.slice(9, 28); //trim file two name to just the parts which should match file one name
+    logger.logInfo("Getting ladcode")
     let LADCode = event.queryStringParameters.fileOneName.slice(13, 22);
+    logger.logInfo(LADCode)
     let CouncilName = document.getElementById('council-name');
+
     const currentDate = new Date();
     const formatedDate = currentDate.toISOString().replace(/[^0-9]/g, '').slice(0, -3)
     //Series of checks on file data before pre-signed URLs are created. Checks size of each file isnt 0, checks file type of each file is csv, check if file names match.
