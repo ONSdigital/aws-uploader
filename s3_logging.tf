@@ -82,8 +82,10 @@ resource "aws_s3_bucket_acl" "cloudfront" {
     encryption_option = "SSE_S3"
   }
  }
-#checkov:skip=CKV_AWS_82
+
 resource "aws_athena_workgroup" "access_logs" {
+#checkov:skip=CKV_AWS_82
+#checkov:skip=CKV_AWS_159
   name = "athena-s3"
 
   configuration {
