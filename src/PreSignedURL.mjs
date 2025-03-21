@@ -68,7 +68,7 @@ export const handler = async (event, context, callback) => {
       logger.logError(event.queryStringParameters.fileOneName.slice(13, 22), event.queryStringParameters.fileOneName, event.queryStringParameters.fileOneSize, result.statusCode, resultBody.message);
       return result;
     } else {
-      const result = await getUploadURL(event, formatedDate, CouncilName);
+      const result = await getUploadURL(event, LADCode, formatedDate, CouncilName);
       const resultBody = JSON.parse(result.body);
       logger.logSuccess(LADCode, event.queryStringParameters.fileOneName, resultBody.uploadURLFileOne, result.statusCode);
       logger.logSuccess(LADCode, event.queryStringParameters.fileTwoName, resultBody.uploadURLFileTwo, result.statusCode);
@@ -152,7 +152,7 @@ const fileNamesDontMatch = async (event) => {
 }
 
 //if all checks pass, then the pre-signed url for each file is created and returned to user which triggers automatic upload of each file to s3 bucket
-const getUploadURL = async (event,formatedDate,CouncilName) => {
+const getUploadURL = async (event,LADCode, formatedDate,CouncilName) => {
   
   
   const  s3ParamsFileOne = new PutObjectCommand({
