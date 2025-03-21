@@ -38,7 +38,7 @@ export const handler = async (event, context, callback) => {
     logger.logInfo("Getting ladcode")
     let LADCode = event.queryStringParameters.fileOneName.slice(13, 22);
     logger.logInfo(LADCode)
-    let CouncilName = document.getElementById('council-name');
+    let CouncilName = document.getElementById('council-name').innerHTML;
 
     const currentDate = new Date();
     const formatedDate = currentDate.toISOString().replace(/[^0-9]/g, '').slice(0, -3)
