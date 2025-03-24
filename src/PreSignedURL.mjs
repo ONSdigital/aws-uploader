@@ -81,6 +81,7 @@ export const handler = async (event, context, callback) => {
     }
   } catch (error){
     let LADCode = event.queryStringParameters.fileOneName.slice(13, 22);
+    let CouncilName = event.queryStringParameters.councilName;
     logger.logInternalError(LADCode,"foo", "500", error.message, CouncilName);
     return {
       statusCode: 500,
