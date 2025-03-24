@@ -15,7 +15,7 @@ class uploaderLogger {
   }
 
   logSuccess(LADCode, fileName, URL, statusCode,) {
-    console.log(`Success: Status: ${statusCode}, LADCode: ${LADCode}, fileName: ${fileName}, URL: ${URL}`);}
+    console.log(`Success: CouncilName: ${CouncilName}, Status: ${statusCode}, LADCode: ${LADCode}, fileName: ${fileName}, URL: ${URL}`);}
 }
 
 
