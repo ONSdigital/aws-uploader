@@ -106,8 +106,6 @@ async function onSubmit(event) {
 
         const fileOne = form.fileOne.files[0]; // First file chosen (EXTRACT file)
         const fileTwo = form.fileTwo.files[0]; // Second file chosen (MANI file)
-        https://uploader.ingest-dev.aws.onsdigital.uk/council-tax/E07000175-Newark&Sherwood.html
-        // Extract code from the current URL
         const currentUrl = window.location.href;
         const urlParts = currentUrl.split('/');
         const lastPart = urlParts[urlParts.length - 1];
