@@ -14,8 +14,8 @@ class uploaderLogger {
       console.log(`Info: ${infoMessage}`);
   }
 
-  logSuccess(LADCode, fileName, URL, statusCode, CouncilName) {
-    console.log(`Success: CouncilName: ${CouncilName}, Status: ${statusCode}, LADCode: ${LADCode}, fileName: ${fileName}, URL: ${URL}`);}
+  logSuccess(LADCode, fileName, URL, statusCode) {
+    console.log(`Success: Status: ${statusCode}, LADCode: ${LADCode}, fileName: ${fileName}, URL: ${URL}`);}
 }
 
 
@@ -35,13 +35,7 @@ export const handler = async (event, context, callback) => {
     //create variables to complete file verificatin checks
     let trimmedFileOneNameToCheckIfFilesMatch = event.queryStringParameters.fileOneName.slice(0, 5) + event.queryStringParameters.fileOneName.slice(12, 31); //trim file one name to just the parts which should exactly match file two
     let trimmedFileTwoNameToCheckIfFilesMatch = event.queryStringParameters.fileTwoName.slice(0, 5) + event.queryStringParameters.fileTwoName.slice(9, 28); //trim file two name to just the parts which should match file one name
-    logger.logInfo("Getting ladcode")
     let LADCode = event.queryStringParameters.fileOneName.slice(13, 22);
-    logger.logInfo(LADCode)
-    // let CouncilName = document.getElementById('council-name').innerHTML;
-    let CouncilName = event.queryStringParameters.councilName;
-    logger.logInfo(CouncilName)
-
     const currentDate = new Date();
     const formatedDate = currentDate.toISOString().replace(/[^0-9]/g, '').slice(0, -3)
     //Series of checks on file data before pre-signed URLs are created. Checks size of each file isnt 0, checks file type of each file is csv, check if file names match.
@@ -73,16 +67,14 @@ export const handler = async (event, context, callback) => {
       logger.logError(event.queryStringParameters.fileOneName.slice(13, 22), event.queryStringParameters.fileOneName, event.queryStringParameters.fileOneSize, result.statusCode, resultBody.message);
       return result;
     } else {
-      const result = await getUploadURL(event, formatedDate, CouncilName);
+      const result = await getUploadURL(event, LADCode, formatedDate);
       const resultBody = JSON.parse(result.body);
-      logger.logSuccess(LADCode, event.queryStringParameters.fileOneName, resultBody.uploadURLFileOne, result.statusCode, CouncilName);
-      logger.logSuccess(LADCode, event.queryStringParameters.fileTwoName, resultBody.uploadURLFileTwo, result.statusCode, CouncilName);
+      logger.logSuccess(LADCode, event.queryStringParameters.fileOneName, resultBody.uploadURLFileOne, result.statusCode);
+      logger.logSuccess(LADCode, event.queryStringParameters.fileTwoName, resultBody.uploadURLFileTwo, result.statusCode);
       return result;
     }
   } catch (error){
-    let LADCode = event.queryStringParameters.fileOneName.slice(13, 22);
-    let CouncilName = event.queryStringParameters.councilName;
-    logger.logInternalError(LADCode,"foo", "500", error.message, CouncilName);
+    logger.logInternalError(LADCode, eventNames.queryStringParameters.fileOneName, "500", error.message);
     return {
       statusCode: 500,
       body: JSON.stringify({
@@ -159,18 +151,18 @@ const fileNamesDontMatch = async (event) => {
 }
 
 //if all checks pass, then the pre-signed url for each file is created and returned to user which triggers automatic upload of each file to s3 bucket
-const getUploadURL = async (event, formatedDate, CouncilName) => {
+const getUploadURL = async (event,LADCode,formatedDate) => {
   
   
   const  s3ParamsFileOne = new PutObjectCommand({
      Bucket: process.env.BUCKET_NAME, //bucket used for ingested files
-    Key: `council-tax/${CouncilName}/${formatedDate}/${event.queryStringParameters.fileOneName}`
+    Key: `council-tax/${LADCode}/${formatedDate}/${event.queryStringParameters.fileOneName}`
     
   })
   
   const  s3ParamsFileTwo = new PutObjectCommand({
      Bucket: process.env.BUCKET_NAME,
-    Key: `council-tax/${CouncilName}/${formatedDate}/${event.queryStringParameters.fileTwoName}`
+    Key: `council-tax/${LADCode}/${formatedDate}/${event.queryStringParameters.fileTwoName}`
     
   })
   const client = new S3Client({

@@ -106,15 +106,14 @@ async function onSubmit(event) {
 
         const fileOne = form.fileOne.files[0]; // First file chosen (EXTRACT file)
         const fileTwo = form.fileTwo.files[0]; // Second file chosen (MANI file)
+
+        // Extract code from the current URL
         const currentUrl = window.location.href;
         const urlParts = currentUrl.split('/');
         const lastPart = urlParts[urlParts.length - 1];
         const ladCode = lastPart.split('-')[0];
-        const URL_Council_Name = lastPart.split('-')[1]
-        const Council_name = URL_Council_Name.split('.')[0]
         console.log("URL Code found: ", ladCode);
         console.log("File name is:", fileOne.name)
-        console.log("Council name is:", Council_name)
         const patOne=new RegExp("CTAX_EXTRACT_"+ladCode+'_\\d{8}\\.csv',"i")
         console.log(patOne)
         if (!fileOne.name.includes(ladCode)) {
@@ -160,7 +159,7 @@ async function onSubmit(event) {
     //}
     const loadingSpinner = document.querySelector('.hods-loading-spinner__content');
     loadingSpinner.style.display = 'block';
-    const urlWithParameters = url + `?fileOneName=$${fileOne.name}&fileOneType=$${fileOne.type}&fileTwoName=$${fileTwo.name}&fileTwoType=$${fileTwo.type}&fileOneSize=$${fileOne.size}&fileTwoSize=$${fileTwo.size}&councilName=$${Council_name}`;
+    const urlWithParameters = url + `?fileOneName=$${fileOne.name}&fileOneType=$${fileOne.type}&fileTwoName=$${fileTwo.name}&fileTwoType=$${fileTwo.type}&fileOneSize=$${fileOne.size}&fileTwoSize=$${fileTwo.size}`;
 
     fetch(urlWithParameters, options) // Pings API Gateway which triggers lambda. File verification is carried out by lambda - the message in the response depends on if and why the files fail the checks
         .then(response => response.json())
