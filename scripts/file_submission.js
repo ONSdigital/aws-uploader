@@ -114,6 +114,7 @@ async function onSubmit(event) {
         const Council_name = URL_Council_Name.split('.')[0]
         console.log("URL Code found: ", ladCode);
         console.log("File name is:", fileOne.name)
+        console.log("Council name is:", Council_name)
         const patOne=new RegExp("CTAX_EXTRACT_"+ladCode+'_\\d{8}\\.csv',"i")
         console.log(patOne)
         if (!fileOne.name.includes(ladCode)) {
