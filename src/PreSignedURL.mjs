@@ -14,7 +14,7 @@ class uploaderLogger {
       console.log(`Info: ${infoMessage}`);
   }
 
-  logSuccess(LADCode, fileName, URL, statusCode,) {
+  logSuccess(LADCode, fileName, URL, statusCode, CouncilName) {
     console.log(`Success: CouncilName: ${CouncilName}, Status: ${statusCode}, LADCode: ${LADCode}, fileName: ${fileName}, URL: ${URL}`);}
 }
 
@@ -75,8 +75,8 @@ export const handler = async (event, context, callback) => {
     } else {
       const result = await getUploadURL(event, formatedDate, CouncilName);
       const resultBody = JSON.parse(result.body);
-      logger.logSuccess(LADCode, event.queryStringParameters.fileOneName, resultBody.uploadURLFileOne, result.statusCode);
-      logger.logSuccess(LADCode, event.queryStringParameters.fileTwoName, resultBody.uploadURLFileTwo, result.statusCode);
+      logger.logSuccess(LADCode, event.queryStringParameters.fileOneName, resultBody.uploadURLFileOne, result.statusCode, CouncilName);
+      logger.logSuccess(LADCode, event.queryStringParameters.fileTwoName, resultBody.uploadURLFileTwo, result.statusCode, CouncilName);
       return result;
     }
   } catch (error){
