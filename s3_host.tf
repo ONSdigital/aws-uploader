@@ -73,9 +73,9 @@ locals {
     lad_code     = "E08000034"
   })
 
-  W07000112-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
+  E07000112-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
     council_name = "Council Tax - Shepway (Folkstone-Hythe)"
-    lad_code     = "W07000112"
+    lad_code     = "E07000112"
   })
 
   W06000024-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
@@ -162,9 +162,9 @@ resource "aws_s3_object" "kirklees" {
 
 resource "aws_s3_object" "shepway-folkstone-hythe" {
   bucket       = module.ons_upload_bucket.bucket_id
-  key          = "council-tax/W07000112-Shepway(Folkstone-Hythe).html"
-  source_hash  = md5(local.W07000112-council-rendered-html)
-  content      = local.W07000112-council-rendered-html
+  key          = "council-tax/E07000112-Shepway(Folkstone-Hythe).html"
+  source_hash  = md5(local.E07000112-council-rendered-html)
+  content      = local.E07000112-council-rendered-html
   content_type = "text/html"
 }
 
