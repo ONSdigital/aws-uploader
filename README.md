@@ -134,6 +134,14 @@ Dependabot is setup to check dependency versions within terraform, this will aut
 Concourse uses YAML to create the pipelines, which is works well until you start to create bigger pipelines to support bigger environments. 
 Within the `ci` folder there are two examples `aviator` and `concourse`. Read the README in both sections to work out which is better for your usecase. 
 
+## Monitoring
+The deployed production solution is monitored by [uptrends.com](https://uptrends.com). There are two monitors in place 
+- Connectivity to https://uploader.ingest.aws.onsdigital.uk/council-tax/E07000175-Newark&Sherwood.html 
+- The presence of a fixed string in the page is also tested for - this is currently "Upload the EXTRACT file".
+ ![ uptrends screenshot ](docs/uptrends1.png)![ uptrends screenshot 2 ](docs/uptrends2.png)
+
+ CSS control the uptrends system. Chris U. also has a logon.
+
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
