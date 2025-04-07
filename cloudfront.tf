@@ -89,6 +89,7 @@ resource "terraform_data" "invalidate_cf_caches" {
     monmouthshire                  = aws_s3_object.monmouthshire.source_hash
     torfaen                        = aws_s3_object.torfaen.source_hash
     vale_of_glamorgan              = aws_s3_object.vale-of-glamorgan.source_hash
+    southwark                      = aws_s3_object.southwark.source_hash
   }
 }
 

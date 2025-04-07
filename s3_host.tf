@@ -97,6 +97,11 @@ locals {
     council_name = "Council Tax - Vale Of Glamorgan"
     lad_code     = "W06000014"
   })
+
+  E09000028-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
+    council_name = "Council Tax - Southwark"
+    lad_code     = "E09000028"
+  })
 }
 
 resource "aws_s3_bucket_policy" "uploader_bucket" {
@@ -197,6 +202,14 @@ resource "aws_s3_object" "vale-of-glamorgan" {
   key          = "council-tax/W06000014-Vale-Of-Glamorgan.html"
   source_hash  = md5(local.W06000014-council-rendered-html)
   content      = local.W06000014-council-rendered-html
+  content_type = "text/html"
+}
+
+resource "aws_s3_object" "southwark" {
+  bucket       = module.ons_upload_bucket.bucket_id
+  key          = "council-tax/E09000028-southwark.html"
+  source_hash  = md5(local.E09000028-council-rendered-html)
+  content      = local.E09000028-council-rendered-html
   content_type = "text/html"
 }
 
