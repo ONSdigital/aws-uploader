@@ -111,7 +111,7 @@ async function onSubmit(event) {
     const lastPart = urlParts[urlParts.length - 1];
     const ladCode = lastPart.split('-')[0];
     const URL_Council_Name = lastPart.split('-')[1]
-    const Council_name = URL_Council_Name.split('.')[0]
+    let Council_name = URL_Council_Name.split('.')[0]
     Council_name = encodeURI(Council_name)
     console.log("URL Code found: ", ladCode);
     console.log("File name is:", fileOne.name)
