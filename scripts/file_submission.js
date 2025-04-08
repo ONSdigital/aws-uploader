@@ -16,16 +16,16 @@ async function onSubmit(event) {
 
 
 
-    function commonErrorStyle(message){
+    function commonErrorStyle(message) {
         console.log(Number.isInteger(message))
         if (Number.isInteger(message)) {
-            if (message==1) {
-                displayText="There is 1 problem with this page"
+            if (message == 1) {
+                displayText = "There is 1 problem with this page"
             } else {
-                displayText="There are "+message+" problems with this page"
+                displayText = "There are " + message + " problems with this page"
             }
         } else {
-            displayText=message
+            displayText = message
         }
 
         let extractManiFilesErrorTitle = document.getElementById('errors-list-title')
@@ -33,7 +33,7 @@ async function onSubmit(event) {
         extractManiFileError.style.display = 'block';
         extractManiFilesErrorTitle.innerHTML = displayText;
         let extractManiParagraphFileError = document.getElementById('errors-list-paragraph')
-        extractManiParagraphFileError.style.display = 'block';    
+        extractManiParagraphFileError.style.display = 'block';
     }
 
 
@@ -62,100 +62,101 @@ async function onSubmit(event) {
     }
 
     function addItem(line, anchor) {
-        olObj=document.getElementById("errors-list-item")
-        olObj.innerHTML=olObj.innerHTML+"<li class='ons-list__item'><a class='ons-list__link ons-js-inpagelink' href='#"+anchor+"'>"+line+"</a></li>"
+        olObj = document.getElementById("errors-list-item")
+        olObj.innerHTML = olObj.innerHTML + "<li class='ons-list__item'><a class='ons-list__link ons-js-inpagelink' href='#" + anchor + "'>" + line + "</a></li>"
     }
 
     function clearErrors() {
-        document.getElementById('errors-list').style.display="none"
-        document.getElementById("errors-list-item").innerHTML=""
-        let cls=document.getElementsByClassName("ons-panel--no-title")
-        if (cls.length>0) {
-            for (var i=0; i<cls.length; i++){
+        document.getElementById('errors-list').style.display = "none"
+        document.getElementById("errors-list-item").innerHTML = ""
+        let cls = document.getElementsByClassName("ons-panel--no-title")
+        if (cls.length > 0) {
+            for (var i = 0; i < cls.length; i++) {
                 cls[i].classList.remove("ons-panel--error", "ons-panel--no-title");
-                }
+            }
         };
-    } 
+    }
 
 
     clearErrors()
 
     // if (clientSideValidation) {
-        let valid = true;
-        let errCount=0;
-        // if (!valid) {
-        //     loadingSpinner.style.display = 'none';
-        //     return false;
-        // }
+    let valid = true;
+    let errCount = 0;
+    // if (!valid) {
+    //     loadingSpinner.style.display = 'none';
+    //     return false;
+    // }
 
-        if (form.fileOne.files.length < 1 ) {
-            fileOneErrorStyle();
-            addItem("You need to add a Extract file", "fileOne")
-            valid=false;
-        }
-        if (form.fileTwo.files.length < 1 ) {
-            fileTwoErrorStyle();
-            addItem("You need to add a Mani file", "fileTwo")
-            valid=false;
-        }
-        if (!valid) {
-            commonErrorStyle("You need to fill in both fields")
-            //if we don't have both then we're going to stop checking here.
-            return(false)
-        }
+    if (form.fileOne.files.length < 1) {
+        fileOneErrorStyle();
+        addItem("You need to add a Extract file", "fileOne")
+        valid = false;
+    }
+    if (form.fileTwo.files.length < 1) {
+        fileTwoErrorStyle();
+        addItem("You need to add a Mani file", "fileTwo")
+        valid = false;
+    }
+    if (!valid) {
+        commonErrorStyle("You need to fill in both fields")
+        //if we don't have both then we're going to stop checking here.
+        return (false)
+    }
 
-        const fileOne = form.fileOne.files[0]; // First file chosen (EXTRACT file)
-        const fileTwo = form.fileTwo.files[0]; // Second file chosen (MANI file)
-        const currentUrl = window.location.href;
-        const urlParts = currentUrl.split('/');
-        const lastPart = urlParts[urlParts.length - 1];
-        const ladCode = lastPart.split('-')[0];
-        const URL_Council_Name = lastPart.split('-')[1]
-        const Council_name = URL_Council_Name.split('.')[0]
-        console.log("URL Code found: ", ladCode);
-        console.log("File name is:", fileOne.name)
-        console.log("Council name is:", Council_name)
-        const patOne=new RegExp("CTAX_EXTRACT_"+ladCode+'_\\d{8}\\.csv',"i")
-        console.log(patOne)
-        if (!fileOne.name.includes(ladCode)) {
-            console.log("File name does not contain matching code:", fileOne.name);
-            fileOneErrorStyle();
-            addItem("File name does not contain matching LAD code", "fileOne")
-            valid=false;
-            errCount=++errCount;
-        }
+    const fileOne = form.fileOne.files[0]; // First file chosen (EXTRACT file)
+    const fileTwo = form.fileTwo.files[0]; // Second file chosen (MANI file)
+    const currentUrl = window.location.href;
+    const urlParts = currentUrl.split('/');
+    const lastPart = urlParts[urlParts.length - 1];
+    const ladCode = lastPart.split('-')[0];
+    const URL_Council_Name = lastPart.split('-')[1]
+    const Council_name = URL_Council_Name.split('.')[0]
+    Council_name = encodeURI(Council_name)
+    console.log("URL Code found: ", ladCode);
+    console.log("File name is:", fileOne.name)
+    console.log("Council name is:", Council_name)
+    const patOne = new RegExp("CTAX_EXTRACT_" + ladCode + '_\\d{8}\\.csv', "i")
+    console.log(patOne)
+    if (!fileOne.name.includes(ladCode)) {
+        console.log("File name does not contain matching code:", fileOne.name);
+        fileOneErrorStyle();
+        addItem("File name does not contain matching LAD code", "fileOne")
+        valid = false;
+        errCount = ++errCount;
+    }
 
-        if (fileOne.name.includes(ladCode) && !fileOne.name.match(patOne)) {
-            console.log("Extract File name does not follow the right pattern", fileOne.name);
-            fileOneErrorStyle();
-            addItem("Extract File name does not follow the right pattern", "fileOne")
-            valid=false;
-            errCount=++errCount;
-        }
+    if (fileOne.name.includes(ladCode) && !fileOne.name.match(patOne)) {
+        console.log("Extract File name does not follow the right pattern", fileOne.name);
+        fileOneErrorStyle();
+        addItem("Extract File name does not follow the right pattern", "fileOne")
+        valid = false;
+        errCount = ++errCount;
+    }
 
-        const patTwo=new RegExp("CTAX_MANI_"+ladCode+'_\\d{8}\\.csv',"i")
-    
+    const patTwo = new RegExp("CTAX_MANI_" + ladCode + '_\\d{8}\\.csv', "i")
 
-        if (!fileTwo.name.includes(ladCode)) {
-            console.log("File name does not contain matching code:", fileTwo.name);
-            fileTwoErrorStyle();
-            addItem("File name does not contain matching LAD code", "fileTwo")
-            valid=false;
-            errCount=++errCount;
-        }
 
-        if (fileTwo.name.includes(ladCode) && !fileTwo.name.match(patTwo)) {
-            console.log("ManiFile name does not follow the right pattern", fileTwo.name);
-            fileTwoErrorStyle();
-            addItem("Mani File name does not follow the right pattern", "fileTwo")
-            valid=false;
-            errCount=++errCount;
-        }
+    if (!fileTwo.name.includes(ladCode)) {
+        console.log("File name does not contain matching code:", fileTwo.name);
+        fileTwoErrorStyle();
+        addItem("File name does not contain matching LAD code", "fileTwo")
+        valid = false;
+        errCount = ++errCount;
+    }
 
-        if (!valid) { 
-            commonErrorStyle(errCount);
-            return false;
-        }
+    if (fileTwo.name.includes(ladCode) && !fileTwo.name.match(patTwo)) {
+        console.log("ManiFile name does not follow the right pattern", fileTwo.name);
+        fileTwoErrorStyle();
+        addItem("Mani File name does not follow the right pattern", "fileTwo")
+        valid = false;
+        errCount = ++errCount;
+    }
+
+    if (!valid) {
+        commonErrorStyle(errCount);
+        return false;
+    }
 
     //}
     const loadingSpinner = document.querySelector('.hods-loading-spinner__content');
@@ -170,11 +171,11 @@ async function onSubmit(event) {
                 fileOneErrorStyle();
                 addItem("Please upload a CSV file", "fileOne")
                 commonErrorStyle(1);
-            }  else if (data.message === "maniFile is not .csv") {
+            } else if (data.message === "maniFile is not .csv") {
                 fileTwoErrorStyle();
                 addItem("Please upload a CSV file", "fileTwo")
                 commonErrorStyle(1);
-             } else if (data.message === "File is empty") {
+            } else if (data.message === "File is empty") {
                 bothFilesErrorStyle()
                 addItem("Extract file is empty", "fileOne")
                 addItem("Mani file is empty", "fileTwo")
@@ -188,17 +189,17 @@ async function onSubmit(event) {
                     uploadFile(data.uploadURLFileOne, fileOne),
                     uploadFile(data.uploadURLFileTwo, fileTwo)
                 ])
-                .then(results => {
-                    loadingSpinner.style.display = "none"
-                    window.location.href = "success.html";
-                })
-                .catch(error => {
-                    loadingSpinner.style.display = "none"
-                    console.error('Error uploading files:', error);
-                    bothFilesErrorStyle()
-                    addItem("There has been an issue with the upload, please contact ingest.service@ons.gov.uk", "fileOne")
-                    commonErrorStyle(2);
-                });
+                    .then(results => {
+                        loadingSpinner.style.display = "none"
+                        window.location.href = "success.html";
+                    })
+                    .catch(error => {
+                        loadingSpinner.style.display = "none"
+                        console.error('Error uploading files:', error);
+                        bothFilesErrorStyle()
+                        addItem("There has been an issue with the upload, please contact ingest.service@ons.gov.uk", "fileOne")
+                        commonErrorStyle(2);
+                    });
             }
 
         });
@@ -209,19 +210,19 @@ async function uploadFile(uploadURL, file) {
     let uploadResponse = await fetch(uploadURL, {
         method: "PUT",
         body: file
-            }).then(resp => {
-                return resp.text().then(body => {
-                    
-                    const result = {
-                        status: resp.status,
-                        body,
-                    };
-                    if (!resp.ok) {
-                        return Promise.reject(result);
-                    }
-                    return result;
-                 });
-            });
-    }
-    
-    (window);
+    }).then(resp => {
+        return resp.text().then(body => {
+
+            const result = {
+                status: resp.status,
+                body,
+            };
+            if (!resp.ok) {
+                return Promise.reject(result);
+            }
+            return result;
+        });
+    });
+}
+
+(window);

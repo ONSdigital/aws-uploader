@@ -20,9 +20,10 @@ class uploaderLogger {
 }
 
 function cleanCouncilName(councilName) {
-  return councilName.replace(/[^a-zA-Z0-9]/g, '_');
+  councilName = councilName.replace(" ", "_");
+  councilName = councilName.replace("&", "_");
+  return councilName;
 }
-
 
 // New way of using AWS SDk v3
 import { S3, PutObjectCommand, S3Client } from "@aws-sdk/client-s3"
@@ -169,7 +170,7 @@ const fileNamesDontMatch = async (event) => {
 //if all checks pass, then the pre-signed url for each file is created and returned to user which triggers automatic upload of each file to s3 bucket
 const getUploadURL = async (event, formatedDate, councilName) => {
 
-  let councilName = cleanCouncilName(councilName)
+  councilName = cleanCouncilName(councilName)
 
   const s3ParamsFileOne = new PutObjectCommand({
     Bucket: process.env.BUCKET_NAME, //bucket used for ingested files
@@ -203,5 +204,4 @@ const getUploadURL = async (event, formatedDate, councilName) => {
       })
     })
   })
-
 }
