@@ -19,11 +19,11 @@ class uploaderLogger {
   }
 }
 
-function cleanCouncilName(councilName) {
-  councilName = councilName.replace(" ", "_");
-  councilName = councilName.replace("&", "_");
-  return councilName;
-}
+// function cleanCouncilName(councilName) {
+//   councilName = councilName.replace(" ", "_");
+//   councilName = councilName.replace("&", "_");
+//   return councilName;
+// }
 
 function cleanCouncilName(councilName) {
   return councilName.replace(/ /g, "_").replace(/&/g, "_");
