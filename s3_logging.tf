@@ -73,4 +73,3 @@ resource "aws_s3_bucket_acl" "cloudfront" {
   depends_on = [aws_s3_bucket_ownership_controls.cloudfront_logging_bucket]
 
 }
- 

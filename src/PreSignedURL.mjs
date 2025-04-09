@@ -11,70 +11,87 @@ class uploaderLogger {
   }
 
   logInfo(infoMessage) {
-      console.log(`Info: ${infoMessage}`);
+    console.log(`Info: ${infoMessage}`);
   }
 
-  logSuccess(LADCode, fileName, URL, statusCode) {
-    console.log(`Success: Status: ${statusCode}, LADCode: ${LADCode}, fileName: ${fileName}, URL: ${URL}`);}
+  logSuccess(LADCode, fileName, URL, statusCode, CouncilName) {
+    console.log(`Success: CouncilName: ${CouncilName}, Status: ${statusCode}, LADCode: ${LADCode}, fileName: ${fileName}, URL: ${URL}`);
+  }
 }
 
+// function cleanCouncilName(councilName) {
+//   councilName = councilName.replace(" ", "_");
+//   councilName = councilName.replace("&", "_");
+//   return councilName;
+// }
 
+function cleanCouncilName(councilName) {
+  return councilName.replace(/ /g, "_").replace(/&/g, "_");
+}
 
 // New way of using AWS SDk v3
 import { S3, PutObjectCommand, S3Client } from "@aws-sdk/client-s3"
-const s3 = new S3({region: 'eu-west-2'});
+const s3 = new S3({ region: 'eu-west-2' });
 const logger = new uploaderLogger()
 
 
 export const handler = async (event, context, callback) => {
-  try{
+  try {
     logger.logInfo("Starting verification checks")
-  
+
     //-- Starting verification checks --
-    
+
     //create variables to complete file verificatin checks
     let trimmedFileOneNameToCheckIfFilesMatch = event.queryStringParameters.fileOneName.slice(0, 5) + event.queryStringParameters.fileOneName.slice(12, 31); //trim file one name to just the parts which should exactly match file two
     let trimmedFileTwoNameToCheckIfFilesMatch = event.queryStringParameters.fileTwoName.slice(0, 5) + event.queryStringParameters.fileTwoName.slice(9, 28); //trim file two name to just the parts which should match file one name
+    logger.logInfo("Getting ladcode")
     let LADCode = event.queryStringParameters.fileOneName.slice(13, 22);
+    logger.logInfo(LADCode)
+    // let CouncilName = document.getElementById('council-name').innerHTML;
+    let CouncilName = decodeURIComponent(event.queryStringParameters.councilName); //here
+    logger.logInfo(CouncilName)
+
     const currentDate = new Date();
     const formatedDate = currentDate.toISOString().replace(/[^0-9]/g, '').slice(0, -3)
     //Series of checks on file data before pre-signed URLs are created. Checks size of each file isnt 0, checks file type of each file is csv, check if file names match.
     //Need to add file name format verification.
-    
-    if(event.queryStringParameters.fileOneSize === "0") {
+
+    if (event.queryStringParameters.fileOneSize === "0") {
       const result = await isFileEmpty(event.queryStringParameters.fileOneName);
       const resultBody = JSON.parse(result.body);
       logger.logError(event.queryStringParameters.fileOneName.slice(13, 22), event.queryStringParameters.fileOneName, event.queryStringParameters.fileOneSize, result.statusCode, resultBody.message);
       return result;
-    } else  if (event.queryStringParameters.fileTwoSize === "0") {
+    } else if (event.queryStringParameters.fileTwoSize === "0") {
       const result = await isFileEmpty(event.queryStringParameters.fileTwoName);
       const resultBody = JSON.parse(result.body);
       logger.logError(event.queryStringParameters.fileOneName.slice(13, 22), event.queryStringParameters.fileTwoName, event.queryStringParameters.fileTwoSize, result.statusCode, resultBody.message);
       return result;
-    } else if(event.queryStringParameters.fileOneType !== "text/csv"){
+    } else if (event.queryStringParameters.fileOneType !== "text/csv") {
       const result = await fileNotCSV(event.queryStringParameters.fileOneName);
       const resultBody = JSON.parse(result.body);
       logger.logError(event.queryStringParameters.fileOneName.slice(13, 22), event.queryStringParameters.fileOneName, event.queryStringParameters.fileOneSize, result.statusCode, resultBody.message);
       return result;
-    } else if(event.queryStringParameters.fileTwoType !== "text/csv"){
+    } else if (event.queryStringParameters.fileTwoType !== "text/csv") {
       const result = await maniFileNotCSV(event.queryStringParameters.fileTwoName);
       const resultBody = JSON.parse(result.body);
       logger.logError(event.queryStringParameters.fileTwoName.slice(13, 22), event.queryStringParameters.fileTwoName, event.queryStringParameters.fileTwoSize, result.statusCode, resultBody.message);
       return result;
-    } else if (trimmedFileOneNameToCheckIfFilesMatch != trimmedFileTwoNameToCheckIfFilesMatch){
+    } else if (trimmedFileOneNameToCheckIfFilesMatch != trimmedFileTwoNameToCheckIfFilesMatch) {
       const result = await fileNamesDontMatch(event);
       const resultBody = JSON.parse(result.body);
       logger.logError(event.queryStringParameters.fileOneName.slice(13, 22), event.queryStringParameters.fileOneName, event.queryStringParameters.fileOneSize, result.statusCode, resultBody.message);
       return result;
     } else {
-      const result = await getUploadURL(event, LADCode, formatedDate);
+      const result = await getUploadURL(event, formatedDate, CouncilName);
       const resultBody = JSON.parse(result.body);
-      logger.logSuccess(LADCode, event.queryStringParameters.fileOneName, resultBody.uploadURLFileOne, result.statusCode);
-      logger.logSuccess(LADCode, event.queryStringParameters.fileTwoName, resultBody.uploadURLFileTwo, result.statusCode);
+      logger.logSuccess(LADCode, event.queryStringParameters.fileOneName, resultBody.uploadURLFileOne, result.statusCode, CouncilName);
+      logger.logSuccess(LADCode, event.queryStringParameters.fileTwoName, resultBody.uploadURLFileTwo, result.statusCode, CouncilName);
       return result;
     }
-  } catch (error){
-    logger.logInternalError(LADCode, eventNames.queryStringParameters.fileOneName, "500", error.message);
+  } catch (error) {
+    let LADCode = event.queryStringParameters.fileOneName.slice(13, 22);
+    let CouncilName = event.queryStringParameters.councilName;
+    logger.logInternalError(LADCode, "foo", "500", error.message, CouncilName);
     return {
       statusCode: 500,
       body: JSON.stringify({
@@ -88,61 +105,65 @@ export const handler = async (event, context, callback) => {
 //sends reponse if a file is not csv which alerts user
 const fileNotCSV = async (filename) => {
   return new Promise((resolve, reject) => {
-      resolve({
+    resolve({
       "statusCode": 403,
       "isBase64Encoded": false,
-      "headers": { 'Access-Control-Allow-Origin': '*'
-         },
+      "headers": {
+        'Access-Control-Allow-Origin': '*'
+      },
       "body": JSON.stringify({
         "message": "File is not .csv",
-        "filename" : filename
+        "filename": filename
       })
     })
-  }) 
+  })
 }
 
 const maniFileNotCSV = async (filename) => {
   return new Promise((resolve, reject) => {
-      resolve({
+    resolve({
       "statusCode": 403,
       "isBase64Encoded": false,
-      "headers": { 'Access-Control-Allow-Origin': '*'
-         },
+      "headers": {
+        'Access-Control-Allow-Origin': '*'
+      },
       "body": JSON.stringify({
         "message": "maniFile is not .csv",
-        "filename" : filename
+        "filename": filename
       })
     })
-  }) 
+  })
 }
 
 
 //sends response if file is empty and alerts user
 const isFileEmpty = async (filename) => {
   return new Promise((resolve, reject) => {
-      resolve({
+    resolve({
       "statusCode": 204,
       "isBase64Encoded": false,
-      "headers": { 'Access-Control-Allow-Origin': '*'
-         },
+      "headers": {
+        'Access-Control-Allow-Origin': '*'
+      },
       "body": JSON.stringify({
         "message": `File is empty`,
-        "filename" : filename
+        "filename": filename
       })
     })
-  }) 
+  })
 }
 
 //sends response if a file names dont match
 const fileNamesDontMatch = async (event) => {
-  
+
   return new Promise((resolve, reject) => {
-    
-      resolve({
+
+    resolve({
       "statusCode": 300,
       "isBase64Encoded": false,
-      "headers": { 'Access-Control-Allow-Origin': '*'
-         },
+      "headers": {
+        'Access-Control-Allow-Origin': '*'
+      },
       "body": JSON.stringify({
         "message": "File names do not match"
       })
@@ -151,39 +172,40 @@ const fileNamesDontMatch = async (event) => {
 }
 
 //if all checks pass, then the pre-signed url for each file is created and returned to user which triggers automatic upload of each file to s3 bucket
-const getUploadURL = async (event,LADCode,formatedDate) => {
-  
-  
-  const  s3ParamsFileOne = new PutObjectCommand({
-     Bucket: process.env.BUCKET_NAME, //bucket used for ingested files
-    Key: `council-tax/${LADCode}/${formatedDate}/${event.queryStringParameters.fileOneName}`
-    
+const getUploadURL = async (event, formatedDate, councilName) => {
+
+  councilName = cleanCouncilName(councilName)
+
+  const s3ParamsFileOne = new PutObjectCommand({
+    Bucket: process.env.BUCKET_NAME, //bucket used for ingested files
+    Key: `council-tax/${councilName}/${formatedDate}/${event.queryStringParameters.fileOneName}`
+
   })
-  
-  const  s3ParamsFileTwo = new PutObjectCommand({
-     Bucket: process.env.BUCKET_NAME,
-    Key: `council-tax/${LADCode}/${formatedDate}/${event.queryStringParameters.fileTwoName}`
-    
+
+  const s3ParamsFileTwo = new PutObjectCommand({
+    Bucket: process.env.BUCKET_NAME,
+    Key: `council-tax/${councilName}/${formatedDate}/${event.queryStringParameters.fileTwoName}`
+
   })
   const client = new S3Client({
-    
-    
-  }) 
-   let uploadURLFileOne = await getSignedUrl(s3, s3ParamsFileOne, { expiresIn: 1800 })
-    let uploadURLFileTwo = await getSignedUrl(s3, s3ParamsFileTwo, { expiresIn: 1800 })
-return new Promise((resolve, reject) => {
-   
-      resolve({
+
+
+  })
+  let uploadURLFileOne = await getSignedUrl(s3, s3ParamsFileOne, { expiresIn: 1800 })
+  let uploadURLFileTwo = await getSignedUrl(s3, s3ParamsFileTwo, { expiresIn: 1800 })
+  return new Promise((resolve, reject) => {
+
+    resolve({
       "statusCode": 200,
       "isBase64Encoded": false,
-      "headers": { 'Access-Control-Allow-Origin': '*',
-         },
+      "headers": {
+        'Access-Control-Allow-Origin': '*',
+      },
       "body": JSON.stringify({
         "uploadURLFileOne": uploadURLFileOne,
-        "uploadURLFileTwo" : uploadURLFileTwo,
-        "message" : "Success",
+        "uploadURLFileTwo": uploadURLFileTwo,
+        "message": "Success",
       })
     })
   })
-  
 }
