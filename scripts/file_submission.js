@@ -113,7 +113,7 @@ async function onSubmit(event) {
     //const URL_Council_Name = lastPart.split('-')[1]
     const council_name = lastPart.split('.')[0];
     const parts = council_name.split('-');
-    const Council_name = parts.slice(1).join('-')
+    let Council_name = parts.slice(1).join('-')
 
     Council_name = encodeURIComponent(Council_name)
 
