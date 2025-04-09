@@ -9,6 +9,11 @@ const options = {
 let form = document.getElementById("form");
 form.addEventListener("submit", onSubmit);
 
+function extractCouncilNameFromURL(filename) {
+    const match = filename.match(/^[^-]+-([^.]+)/);
+    return match ? match[1] : null;
+  }
+
 // Once user submits both files, the below function pings the API Gateway with the parameters needed.
 async function onSubmit(event) {
     event.preventDefault(); // Prevents the form from being submitted the usual way.
@@ -110,10 +115,10 @@ async function onSubmit(event) {
     const urlParts = currentUrl.split('/');
     const lastPart = urlParts[urlParts.length - 1];
     const ladCode = lastPart.split('-')[0];
-    //const URL_Council_Name = lastPart.split('-')[1]
-    const council_name = lastPart.split('.')[0];
-    const parts = council_name.split('-');
-    let Council_name = parts.slice(1).join('-')
+    // const URL_Council_Name = lastPart.split('-')[1]
+    // const council_name = lastPart.split('.')[0];
+    // const parts = council_name.split('-');
+    let Council_name = extractCouncilNameFromURL(lastPart)
 
     Council_name = encodeURIComponent(Council_name)
 
