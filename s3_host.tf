@@ -102,6 +102,11 @@ locals {
     council_name = "Council Tax - Southwark"
     lad_code     = "E09000028"
   })
+
+  E00000000-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
+    council_name = "Council Tax - Test"
+    lad_code     = "E00000000"
+  })
 }
 
 resource "aws_s3_bucket_policy" "uploader_bucket" {
@@ -210,6 +215,14 @@ resource "aws_s3_object" "southwark" {
   key          = "council-tax/E09000028-southwark.html"
   source_hash  = md5(local.E09000028-council-rendered-html)
   content      = local.E09000028-council-rendered-html
+  content_type = "text/html"
+}
+
+resource "aws_s3_object" "test" {
+  bucket       = module.ons_upload_bucket.bucket_id
+  key          = "council-tax/E00000000-Test&Test.html"
+  source_hash  = md5(local.E00000000-council-rendered-html)
+  content      = local.E00000000-council-rendered-html
   content_type = "text/html"
 }
 
