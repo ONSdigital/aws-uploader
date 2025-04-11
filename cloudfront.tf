@@ -80,8 +80,16 @@ resource "terraform_data" "invalidate_cf_caches" {
     website_success_page           = aws_s3_object.success_page.source_hash
     website_file_submission_script = aws_s3_object.file_submission.source_hash
     website_result_message_script  = aws_s3_object.result_message.source_hash
-    test_page                      = aws_s3_object._012345678-council.source_hash
+    test_page                      = aws_s3_object.test.source_hash
     newark_sherwood                = aws_s3_object.newark-sherwood.source_hash
+    gloucester                     = aws_s3_object.gloucester.source_hash
+    kirklees                       = aws_s3_object.kirklees.source_hash
+    shepway_folkstone_hythe        = aws_s3_object.shepway-folkstone-hythe.source_hash
+    merthyr_tydfil                 = aws_s3_object.merthyr-tydfil.source_hash
+    monmouthshire                  = aws_s3_object.monmouthshire.source_hash
+    torfaen                        = aws_s3_object.torfaen.source_hash
+    vale_of_glamorgan              = aws_s3_object.vale-of-glamorgan.source_hash
+    southwark                      = aws_s3_object.southwark.source_hash
   }
 }
 
