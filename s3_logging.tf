@@ -94,6 +94,10 @@ resource "aws_athena_workgroup" "access_logs" {
 
     result_configuration {
       output_location = "s3://${aws_s3_bucket.cloudfront_logging_bucket.bucket}/query_results/"
+
+    encryption_configuration {
+        encryption_option = "SSE_S3"
+      }
     }
   }
 }
@@ -139,7 +143,7 @@ CREATE EXTERNAL TABLE IF NOT EXISTS cloudfront_standard_logs (
 )
 ROW FORMAT DELIMITED 
 FIELDS TERMINATED BY '\t'
-LOCATION 's3://cloudfront-logging-ost-dev/'
+LOCATION '${aws_s3_bucket.cloudfront_logging_bucket.id}'
 TBLPROPERTIES ( 'skip.header.line.count'='2' )
 EOF
   workgroup = aws_athena_workgroup.access_logs.name
