@@ -19,14 +19,8 @@ class uploaderLogger {
   }
 }
 
-// function cleanCouncilName(councilName) {
-//   councilName = councilName.replace(" ", "_");
-//   councilName = councilName.replace("&", "_");
-//   return councilName;
-// }
-
 function cleanCouncilName(councilName) {
-  return councilName.replace(/ /g, "_").replace(/&/g, "_");
+  return councilName.replace(/[!_\-.*'()&$@=;/+:,?\\{}^}%`[\]"<>#|~]/g, "").replace(/ /g, "");
 }
 
 // New way of using AWS SDk v3
