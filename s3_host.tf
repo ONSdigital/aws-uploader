@@ -51,46 +51,11 @@ data "aws_iam_policy_document" "uploader_bucket" {
   }
 }
 
-
+#  Please keep these sorted by LAD code - makes it easier to find existing councils ands onboard new councils
 locals {
-  E12345678-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
-    council_name = "Council Tax"
-    lad_code     = "E12345678"
-  })
-
-  E07000175-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
-    council_name = "Council Tax - Newark & Sherwood"
-    lad_code     = "E07000175"
-  })
-
-  E07000081-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
-    council_name = "Council Tax - Gloucester"
-    lad_code     = "E07000081"
-  })
-
-  E08000034-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
-    council_name = "Council Tax - Kirklees"
-    lad_code     = "E08000034"
-  })
-
-  E07000112-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
-    council_name = "Council Tax - Shepway (Folkstone-Hythe)"
-    lad_code     = "E07000112"
-  })
-
-  W06000024-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
-    council_name = "Council Tax - Merthyr Tydfil"
-    lad_code     = "W06000024"
-  })
-
-  W06000021-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
-    council_name = "Council Tax - Monmouthshire"
-    lad_code     = "W06000021"
-  })
-
-  W06000020-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
-    council_name = "Council Tax - Torfaen"
-    lad_code     = "W06000020"
+  E00000000-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
+    council_name = "Council Tax - Test"
+    lad_code     = "E00000000"
   })
 
   W06000014-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
@@ -98,14 +63,49 @@ locals {
     lad_code     = "W06000014"
   })
 
+  W06000020-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
+    council_name = "Council Tax - Torfaen"
+    lad_code     = "W06000020"
+  })
+
+  W06000021-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
+    council_name = "Council Tax - Monmouthshire"
+    lad_code     = "W06000021"
+  })
+
+  W06000024-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
+    council_name = "Council Tax - Merthyr Tydfil"
+    lad_code     = "W06000024"
+  })
+
+  E07000081-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
+    council_name = "Council Tax - Gloucester"
+    lad_code     = "E07000081"
+  })
+
+  E07000112-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
+    council_name = "Council Tax - Shepway (Folkstone-Hythe)"
+    lad_code     = "E07000112"
+  })
+
+  E07000175-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
+    council_name = "Council Tax - Newark & Sherwood"
+    lad_code     = "E07000175"
+  })
+
+  E08000034-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
+    council_name = "Council Tax - Kirklees"
+    lad_code     = "E08000034"
+  })
+
   E09000028-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
     council_name = "Council Tax - Southwark"
     lad_code     = "E09000028"
   })
 
-  E00000000-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
-    council_name = "Council Tax - Test"
-    lad_code     = "E00000000"
+  E12345678-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
+    council_name = "Council Tax"
+    lad_code     = "E12345678"
   })
 }
 
