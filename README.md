@@ -1,17 +1,18 @@
 # AWS Uploader
+
 This solution hosts the infrastructure to build a website that allows specific users to upload EXTRACT and MANI files inside a secured S3 bucket and deploy it into
 dev, pre-prod and production environments.
-This template is designed to help you start an AWS terraform repository in the same structure across all projects. 
+This template is designed to help you start an AWS terraform repository in the same structure across all projects.
 
 The solution deploys:
 
-		○ Host S3 Bucket: With enabled static website hosting and the appropriate permissions
-		○ CloudFront Distribution: Linked to the Host S3 Bucket
-		○ IAM Roles and Policies
-		○ HTML Scripts: All html pages that will be hosted inside the S3 Bucket 
-		○ Lambda Script: Create "PreSignedURL" script that will be targeting the Ingest Bucket
-		○ Ingest S3 Bucket: Creating the ingest bucket where the files will be uploaded and set the appropriate permissions
-		○ Set up Route 53 DNS: Generates unique URL for each council
+  ○ Host S3 Bucket: With enabled static website hosting and the appropriate permissions
+  ○ CloudFront Distribution: Linked to the Host S3 Bucket
+  ○ IAM Roles and Policies
+  ○ HTML Scripts: All html pages that will be hosted inside the S3 Bucket
+  ○ Lambda Script: Create "PreSignedURL" script that will be targeting the Ingest Bucket
+  ○ Ingest S3 Bucket: Creating the ingest bucket where the files will be uploaded and set the appropriate permissions
+  ○ Set up Route 53 DNS: Generates unique URL for each council
 
 # cicd
 
@@ -21,8 +22,8 @@ Image needs updating but shows how the flow will work expect all pull requests a
 
 # Pre Commits
 
-This repository makes use of https://github.com/gruntwork-io/pre-commit to help enforce code quality. 
-Useful guide https://medium.com/slalom-build/pre-commit-hooks-for-terraform-9356ee6db882
+This repository makes use of <https://github.com/gruntwork-io/pre-commit> to help enforce code quality.
+Useful guide <https://medium.com/slalom-build/pre-commit-hooks-for-terraform-9356ee6db882>
 
 ## Prerequisites
 
@@ -30,7 +31,7 @@ You will need to install the following:
 
 - [Pre Commit](https://github.com/gruntwork-io/pre-commit) -
 `brew install pre-commit`
-- [Terraform](https://learn.hashicorp.com/tutorials/terraform/install-cli) - `brew tap hashicorp/tap`, 
+- [Terraform](https://learn.hashicorp.com/tutorials/terraform/install-cli) - `brew tap hashicorp/tap`,
               `brew install hashicorp/tap/terraform`
 - [TFSec](https://github.com/aquasecurity/tfsec) - `brew install tfsec`
 - [Terraform Docs](https://terraform-docs.io/user-guide/installation/) - `brew install terraform-docs`
@@ -39,7 +40,7 @@ You will need to install the following:
 
 ## Usage
 
-Once you have met all the prerequisites install pre commit on the reposiotry 
+Once you have met all the prerequisites install pre commit on the reposiotry
 
 ```
 pre-commit install
@@ -48,13 +49,13 @@ pre-commit install
 Configuration for the pre commit can be found in .pre-commit-config.yaml
 
 Pre commit is doing:
+
 - terraform-validate - ensuring any terraform code which is being committed is valid
-- terraform fmt - formatting any terraform which is being committed. 
+- terraform fmt - formatting any terraform which is being committed.
 - terraform-docs - Used to automatically generate documentation for this repo
 - Tflint - Finds invalid configuration with AWS Terraform, enforces agreed apon best practices, warns about deprecated syntax
 - Tfsec - Checks for misconfigurations in terraform code against security protocols
 - Git checks - checks for large files being commited, merge conflicts, end of file fixes, checks for any potential secrets being committed.
-
 
 ## Terraform
 
@@ -71,7 +72,7 @@ export AWS_DEFAULT_REGION="eu-west-2"
 export S3_BUCKET_NAME="YOUR_BUCKET_NAME"
 ```
 
-Terraform init 
+Terraform init
 
 ```
 terraform init -backend-config=bucket="${S3_BUCKET_NAME}"
@@ -80,46 +81,39 @@ terraform init -backend-config=bucket="${S3_BUCKET_NAME}"
 -backend-config=region="eu-west-2"
 ```
 
-Run terraform plan 
+Run terraform plan
 
 ```
 terraform plan -var-file=env/env.tfvars
 ```
-### Creating council pages using templates
-This is a guide to create Council Tax upload pages:
 
-- Move to s3_host.tf and create another variable inside locals, you can copy one of the other Council's template file.
+### Onboarding New Councils
 
-- Name the variable using the Council Lad Code like this: LadCode-council-rendered-html.
+This is a guide to creating new Council Tax upload pages:
 
-- Point "templatefile" to template/council-tax-template.html.
+Navigate to s3_host.tf (<https://vscode.dev/github/ONSdigital/aws-uploader/blob/new_councils/s3_host.tf#L109>)
 
-- Update the "council_name" and "lad_code" to match the new Council.
+- Create a local variable following the pattern for existing Council's.
 
-- After that, create another aws_s3_object. You can copy one of the other Council's s3 object.
+```
+<LADCode>-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
+    council_name = "<CouncilName>"
+    lad_code     = "<LADCode>"
+  }
+)
+```
 
-- Change the s3 object name to the matching council.
+- Create an aws_s3_object resource following the pattern for existing Council's.
 
-- Update the "key" to the match Council LadCode and Name.
-
-- Update "source_hash" to point to the new local variable.
-
-- Update the "content" to point to the new local variable.
-
-- Example of local variable:
-  E12345678-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
-    council_name = "Council Tax"
-    lad_code     = "E12345678"
-	})
-
-- Example of s3 object resource:
-resource "aws_s3_object" "newark-sherwood" {
+```
+resource "aws_s3_object" "<CouncilName>" {
   bucket       = module.ons_upload_bucket.bucket_id
-  key          = "council-tax/E07000175-Newark&Sherwood.html"
-  source_hash  = md5(local.E07000175-council-rendered-html)
-  content      = local.E07000175-council-rendered-html
+  key          = "council-tax/<LADCode>-<CouncilName>.html"
+  source_hash  = md5(local.<LADCode>-council-rendered-html)
+  content      = local.<LADCode>-council-rendered-html
   content_type = "text/html"
 }
+```
 
 ## Github Automatic reviewers
 
@@ -131,12 +125,14 @@ Dependabot is setup to check dependency versions within terraform, this will aut
 
 ## CICD
 
-Concourse uses YAML to create the pipelines, which is works well until you start to create bigger pipelines to support bigger environments. 
-Within the `ci` folder there are two examples `aviator` and `concourse`. Read the README in both sections to work out which is better for your usecase. 
+Concourse uses YAML to create the pipelines, which is works well until you start to create bigger pipelines to support bigger environments.
+Within the `ci` folder there are two examples `aviator` and `concourse`. Read the README in both sections to work out which is better for your usecase.
 
 ## Monitoring
-The deployed production solution is monitored by [uptrends.com](https://uptrends.com). There are two monitors in place 
-- Connectivity to https://uploader.ingest.aws.onsdigital.uk/council-tax/E07000175-Newark&Sherwood.html 
+
+The deployed production solution is monitored by [uptrends.com](https://uptrends.com). There are two monitors in place
+
+- Connectivity to <https://uploader.ingest.aws.onsdigital.uk/council-tax/E07000175-Newark&Sherwood.html>
 - The presence of a fixed string in the page is also tested for - this is currently "Upload the EXTRACT file".
  ![ uptrends screenshot ](docs/uptrends1.png)![ uptrends screenshot 2 ](docs/uptrends2.png)
 
@@ -163,8 +159,8 @@ The deployed production solution is monitored by [uptrends.com](https://uptrends
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_ons_upload_bucket"></a> [ons\_upload\_bucket](#module\_ons\_upload\_bucket) | git::https://github.com/ONSdigital/aws-s3-bucket.git | secure-policy |
-| <a name="module_ons_upload_ingest_bucket"></a> [ons\_upload\_ingest\_bucket](#module\_ons\_upload\_ingest\_bucket) | git::https://github.com/ONSdigital/aws-s3-bucket.git | secure-policy |
+| <a name="module_ons_upload_bucket"></a> [ons\_upload\_bucket](#module\_ons\_upload\_bucket) | git::<https://github.com/ONSdigital/aws-s3-bucket.git> | secure-policy |
+| <a name="module_ons_upload_ingest_bucket"></a> [ons\_upload\_ingest\_bucket](#module\_ons\_upload\_ingest\_bucket) | git::<https://github.com/ONSdigital/aws-s3-bucket.git> | secure-policy |
 
 ## Resources
 
