@@ -35,7 +35,7 @@ resource "aws_lambda_function" "PreSignedURL" {
   handler          = "PreSignedURL.handler"
   source_code_hash = data.archive_file.PreSignedURL.output_base64sha256
   # tflint-ignore: aws_lambda_function_invalid_runtime
-  runtime = "nodejs20.x"
+  runtime = "nodejs22.x"
   timeout = 30
 
   tracing_config {
