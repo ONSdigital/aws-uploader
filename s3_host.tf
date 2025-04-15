@@ -134,6 +134,11 @@ locals {
     lad_code     = "E07000112"
   })
 
+  E07000127-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
+    council_name = "Council Tax - West Lancashire"
+    lad_code     = "E07000127"
+  })
+
   E07000175-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
     council_name = "Council Tax - Newark & Sherwood"
     lad_code     = "E07000175"
@@ -222,6 +227,14 @@ resource "aws_s3_object" "shepway-folkstone-hythe" {
   key          = "council-tax/E07000112-Shepway(Folkstone-Hythe).html"
   source_hash  = md5(local.E07000112-council-rendered-html)
   content      = local.E07000112-council-rendered-html
+  content_type = "text/html"
+}
+
+resource "aws_s3_object" "west-lancashire" {
+  bucket       = module.ons_upload_bucket.bucket_id
+  key          = "council-tax/E07000127-West-Lancashire.html"
+  source_hash  = md5(local.E07000127-council-rendered-html)
+  content      = local.E07000127-council-rendered-html
   content_type = "text/html"
 }
 
