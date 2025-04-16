@@ -208,6 +208,5 @@ const getUploadURL = async (event, formatedDate, councilName) => {
       })
     })
   })
-=======
 }
 
