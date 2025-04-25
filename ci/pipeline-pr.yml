@@ -70,6 +70,7 @@ jobs:
         vars: 
           access_key: ((aws.access_key))
           secret_key: ((aws.secret_key))
+          backend_role: ((aws.backend_role))
         params:
           S3_BUCKET_NAME: ((aws.s3_bucket))
           TF_STATE: ((aws.tfstate))
