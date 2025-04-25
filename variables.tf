@@ -29,7 +29,7 @@ variable "lambda_PreSignedURL_function" {
 variable "cloudwatch_retention_days" {
   type        = string
   description = "number of days to retain cloudwatch logs"
-  default     = 30
+  default     = 365
 }
 
 variable "api_gateway_cloudwatch" {
