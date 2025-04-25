@@ -42,6 +42,11 @@ provider "aws" {
   #Add a default region for your deployments, this should be a variable in the variables.tf file with a default value.
   alias  = "useast"
   region = "us-east-1"
+
+  assume_role {
+    role_arn     = "arn:aws:iam::${var.target_account_id}:role/aws_shared_concourse"
+    session_name = "concourse-deployment-session"
+  }
 }
 
 data "aws_caller_identity" "current" {}
