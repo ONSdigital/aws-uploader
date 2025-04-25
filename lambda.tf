@@ -14,12 +14,6 @@ data "aws_iam_policy_document" "lambda_role" {
       variable = "aws:SourceAccount"
       values   = [data.aws_caller_identity.current.account_id]
     }
-
-    condition {
-      test     = "ArnLike"
-      variable = "aws:SourceArn"
-      values   = [aws_lambda_function.PreSignedURL.arn]
-    }
   }
 }
 
