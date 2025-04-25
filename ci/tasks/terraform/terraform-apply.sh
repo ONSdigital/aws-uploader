@@ -9,7 +9,7 @@ terraform --version
 # Initialise the TF state
 terraform init -backend-config=bucket="${S3_BUCKET_NAME}" \
 -backend-config=key="${TF_STATE}" \
--backend-config=use_lockfile=true \
+-backend-config=dynamodb_table="${TF_LOCKS}" \
 -backend-config="assume_role={role_arn=\"${BACKEND_ROLE_ARN}\"}" \
 -backend-config=region="eu-west-2" --reconfigure --upgrade
 

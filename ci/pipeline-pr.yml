@@ -74,6 +74,7 @@ jobs:
         params:
           S3_BUCKET_NAME: ((aws.s3_bucket))
           TF_STATE: ((aws.tfstate))
+          TF_LOCKS: ((aws.tflocks))
           GIT_PAT: ((github_pat))
           TF_VARS: ((terraform.tfvars))
           AWS_ACCESS_KEY_ID: ((aws.access_key))
@@ -166,6 +167,7 @@ jobs:
         params:
           S3_BUCKET_NAME: ((aws.s3_bucket))
           TF_STATE: ((aws.tfstate))
+          TF_LOCKS: ((aws.tflocks))
           GIT_PAT: ((github_pat))
           TF_VARS: ((terraform.tfvars))
           AWS_ACCESS_KEY_ID: ((aws.access_key))
