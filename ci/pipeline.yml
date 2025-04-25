@@ -78,6 +78,7 @@ jobs:
           TF_VARS: ((terraform.tfvars))
           AWS_ACCESS_KEY_ID: ((aws.access_key))
           AWS_SECRET_ACCESS_KEY: ((aws.secret_key))
+          BACKEND_ROLE_ARN: ((aws.backend_role))
         on_failure:
           put: pull-request
           params:
@@ -178,3 +179,4 @@ jobs:
           TF_VARS: ((terraform.tfvars))
           AWS_ACCESS_KEY_ID: ((aws.access_key))
           AWS_SECRET_ACCESS_KEY: ((aws.secret_key))
+          BACKEND_ROLE_ARN: ((aws.backend_role))

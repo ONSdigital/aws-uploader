@@ -1,9 +1,9 @@
 aws:
   s3_bucket: tf-state-uploaderdyme
   tfstate: terraform/aws-uploader.tfstate
-  tflocks: tf-state-uploader-dyme-locks
-  access_key: ((ingest_preprod_aws_access_key))
-  secret_key: ((ingest_preprod_aws_secret_key))
+  access_key: ((ons-ingest-preprod_access_key))
+  secret_key: ((ons-ingest-preprod_secret_key))
+  backend_role: arn:aws:iam::307946647091:role/aws_shared_concourse
 git:
   repo: aws-uploader
   branch: preprod
