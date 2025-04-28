@@ -8,6 +8,12 @@ data "aws_iam_policy_document" "lambda_role" {
     }
 
     actions = ["sts:AssumeRole"]
+
+    condition {
+      test     = "StringEquals"
+      variable = "aws:SourceAccount"
+      values   = [data.aws_caller_identity.current.account_id]
+    }
   }
 }
 

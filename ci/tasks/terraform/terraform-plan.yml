@@ -1,12 +1,14 @@
 ---
 platform: linux
 image_resource:
-  type: docker-image
+  type: registry-image
   source:
-    repository: 013353241801.dkr.ecr.eu-west-2.amazonaws.com/awscli_terraform
+    repository: awscli_terraform
     tag: latest
     aws_access_key_id: ((access_key))
     aws_secret_access_key: ((secret_key))
+    aws_account_id: "013353241801"
+    aws_role_arn: ((backend_role))
     aws_region: eu-west-2
 inputs:
   - name: pull-request

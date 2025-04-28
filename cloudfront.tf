@@ -71,7 +71,10 @@ resource "aws_cloudfront_distribution" "uploader" {
 
 resource "terraform_data" "invalidate_cf_caches" {
   provisioner "local-exec" {
-    command = "aws cloudfront create-invalidation --distribution-id ${aws_cloudfront_distribution.uploader.id} --paths '/council-tax/*'"
+    command = <<EOF
+$(aws sts assume-role --role-arn arn:aws:iam::${var.target_account_id}:role/aws_shared_concourse --role-session-name terraform-invalidate-cloudfront-cache --query 'Credentials.[`export#AWS_ACCESS_KEY_ID=`,AccessKeyId,`#AWS_SECRET_ACCESS_KEY=`,SecretAccessKey,`#AWS_SESSION_TOKEN=`,SessionToken]' --output text | sed $'s/\t//g' | sed 's/#/ /g')
+aws cloudfront create-invalidation --distribution-id ${aws_cloudfront_distribution.uploader.id} --paths '/council-tax/*'
+EOF
   }
 
   triggers_replace = {
