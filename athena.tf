@@ -78,7 +78,7 @@ resource "null_resource" "execute_query" {
     command = <<EOT
       aws athena start-query-execution \
         --query-string '${aws_athena_named_query.create_athena_s3_table.query}' \
-        --query-execution-context Database=${aws_athena_named_query.create_athena_s3_query.database} \
+        --query-execution-context Database=${aws_athena_named_query.create_athena_s3_table.database} \
         --result-configuration OutputLocation='s3://${aws_s3_bucket.cloudfront_logging_bucket.bucket}/query_results/create_athena_s3_logs_table/' \
     EOT
   }
