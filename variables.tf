@@ -47,3 +47,8 @@ variable "sqs_notification_id" {
   type        = string
   description = "sqs_notification_id"
 }
+
+variable "target_account_id" {
+  type        = string
+  description = "Target account ID you wish to deploy to"
+}

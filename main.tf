@@ -28,6 +28,10 @@ terraform {
 provider "aws" {
   #Add a default region for your deployments, this should be a variable in the variables.tf file with a default value.
   region = var.region
+  assume_role {
+    role_arn     = "arn:aws:iam::${var.target_account_id}:role/aws_shared_concourse"
+    session_name = "concourse-deployment-session"
+  }
   # Add default tags for your project, any resource which accepts tags will automatically have the below tags added to them.
   default_tags {
     tags = {
@@ -42,6 +46,11 @@ provider "aws" {
   #Add a default region for your deployments, this should be a variable in the variables.tf file with a default value.
   alias  = "useast"
   region = "us-east-1"
+
+  assume_role {
+    role_arn     = "arn:aws:iam::${var.target_account_id}:role/aws_shared_concourse"
+    session_name = "concourse-deployment-session"
+  }
 }
 
 data "aws_caller_identity" "current" {}
