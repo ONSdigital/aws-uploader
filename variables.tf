@@ -47,4 +47,3 @@ variable "sqs_notification_id" {
   type        = string
   description = "sqs_notification_id"
 }
-
