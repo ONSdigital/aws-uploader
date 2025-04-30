@@ -76,6 +76,7 @@ EOF
 resource "null_resource" "execute_query" {
   provisioner "local-exec" {
     command = <<EOT
+    echo 'ARN: ${aws_athena_named_query.create_athena_s3_table.arn}'
       aws athena start-query-execution \
         --query-string '${aws_athena_named_query.create_athena_s3_table.query}' \
         --query-execution-context Database=${aws_athena_named_query.create_athena_s3_table.database} \
