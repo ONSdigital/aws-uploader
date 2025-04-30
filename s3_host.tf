@@ -188,6 +188,11 @@ locals {
     council_name = "Council Tax - Merthyr Tydfil"
     lad_code     = "W06000024"
   })
+
+  E08000002-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
+    council_name = "Council Tax - BURY"
+    lad_code     = "E08000002"
+  })
 }
 
 resource "aws_s3_object" "test" {
@@ -314,5 +319,13 @@ resource "aws_s3_object" "merthyr-tydfil" {
   key          = "council-tax/W06000024-Merthyr-Tydfil.html"
   source_hash  = md5(local.W06000024-council-rendered-html)
   content      = local.W06000024-council-rendered-html
+  content_type = "text/html"
+}
+
+resource "aws_s3_object" "bury" {
+  bucket       = module.ons_upload_bucket.bucket_id
+  key          = "council-tax/E08000002-BURY.html"
+  source_hash  = md5(local.E08000002-council-rendered-html)
+  content      = local.E08000002-council-rendered-html
   content_type = "text/html"
 }
