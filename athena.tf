@@ -98,7 +98,7 @@ resource "aws_iam_policy" "athena_execute_query_policy" {
         ],
         Effect   = "Allow",
         # Resource = "*"
-        Resource = "arn:aws:athena:::${null_resource.execute_query}"
+        Resource = "arn:aws:athena:::${terraform_data.execute_query}"
       },
       {
         Action = [
