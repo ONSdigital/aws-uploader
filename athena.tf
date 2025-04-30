@@ -98,7 +98,11 @@ resource "aws_iam_policy" "athena_execute_query_policy" {
         ],
         Effect   = "Allow",
         # Resource = "*"
-        Resource = "arn:aws:athena:::${terraform_data.execute_query}"
+        Resource = [
+          "arn:aws:athena:::${aws_athena_workgroup.access_logs.name}",
+          "arn:aws:athena:::${aws_athena_database.access_logs.name}",
+          "arn:aws:athena:::${aws_athena_named_query.create_athena_s3_table.id}"
+        ]
       },
       {
         Action = [
