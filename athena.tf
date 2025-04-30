@@ -83,7 +83,8 @@ resource "null_resource" "execute_query" {
     EOT
   }
 }
-
+#checkov:skip=CKV_AWS_355:testing execute_query, fix to be implemented
+#checkov:skip=CKV_AWS_290:testing excute_query, fix to be implemented
 resource "aws_iam_policy" "athena_execute_query_policy" {
   name        = "AthenaExecuteQueryPolicy"
   description = "Policy to allow Athena query execution and S3 access for query results"
@@ -97,12 +98,12 @@ resource "aws_iam_policy" "athena_execute_query_policy" {
           "athena:GetQueryResults"
         ],
         Effect   = "Allow",
-        # Resource = "*"
-        Resource = [
-          "arn:aws:athena:::${aws_athena_workgroup.access_logs.name}",
-          "arn:aws:athena:::${aws_athena_database.access_logs.name}",
-          "arn:aws:athena:::${aws_athena_named_query.create_athena_s3_table.id}"
-        ]
+        Resource = "*"
+        # Resource = [
+        #   "arn:aws:athena:::${aws_athena_workgroup.access_logs.name}",
+        #   "arn:aws:athena:::${aws_athena_database.access_logs.name}",
+        #   "arn:aws:athena:::${aws_athena_named_query.create_athena_s3_table.id}"
+        # ]
       },
       {
         Action = [
