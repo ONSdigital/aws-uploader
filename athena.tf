@@ -97,7 +97,8 @@ resource "aws_iam_policy" "athena_execute_query_policy" {
           "athena:GetQueryResults"
         ],
         Effect   = "Allow",
-        Resource = "*"
+        # Resource = "*"
+        Resource = "arn:aws:athena:::${null_resource.execute_query.provisioner[0].local-exec.command}"
       },
       {
         Action = [
