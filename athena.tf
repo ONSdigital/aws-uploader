@@ -83,3 +83,38 @@ resource "null_resource" "execute_query" {
     EOT
   }
 }
+
+resource "aws_iam_policy" "athena_execute_query_policy" {
+  name        = "AthenaExecuteQueryPolicy"
+  description = "Policy to allow Athena query execution and S3 access for query results"
+  policy      = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action = [
+          "athena:StartQueryExecution",
+          "athena:GetQueryExecution",
+          "athena:GetQueryResults"
+        ],
+        Effect   = "Allow",
+        Resource = "*"
+      },
+      {
+        Action = [
+          "s3:PutObject",
+          "s3:GetObject",
+          "s3:ListBucket"
+        ],
+        Effect   = "Allow",
+        Resource = [
+          "arn:aws:s3:::${aws_s3_bucket.cloudfront_logging_bucket.bucket}",
+          "arn:aws:s3:::${aws_s3_bucket.cloudfront_logging_bucket.bucket}/*"
+        ]
+      }
+    ]
+  })
+}
+resource "aws_iam_role_policy_attachment" "attach_athena_policy" {
+  role       = aws_iam_role.cloudwatch_global.name
+  policy_arn = aws_iam_policy.athena_execute_query_policy.arn
+}

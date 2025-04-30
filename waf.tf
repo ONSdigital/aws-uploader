@@ -128,4 +128,3 @@ resource "aws_wafv2_web_acl" "uploader_waf_cloudfront" {
     sampled_requests_enabled   = true
   }
 }
- 
