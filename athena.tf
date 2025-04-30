@@ -83,9 +83,11 @@ resource "null_resource" "execute_query" {
     EOT
   }
 }
+
+resource "aws_iam_policy" "athena_execute_query_policy" {
 #checkov:skip=CKV_AWS_355:testing execute_query, fix to be implemented
 #checkov:skip=CKV_AWS_290:testing excute_query, fix to be implemented
-resource "aws_iam_policy" "athena_execute_query_policy" {
+
   name        = "AthenaExecuteQueryPolicy"
   description = "Policy to allow Athena query execution and S3 access for query results"
   policy      = jsonencode({
