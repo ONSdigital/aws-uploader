@@ -65,7 +65,7 @@ CREATE TABLE IF NOT EXISTS cloudfront_standard_logs (
   sc_range_start BIGINT,
   sc_range_end BIGINT
 )
-ROW FORMAT DELIMITED 
+FORMAT DELIMITED 
 FIELDS TERMINATED BY '\t'
 LOCATION '${aws_s3_bucket.cloudfront_logging_bucket.id}'
 TBLPROPERTIES ( 'skip.header.line.count'='2' )
