@@ -70,6 +70,7 @@ jobs:
         vars: 
           access_key: ((aws.access_key))
           secret_key: ((aws.secret_key))
+          backend_role: ((aws.backend_role))
         params:
           S3_BUCKET_NAME: ((aws.s3_bucket))
           TF_STATE: ((aws.tfstate))
@@ -78,6 +79,7 @@ jobs:
           TF_VARS: ((terraform.tfvars))
           AWS_ACCESS_KEY_ID: ((aws.access_key))
           AWS_SECRET_ACCESS_KEY: ((aws.secret_key))
+          BACKEND_ROLE_ARN: ((aws.backend_role))
         on_failure:
           put: pull-request
           params:
@@ -162,6 +164,7 @@ jobs:
         vars: 
           access_key: ((aws.access_key))
           secret_key: ((aws.secret_key))
+          backend_role: ((aws.backend_role))
         params:
           S3_BUCKET_NAME: ((aws.s3_bucket))
           TF_STATE: ((aws.tfstate))
@@ -170,3 +173,4 @@ jobs:
           TF_VARS: ((terraform.tfvars))
           AWS_ACCESS_KEY_ID: ((aws.access_key))
           AWS_SECRET_ACCESS_KEY: ((aws.secret_key))
+          BACKEND_ROLE_ARN: ((aws.backend_role))
