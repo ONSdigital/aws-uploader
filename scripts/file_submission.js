@@ -233,5 +233,4 @@ async function uploadFile(uploadURL, file) {
         });
     });
 }
-
 (window);

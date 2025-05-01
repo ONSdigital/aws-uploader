@@ -51,64 +51,6 @@ data "aws_iam_policy_document" "uploader_bucket" {
   }
 }
 
-
-locals {
-  E12345678-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
-    council_name = "Council Tax"
-    lad_code     = "E12345678"
-  })
-
-  E07000175-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
-    council_name = "Council Tax - Newark & Sherwood"
-    lad_code     = "E07000175"
-  })
-
-  E07000081-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
-    council_name = "Council Tax - Gloucester"
-    lad_code     = "E07000081"
-  })
-
-  E08000034-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
-    council_name = "Council Tax - Kirklees"
-    lad_code     = "E08000034"
-  })
-
-  E07000112-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
-    council_name = "Council Tax - Shepway (Folkstone-Hythe)"
-    lad_code     = "E07000112"
-  })
-
-  W06000024-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
-    council_name = "Council Tax - Merthyr Tydfil"
-    lad_code     = "W06000024"
-  })
-
-  W06000021-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
-    council_name = "Council Tax - Monmouthshire"
-    lad_code     = "W06000021"
-  })
-
-  W06000020-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
-    council_name = "Council Tax - Torfaen"
-    lad_code     = "W06000020"
-  })
-
-  W06000014-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
-    council_name = "Council Tax - Vale Of Glamorgan"
-    lad_code     = "W06000014"
-  })
-
-  E09000028-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
-    council_name = "Council Tax - Southwark"
-    lad_code     = "E09000028"
-  })
-
-  E00000000-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
-    council_name = "Council Tax - Test"
-    lad_code     = "E00000000"
-  })
-}
-
 resource "aws_s3_bucket_policy" "uploader_bucket" {
   bucket = module.ons_upload_bucket.bucket_id
   policy = data.aws_iam_policy_document.uploader_bucket.json
@@ -138,94 +80,6 @@ resource "aws_s3_object" "council_home_page" {
   content_type = "text/html"
 }
 
-resource "aws_s3_object" "_012345678-council" {
-  bucket       = module.ons_upload_bucket.bucket_id
-  key          = "council-tax/E12345678-council.html"
-  source_hash  = md5(local.E12345678-council-rendered-html)
-  content      = local.E12345678-council-rendered-html
-  content_type = "text/html"
-}
-
-resource "aws_s3_object" "newark-sherwood" {
-  bucket       = module.ons_upload_bucket.bucket_id
-  key          = "council-tax/E07000175-Newark&Sherwood.html"
-  source_hash  = md5(local.E07000175-council-rendered-html)
-  content      = local.E07000175-council-rendered-html
-  content_type = "text/html"
-}
-
-resource "aws_s3_object" "gloucester" {
-  bucket       = module.ons_upload_bucket.bucket_id
-  key          = "council-tax/E07000081-Gloucester.html"
-  source_hash  = md5(local.E07000081-council-rendered-html)
-  content      = local.E07000081-council-rendered-html
-  content_type = "text/html"
-}
-
-resource "aws_s3_object" "kirklees" {
-  bucket       = module.ons_upload_bucket.bucket_id
-  key          = "council-tax/E08000034-Kirklees.html"
-  source_hash  = md5(local.E08000034-council-rendered-html)
-  content      = local.E08000034-council-rendered-html
-  content_type = "text/html"
-}
-
-resource "aws_s3_object" "shepway-folkstone-hythe" {
-  bucket       = module.ons_upload_bucket.bucket_id
-  key          = "council-tax/E07000112-Shepway(Folkstone-Hythe).html"
-  source_hash  = md5(local.E07000112-council-rendered-html)
-  content      = local.E07000112-council-rendered-html
-  content_type = "text/html"
-}
-
-resource "aws_s3_object" "merthyr-tydfil" {
-  bucket       = module.ons_upload_bucket.bucket_id
-  key          = "council-tax/W06000024-Merthyr-Tydfil.html"
-  source_hash  = md5(local.W06000024-council-rendered-html)
-  content      = local.W06000024-council-rendered-html
-  content_type = "text/html"
-}
-
-resource "aws_s3_object" "monmouthshire" {
-  bucket       = module.ons_upload_bucket.bucket_id
-  key          = "council-tax/W06000021-Monmouthshire.html"
-  source_hash  = md5(local.W06000021-council-rendered-html)
-  content      = local.W06000021-council-rendered-html
-  content_type = "text/html"
-}
-
-resource "aws_s3_object" "torfaen" {
-  bucket       = module.ons_upload_bucket.bucket_id
-  key          = "council-tax/W06000020-Torfaen.html"
-  source_hash  = md5(local.W06000020-council-rendered-html)
-  content      = local.W06000020-council-rendered-html
-  content_type = "text/html"
-}
-
-resource "aws_s3_object" "vale-of-glamorgan" {
-  bucket       = module.ons_upload_bucket.bucket_id
-  key          = "council-tax/W06000014-Vale-Of-Glamorgan.html"
-  source_hash  = md5(local.W06000014-council-rendered-html)
-  content      = local.W06000014-council-rendered-html
-  content_type = "text/html"
-}
-
-resource "aws_s3_object" "southwark" {
-  bucket       = module.ons_upload_bucket.bucket_id
-  key          = "council-tax/E09000028-southwark.html"
-  source_hash  = md5(local.E09000028-council-rendered-html)
-  content      = local.E09000028-council-rendered-html
-  content_type = "text/html"
-}
-
-resource "aws_s3_object" "test" {
-  bucket       = module.ons_upload_bucket.bucket_id
-  key          = "council-tax/E00000000-Test&Test.html"
-  source_hash  = md5(local.E00000000-council-rendered-html)
-  content      = local.E00000000-council-rendered-html
-  content_type = "text/html"
-}
-
 resource "aws_s3_object" "success_page" {
   bucket       = module.ons_upload_bucket.bucket_id
   key          = "council-tax/success.html"
@@ -249,4 +103,229 @@ resource "aws_s3_object" "result_message" {
   source       = "${path.module}/scripts/result_message.js"
   source_hash  = filemd5("${path.module}/scripts/result_message.js")
   content_type = "text/javascript"
+}
+
+
+# Onboarding of new councils is done by adding a new entry to the locals block and a new resource block
+# Please keep these sorted alphanumerically by LAD code - makes it easier to find existing councils ands onboard new councils
+locals {
+  E00000000-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
+    council_name = "Council Tax - Test"
+    lad_code     = "E00000000"
+  })
+
+  E06000012-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
+    council_name = "Council Tax - North East Lincolnshire"
+    lad_code     = "E06000012"
+  })
+
+  E06000013-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
+    council_name = "Council Tax - North Lincolnshire"
+    lad_code     = "E06000013"
+  })
+
+  E07000081-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
+    council_name = "Council Tax - Gloucester"
+    lad_code     = "E07000081"
+  })
+
+  E07000112-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
+    council_name = "Council Tax - Shepway (Folkstone-Hythe)"
+    lad_code     = "E07000112"
+  })
+
+  E07000127-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
+    council_name = "Council Tax - West Lancashire"
+    lad_code     = "E07000127"
+  })
+
+  E07000175-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
+    council_name = "Council Tax - Newark & Sherwood"
+    lad_code     = "E07000175"
+  })
+
+  E08000034-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
+    council_name = "Council Tax - Kirklees"
+    lad_code     = "E08000034"
+  })
+
+  E08000035-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
+    council_name = "Council Tax - Leeds"
+    lad_code     = "E08000035"
+  })
+
+  E09000023-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
+    council_name = "Council Tax - Lewisham"
+    lad_code     = "E09000023"
+  })
+
+  E09000028-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
+    council_name = "Council Tax - Southwark"
+    lad_code     = "E09000028"
+  })
+
+  E12345678-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
+    council_name = "Council Tax"
+    lad_code     = "E12345678"
+  })
+
+  W06000014-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
+    council_name = "Council Tax - Vale Of Glamorgan"
+    lad_code     = "W06000014"
+  })
+
+  W06000020-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
+    council_name = "Council Tax - Torfaen"
+    lad_code     = "W06000020"
+  })
+
+  W06000021-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
+    council_name = "Council Tax - Monmouthshire"
+    lad_code     = "W06000021"
+  })
+
+  W06000024-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
+    council_name = "Council Tax - Merthyr Tydfil"
+    lad_code     = "W06000024"
+  })
+
+  E08000002-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
+    council_name = "Council Tax - BURY"
+    lad_code     = "E08000002"
+  })
+}
+
+resource "aws_s3_object" "test" {
+  bucket       = module.ons_upload_bucket.bucket_id
+  key          = "council-tax/E00000000-Test&Test.html"
+  source_hash  = md5(local.E00000000-council-rendered-html)
+  content      = local.E00000000-council-rendered-html
+  content_type = "text/html"
+}
+
+resource "aws_s3_object" "North-East-Lincolnshire" {
+  bucket       = module.ons_upload_bucket.bucket_id
+  key          = "council-tax/E06000012-North-East-Lincolnshire.html"
+  source_hash  = md5(local.E06000012-council-rendered-html)
+  content      = local.E06000012-council-rendered-html
+  content_type = "text/html"
+}
+
+resource "aws_s3_object" "North-Lincolnshire" {
+  bucket       = module.ons_upload_bucket.bucket_id
+  key          = "council-tax/E06000013-North-Lincolnshire.html"
+  source_hash  = md5(local.E06000013-council-rendered-html)
+  content      = local.E06000013-council-rendered-html
+  content_type = "text/html"
+}
+
+resource "aws_s3_object" "gloucester" {
+  bucket       = module.ons_upload_bucket.bucket_id
+  key          = "council-tax/E07000081-Gloucester.html"
+  source_hash  = md5(local.E07000081-council-rendered-html)
+  content      = local.E07000081-council-rendered-html
+  content_type = "text/html"
+}
+
+resource "aws_s3_object" "shepway-folkstone-hythe" {
+  bucket       = module.ons_upload_bucket.bucket_id
+  key          = "council-tax/E07000112-Shepway(Folkstone-Hythe).html"
+  source_hash  = md5(local.E07000112-council-rendered-html)
+  content      = local.E07000112-council-rendered-html
+  content_type = "text/html"
+}
+
+resource "aws_s3_object" "west-lancashire" {
+  bucket       = module.ons_upload_bucket.bucket_id
+  key          = "council-tax/E07000127-West-Lancashire.html"
+  source_hash  = md5(local.E07000127-council-rendered-html)
+  content      = local.E07000127-council-rendered-html
+  content_type = "text/html"
+}
+
+resource "aws_s3_object" "newark-sherwood" {
+  bucket       = module.ons_upload_bucket.bucket_id
+  key          = "council-tax/E07000175-Newark&Sherwood.html"
+  source_hash  = md5(local.E07000175-council-rendered-html)
+  content      = local.E07000175-council-rendered-html
+  content_type = "text/html"
+}
+
+resource "aws_s3_object" "kirklees" {
+  bucket       = module.ons_upload_bucket.bucket_id
+  key          = "council-tax/E08000034-Kirklees.html"
+  source_hash  = md5(local.E08000034-council-rendered-html)
+  content      = local.E08000034-council-rendered-html
+  content_type = "text/html"
+}
+
+resource "aws_s3_object" "Leeds" {
+  bucket       = module.ons_upload_bucket.bucket_id
+  key          = "council-tax/E08000035-Leeds.html"
+  source_hash  = md5(local.E08000035-council-rendered-html)
+  content      = local.E08000035-council-rendered-html
+  content_type = "text/html"
+}
+
+resource "aws_s3_object" "Lewisham" {
+  bucket       = module.ons_upload_bucket.bucket_id
+  key          = "council-tax/E09000023-Lewisham.html"
+  source_hash  = md5(local.E09000023-council-rendered-html)
+  content      = local.E09000023-council-rendered-html
+  content_type = "text/html"
+}
+
+resource "aws_s3_object" "southwark" {
+  bucket       = module.ons_upload_bucket.bucket_id
+  key          = "council-tax/E09000028-southwark.html"
+  source_hash  = md5(local.E09000028-council-rendered-html)
+  content      = local.E09000028-council-rendered-html
+  content_type = "text/html"
+}
+
+resource "aws_s3_object" "_012345678-council" {
+  bucket       = module.ons_upload_bucket.bucket_id
+  key          = "council-tax/E12345678-council.html"
+  source_hash  = md5(local.E12345678-council-rendered-html)
+  content      = local.E12345678-council-rendered-html
+  content_type = "text/html"
+}
+
+resource "aws_s3_object" "vale-of-glamorgan" {
+  bucket       = module.ons_upload_bucket.bucket_id
+  key          = "council-tax/W06000014-Vale-Of-Glamorgan.html"
+  source_hash  = md5(local.W06000014-council-rendered-html)
+  content      = local.W06000014-council-rendered-html
+  content_type = "text/html"
+}
+
+resource "aws_s3_object" "torfaen" {
+  bucket       = module.ons_upload_bucket.bucket_id
+  key          = "council-tax/W06000020-Torfaen.html"
+  source_hash  = md5(local.W06000020-council-rendered-html)
+  content      = local.W06000020-council-rendered-html
+  content_type = "text/html"
+}
+resource "aws_s3_object" "monmouthshire" {
+  bucket       = module.ons_upload_bucket.bucket_id
+  key          = "council-tax/W06000021-Monmouthshire.html"
+  source_hash  = md5(local.W06000021-council-rendered-html)
+  content      = local.W06000021-council-rendered-html
+  content_type = "text/html"
+}
+
+resource "aws_s3_object" "merthyr-tydfil" {
+  bucket       = module.ons_upload_bucket.bucket_id
+  key          = "council-tax/W06000024-Merthyr-Tydfil.html"
+  source_hash  = md5(local.W06000024-council-rendered-html)
+  content      = local.W06000024-council-rendered-html
+  content_type = "text/html"
+}
+
+resource "aws_s3_object" "bury" {
+  bucket       = module.ons_upload_bucket.bucket_id
+  key          = "council-tax/E08000002-BURY.html"
+  source_hash  = md5(local.E08000002-council-rendered-html)
+  content      = local.E08000002-council-rendered-html
+  content_type = "text/html"
 }

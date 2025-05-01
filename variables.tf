@@ -29,7 +29,7 @@ variable "lambda_PreSignedURL_function" {
 variable "cloudwatch_retention_days" {
   type        = string
   description = "number of days to retain cloudwatch logs"
-  default     = 30
+  default     = 365
 }
 
 variable "api_gateway_cloudwatch" {
@@ -48,3 +48,7 @@ variable "sqs_notification_id" {
   description = "sqs_notification_id"
 }
 
+variable "target_account_id" {
+  type        = string
+  description = "Target account ID you wish to deploy to"
+}
