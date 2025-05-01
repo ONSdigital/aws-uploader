@@ -31,7 +31,7 @@ resource "aws_athena_named_query" "create_athena_s3_table" {
   name      = "create_athena_s3_logs_table"
   query     = <<EOF
 CREATE EXTERNAL TABLE IF NOT EXISTS cloudfront_standard_logs (
-  "date" DATE,
+  'date' DATE,
   time STRING,
   x_edge_location STRING,
   sc_bytes BIGINT,
@@ -78,7 +78,7 @@ resource "null_resource" "execute_query" {
     command = <<EOT
     $(aws sts assume-role --role-arn arn:aws:iam::${var.target_account_id}:role/aws_shared_concourse --role-session-name aws-athena-run-query --query 'Credentials.[`export#AWS_ACCESS_KEY_ID=`,AccessKeyId,`#AWS_SECRET_ACCESS_KEY=`,SecretAccessKey,`#AWS_SESSION_TOKEN=`,SessionToken]' --output text | sed $'s/\t//g' | sed 's/#/ /g')
       aws athena start-query-execution \
-        --query-string '${aws_athena_named_query.create_athena_s3_table.query}' \
+        --query-string "${aws_athena_named_query.create_athena_s3_table.query}" \
         --query-execution-context Database=${aws_athena_named_query.create_athena_s3_table.database} \
         --result-configuration OutputLocation='s3://${aws_s3_bucket.cloudfront_logging_bucket.bucket}/query_results/create_athena_s3_logs_table/' \
     EOT
