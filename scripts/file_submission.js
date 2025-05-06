@@ -122,6 +122,15 @@ async function onSubmit(event) {
 
     Council_name = encodeURIComponent(Council_name)
 
+    function convertExtensionToLowerCase(fileName) {
+        const fileParts = fileName.split('.');
+        const fileExtension = fileParts.pop();
+        const fileNameWithoutExtension = fileParts.join('.');
+        return fileNameWithoutExtension + '.' + fileExtension.toLowerCase();
+    }
+    fileOne.name = convertExtensionToLowerCase(fileOne.name);
+    fileTwo.name = convertExtensionToLowerCase(fileTwo.name);
+
     console.log("URL Code found: ", ladCode);
     console.log("File name is:", fileOne.name)
     console.log("Council name is:", Council_name)
@@ -214,7 +223,7 @@ async function onSubmit(event) {
         });
 }
 
-async function uploadFile(uploadURL, file) {
+async function uploadFile(uploadURL, file,) {
     console.log("uploading file " + file.name)
     let uploadResponse = await fetch(uploadURL, {
         method: "PUT",
@@ -228,6 +237,7 @@ async function uploadFile(uploadURL, file) {
             };
             if (!resp.ok) {
                 return Promise.reject(result);
+
             }
             return result;
         });
