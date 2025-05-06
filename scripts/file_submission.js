@@ -128,9 +128,10 @@ async function onSubmit(event) {
         const fileNameWithoutExtension = fileParts.join('.');
         return fileNameWithoutExtension + '.' + fileExtension.toLowerCase();
     }
-    fileOne.name = convertExtensionToLowerCase(fileOne.name);
-    fileTwo.name = convertExtensionToLowerCase(fileTwo.name);
+    extractFile = convertExtensionToLowerCase(fileOne.name);
+    maniFile = convertExtensionToLowerCase(fileTwo.name);
 
+    console.log("the extension of the file is:", extractFile)
     console.log("URL Code found: ", ladCode);
     console.log("File name is:", fileOne.name)
     console.log("Council name is:", Council_name)
