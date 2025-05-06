@@ -132,7 +132,7 @@ async function onSubmit(event) {
     const maniFile = convertExtensionToLowerCase(fileTwo.name);
 
     console.log("the extension of the file is:", extractFile)
-    console.log("URL Code found: ", extractFile);
+    console.log("URL Code found: ", ladCode);
     console.log("File name is:", fileOne.name)
     console.log("Council name is:", Council_name)
     const patOne = new RegExp("CTAX_EXTRACT_" + ladCode + '_\\d{8}\\.csv', "i")
@@ -205,8 +205,8 @@ async function onSubmit(event) {
                 commonErrorStyle(2);
             } else {
                 Promise.all([
-                    uploadFile(data.uploadURLFileOne, fileOne),
-                    uploadFile(data.uploadURLFileTwo, fileTwo)
+                    uploadFile(data.uploadURLFileOne, convertExtensionToLowerCase(fileOne)),
+                    uploadFile(data.uploadURLFileTwo, convertExtensionToLowerCase(fileTwo))
                 ])
                     .then(results => {
                         loadingSpinner.style.display = "none"
