@@ -128,8 +128,8 @@ async function onSubmit(event) {
         const fileNameWithoutExtension = fileParts.join('.');
         return fileNameWithoutExtension + '.' + fileExtension.toLowerCase();
     }
-    // const extractFile = convertExtensionToLowerCase(fileOne.name);
-    // const maniFile = convertExtensionToLowerCase(fileTwo.name);
+    const extractFile = convertExtensionToLowerCase(fileOne.name);
+    const maniFile = convertExtensionToLowerCase(fileTwo.name);
 
     console.log("the extension of the file is:", fileOne.name)
     console.log("URL Code found: ", ladCode);
@@ -205,8 +205,8 @@ async function onSubmit(event) {
                 commonErrorStyle(2);
             } else {
                 Promise.all([
-                    uploadFile(data.uploadURLFileOne, fileOne),
-                    uploadFile(data.uploadURLFileTwo, fileTwo)
+                    uploadFile(data.uploadURLFileOne, extractFile),
+                    uploadFile(data.uploadURLFileTwo, maniFile)
                 ])
                     .then(results => {
                         loadingSpinner.style.display = "none"
