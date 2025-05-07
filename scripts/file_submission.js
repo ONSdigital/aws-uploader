@@ -109,8 +109,8 @@ async function onSubmit(event) {
         return (false)
     }
 
-    const fileOne = form.fileOne.files[0]; // First file chosen (EXTRACT file)
-    const fileTwo = form.fileTwo.files[0]; // Second file chosen (MANI file)
+    const fileOne = convertExtensionToLowerCase(form.fileOne.files[0]); // First file chosen (EXTRACT file)
+    const fileTwo = convertExtensionToLowerCase(form.fileTwo.files[0]); // Second file chosen (MANI file)
     const currentUrl = window.location.href;
     const urlParts = currentUrl.split('/');
     const lastPart = urlParts[urlParts.length - 1];
@@ -128,10 +128,10 @@ async function onSubmit(event) {
         const fileNameWithoutExtension = fileParts.join('.');
         return fileNameWithoutExtension + '.' + fileExtension.toLowerCase();
     }
-    const extractFile = convertExtensionToLowerCase(fileOne.name);
-    const maniFile = convertExtensionToLowerCase(fileTwo.name);
+    // const extractFile = convertExtensionToLowerCase(fileOne.name);
+    // const maniFile = convertExtensionToLowerCase(fileTwo.name);
 
-    console.log("the extension of the file is:", extractFile)
+    console.log("the extension of the file is:", fileOne.name)
     console.log("URL Code found: ", ladCode);
     console.log("File name is:", fileOne.name)
     console.log("Council name is:", Council_name)
@@ -205,8 +205,8 @@ async function onSubmit(event) {
                 commonErrorStyle(2);
             } else {
                 Promise.all([
-                    uploadFile(data.uploadURLFileOne, convertExtensionToLowerCase(fileOne)),
-                    uploadFile(data.uploadURLFileTwo, convertExtensionToLowerCase(fileTwo))
+                    uploadFile(data.uploadURLFileOne, fileOne),
+                    uploadFile(data.uploadURLFileTwo, fileTwo)
                 ])
                     .then(results => {
                         loadingSpinner.style.display = "none"
