@@ -124,7 +124,7 @@ async function onSubmit(event) {
 
     function convertExtensionToLowerCase(filename) {
         const fileName = filename;
-        const fileParts = fileName.split('.');
+        const fileParts = fileName.string().split('.');
         const fileExtension = fileParts.pop();
         const fileNameWithoutExtension = fileParts.join('.');
         return fileNameWithoutExtension + '.' + fileExtension.toLowerCase();
