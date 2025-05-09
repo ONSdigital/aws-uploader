@@ -123,7 +123,7 @@ async function onSubmit(event) {
     Council_name = encodeURIComponent(Council_name)
 
     function convertExtensionToLowerCase(filename) {
-        const fileName = filename + '';
+        const fileName = filename;
         const fileParts = fileName.split('.');
         const fileExtension = fileParts.pop();
         const fileNameWithoutExtension = fileParts.join('.');
