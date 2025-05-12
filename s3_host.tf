@@ -193,6 +193,16 @@ locals {
     council_name = "Council Tax - BURY"
     lad_code     = "E08000002"
   })
+
+  E07000084-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
+    council_name = "Council Tax - Basingstoke & Deane"
+    lad_code     = "E07000084"
+  })
+
+  E07000202-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
+    council_name = "Council Tax - Ipswich"
+    lad_code     = "E07000202"
+  })
 }
 
 resource "aws_s3_object" "test" {
@@ -327,5 +337,21 @@ resource "aws_s3_object" "bury" {
   key          = "council-tax/E08000002-BURY.html"
   source_hash  = md5(local.E08000002-council-rendered-html)
   content      = local.E08000002-council-rendered-html
+  content_type = "text/html"
+}
+
+resource "aws_s3_object" "basingstoke-deane" {
+  bucket       = module.ons_upload_bucket.bucket_id
+  key          = "council-tax/E07000084-Basingstoke&Deane.html"
+  source_hash  = md5(local.E07000084-council-rendered-html)
+  content      = local.E07000084-council-rendered-html
+  content_type = "text/html"
+}
+
+resource "aws_s3_object" "ipswich" {
+  bucket       = module.ons_upload_bucket.bucket_id
+  key          = "council-tax/E07000202-Ipswich.html"
+  source_hash  = md5(local.E07000202-council-rendered-html)
+  content      = local.E07000202-council-rendered-html
   content_type = "text/html"
 }
