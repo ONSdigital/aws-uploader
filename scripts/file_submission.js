@@ -123,16 +123,16 @@ async function onSubmit(event) {
     Council_name = encodeURIComponent(Council_name)
 
     function convertExtensionToLowerCase(filename) {
-        const fileName = filename;
-        const fileParts = fileName.toString().split('.');
-        const fileExtension = fileParts.pop();
-        const fileNameWithoutExtension = fileParts.join('.');
+        let fileName = filename;
+        let fileParts = fileName.toString().split('.');
+        let fileExtension = fileParts.pop();
+        let fileNameWithoutExtension = fileParts.join('.');
         return fileNameWithoutExtension + '.' + fileExtension.toLowerCase();
     }
     const extractFile = convertExtensionToLowerCase(fileOne);
     const maniFile = convertExtensionToLowerCase(fileTwo);
 
-    console.log("the extension of the file is:", fileOne.name)
+    console.log("the extension of the file is:", fileOne)
     console.log("URL Code found: ", ladCode);
     console.log("File name is:", fileOne.name)
     console.log("Council name is:", Council_name)
