@@ -226,7 +226,8 @@ async function onSubmit(event) {
 }
 
 async function uploadFile(uploadURL, file,) {
-    console.log("uploading file " + file.name)
+    // console.log("uploading file " + file.name)
+    console.log("uploading file " + file)
     let uploadResponse = await fetch(uploadURL, {
         method: "PUT",
         body: file
