@@ -122,15 +122,15 @@ async function onSubmit(event) {
 
     Council_name = encodeURIComponent(Council_name)
 
-    function convertExtensionToLowerCase(filename) {
-        let fileName = filename;
-        let fileParts = fileName.split('.');
-        let fileExtension = fileParts.pop();
-        let fileNameWithoutExtension = fileParts.join('.');
-        return fileNameWithoutExtension + '.' + fileExtension.toLowerCase();
-    }
-    const extractFile = convertExtensionToLowerCase(fileOne.name);
-    const maniFile = convertExtensionToLowerCase(fileTwo.name);
+    // function convertExtensionToLowerCase(filename) {
+    //     let fileName = filename;
+    //     let fileParts = fileName.split('.');
+    //     let fileExtension = fileParts.pop();
+    //     let fileNameWithoutExtension = fileParts.join('.');
+    //     return fileNameWithoutExtension + '.' + fileExtension.toLowerCase();
+    // }
+    // const extractFile = convertExtensionToLowerCase(fileOne.name);
+    // const maniFile = convertExtensionToLowerCase(fileTwo.name);
 
     console.log("the extension of the file is:", extractFile)
     console.log("URL Code found: ", ladCode);
@@ -206,8 +206,8 @@ async function onSubmit(event) {
                 commonErrorStyle(2);
             } else {
                 Promise.all([
-                    uploadFile(data.uploadURLFileOne, extractFile),
-                    uploadFile(data.uploadURLFileTwo, maniFile)
+                    uploadFile(data.uploadURLFileOne, fileOne),
+                    uploadFile(data.uploadURLFileTwo, fileTwo)
                 ])
                     .then(results => {
                         loadingSpinner.style.display = "none"
