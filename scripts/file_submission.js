@@ -132,7 +132,7 @@ async function onSubmit(event) {
     // const extractFile = convertExtensionToLowerCase(fileOne.name);
     // const maniFile = convertExtensionToLowerCase(fileTwo.name);
 
-    console.log("the extension of the file is:", extractFile)
+    // console.log("the extension of the file is:", extractFile)
     console.log("URL Code found: ", ladCode);
     console.log("File name is:", fileOne.name)
     console.log("Council name is:", Council_name)
