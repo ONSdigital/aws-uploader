@@ -176,8 +176,8 @@ const fileNamesDontMatch = async (event) => {
 const getUploadURL = async (event, formatedDate, councilName) => {
 
   councilName = cleanCouncilName(councilName)
-  fileOneNameLowerCase = convertExtensionToLowerCase(event.queryStringParameters.fileOneName)
-  fileTwoNameLowerCase = convertExtensionToLowerCase(event.queryStringParameters.fileTwoName)
+  let fileOneNameLowerCase = convertExtensionToLowerCase(event.queryStringParameters.fileOneName)
+  let fileTwoNameLowerCase = convertExtensionToLowerCase(event.queryStringParameters.fileTwoName)
 
   const s3ParamsFileOne = new PutObjectCommand({
     Bucket: process.env.BUCKET_NAME, //bucket used for ingested files
