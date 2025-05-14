@@ -216,7 +216,7 @@ async function onSubmit(event) {
 
 async function uploadFile(uploadURL, file,) {
     // console.log("uploading file " + file.name)
-    console.log("uploading file " + file)
+    console.log("uploading file " + file.name)
     let uploadResponse = await fetch(uploadURL, {
         method: "PUT",
         body: file
@@ -229,7 +229,6 @@ async function uploadFile(uploadURL, file,) {
             };
             if (!resp.ok) {
                 return Promise.reject(result);
-
             }
             return result;
         });

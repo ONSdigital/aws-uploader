@@ -29,9 +29,9 @@ const s3 = new S3({ region: 'eu-west-2' });
 const logger = new uploaderLogger()
 
 function convertExtensionToLowerCase(filename) {
-  let fileParts = filename.split('.');
-  let fileExtension = fileParts.pop();
-  let fileNameWithoutExtension = fileParts.join('.');
+  const fileParts = filename.split('.');
+  const fileExtension = fileParts.pop();
+  const fileNameWithoutExtension = fileParts.join('.');
   return fileNameWithoutExtension + '.' + fileExtension.toLowerCase();
 }
 
@@ -55,7 +55,6 @@ export const handler = async (event, context, callback) => {
     const formatedDate = currentDate.toISOString().replace(/[^0-9]/g, '').slice(0, -3)
     //Series of checks on file data before pre-signed URLs are created. Checks size of each file isnt 0, checks file type of each file is csv, check if file names match.
     //Need to add file name format verification.
-
 
     if (event.queryStringParameters.fileOneSize === "0") {
       const result = await isFileEmpty(event.queryStringParameters.fileOneName);
