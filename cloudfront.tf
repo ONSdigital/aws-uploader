@@ -157,7 +157,7 @@ resource "aws_cloudfront_function" "rewrite_default_index_request" {
   code    = file("${path.module}/scripts/second_index.js")
 }
 
-resource "aws_cloudfront_field_level_encryption_config" "uploader" {
+resource "aws_cloudfront_field_level_encryption_config" "uploader_encryption" {
   comment = "Field level encryption config for uploader"
 
   content_type_profile_config {
@@ -175,7 +175,7 @@ resource "aws_cloudfront_field_level_encryption_config" "uploader" {
     forward_when_query_arg_profile_is_unknown = true
     query_arg_profiles {
       items {
-        profile_id = aws_cloudfront_field_level_encryption.uploader.id
+        profile_id = aws_cloudfront_field_level_encryption.uploader_encryption.id
         query_arg = "field"
       }
     }
