@@ -52,8 +52,3 @@ variable "target_account_id" {
   type        = string
   description = "Target account ID you wish to deploy to"
 }
-
-variable "uploader_encryption" {
-  type        = string
-  description = "Encryption ID for Uploader"
-}

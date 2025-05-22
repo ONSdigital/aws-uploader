@@ -165,7 +165,7 @@ resource "aws_cloudfront_field_level_encryption_config" "uploader_encryption" {
 
     content_type_profiles {
       items {
-        content_type = "application/json"
+        content_type = "application/x-www-form-urlencoded"
         format       = "URLEncoded"
       }
     }
@@ -175,7 +175,7 @@ resource "aws_cloudfront_field_level_encryption_config" "uploader_encryption" {
     forward_when_query_arg_profile_is_unknown = true
     query_arg_profiles {
       items {
-        profile_id = aws_cloudfront_field_level_encryption.uploader_encryption.id
+        profile_id = aws_cloudfront_field_level_encryption_config.uploader_encryption.id
         query_arg = "field"
       }
     }
