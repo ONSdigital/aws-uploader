@@ -183,8 +183,12 @@ resource "aws_cloudfront_field_level_encryption_config" "uploader_encryption" {
 }
 
 resource "aws_secretsmanager_secret_version" "cloudfront_secret" {
-  secret_id     = "ploader-cloudfront-encryption-key"
-  secret_string = jsondecode(data.aws_secretsmanager_secret_version.cloudfront_secret.secret_string).public_key
+  secret_id     = "uploader-cloudfront-encryption-key"
+}
+
+resource "aws_key_pair" "cloudfront_key_pair" {
+  public_key = "${data.aws_secretsmanager_secret_version.public_key_secret.secret_string}"
+  key_name   = "uploader-cloudfront-encryption-key"
 }
 
 resource "aws_cloudfront_public_key" "cloudfront_encryption_key" {
