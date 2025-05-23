@@ -186,11 +186,6 @@ resource "aws_secretsmanager_secret_version" "cloudfront_secret" {
   secret_id     = "uploader-cloudfront-encryption-key"
 }
 
-variable "public_key" {
-  type = string
-  default = data.aws_secretsmanager_secret_version.cloudfront_secret.secret_string.public_key
-}
-
 resource "aws_key_pair" "cloudfront_key_pair" {
   public_key = "${data.aws_secretsmanager_secret_version.public_key_secret.secret_string}"
   key_name   = "uploader-cloudfront-encryption-key"
