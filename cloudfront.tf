@@ -188,7 +188,7 @@ resource "aws_secretsmanager_secret_version" "cloudfront_secret" {
 
 variable "public_key" {
   type = string
-  default = jsondecode(data.aws_secretsmanager_secret_version.cloudfront_secret.secret_string).public_key
+  default = data.aws_secretsmanager_secret_version.cloudfront_secret.secret_string.public_key
 }
 
 resource "aws_key_pair" "cloudfront_key_pair" {
