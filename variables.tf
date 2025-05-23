@@ -52,3 +52,8 @@ variable "target_account_id" {
   type        = string
   description = "Target account ID you wish to deploy to"
 }
+
+variable "public_key" {
+  type = string
+  default = data.aws_secretsmanager_secret_version.cloudfront_secret.secret_string.public_key
+}
