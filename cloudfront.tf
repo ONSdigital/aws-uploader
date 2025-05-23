@@ -175,8 +175,34 @@ resource "aws_cloudfront_field_level_encryption_config" "uploader_encryption" {
     forward_when_query_arg_profile_is_unknown = true
     query_arg_profiles {
       items {
-        profile_id = aws_cloudfront_field_level_encryption_config.uploader_encryption.id
+        profile_id = aws_cloudfront_field_level_encryption_profile.cloudfront_encryption_profile.id
         query_arg = "field"
+      }
+    }
+  }
+}
+
+resource "aws_secretsmanager_secret_version" "cloudfront_secret" {
+  secret_id     = "ploader-cloudfront-encryption-key"
+  secret_string = jsondecode(data.aws_secretsmanager_secret_version.cloudfront_secret.secret_string).public_key
+}
+
+resource "aws_cloudfront_public_key" "cloudfront_encryption_key" {
+  comment     = "Cloudfront encryption key"
+  encoded_key = aws_secretsmanager_secret_version.cloudfront_secret.secret_string
+  name        = "cloudfront-encryption-key"
+}
+
+resource "aws_cloudfront_field_level_encryption_profile" "cloudfront_encryption_profile" {
+  comment = "Profile for field level encryption"
+  name    = "cloudfront-encryption-profile"
+  encryption_entities {
+    items {
+      public_key_id = aws_cloudfront_public_key.cloudfront_encryption_key.id
+      provider_id   = "test provider"
+
+      field_patterns {
+        items = ["DateOfBirth"]
       }
     }
   }
