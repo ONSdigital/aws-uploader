@@ -182,7 +182,7 @@ resource "aws_cloudfront_field_level_encryption_config" "uploader_encryption" {
   }
 }
 data "aws_secretsmanager_secret" "public_key_secret" {
-  count = "uploader-cloudfront-encryption-key" ? 1 : 0
+  count = "uploader-cloudfront-encryption-key" == "uploader-cloudfront-encryption-key" ? 1 : 0
   name = "uploader-cloudfront-encryption-key"
 }
 
