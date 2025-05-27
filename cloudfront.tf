@@ -182,7 +182,7 @@ resource "aws_cloudfront_field_level_encryption_config" "uploader_encryption" {
   }
 }
 data "aws_secretsmanager_secret" "public_key_secret" {
-  count = "uploader-cloudfront-encryption-key" == "uploader-cloudfront-encryption-key" ? 1 : 0
+  #count = "uploader-cloudfront-encryption-key" == "uploader-cloudfront-encryption-key" ? 1 : 0
   name = "uploader-cloudfront-encryption-key"
 }
 
@@ -202,18 +202,18 @@ data "aws_secretsmanager_secret" "public_key_secret" {
   #name        = "cloudfront-encryption-key"
 #}
 data "aws_secretsmanager_secret_version" "cloudfront_secret" {
-  secret_id     = data.aws_secretsmanager_secret.public_key_secret[0].id
-  count         = "uploader-cloudfront-encryption-key" == "uploader-cloudfront-encryption-key" ? 1 : 0
+  secret_id     = data.aws_secretsmanager_secret.public_key_secret.id
+  #count         = "uploader-cloudfront-encryption-key" == "uploader-cloudfront-encryption-key" ? 1 : 0
 }
 
 resource "aws_key_pair" "cloudfront_key_pair" {
-  public_key = data.aws_secretsmanager_secret_version.cloudfront_secret[0].secret_string
+  public_key = data.aws_secretsmanager_secret_version.cloudfront_secret.secret_string
   key_name   = "uploader-cloudfront-encryption-key"
 }
 
 resource "aws_cloudfront_public_key" "cloudfront_encryption_key" {
   comment     = "Cloudfront encryption key"
-  encoded_key = data.aws_secretsmanager_secret_version.cloudfront_secret[0].secret_string
+  encoded_key = data.aws_secretsmanager_secret_version.cloudfront_secret.secret_string
   name        = "cloudfront-encryption-key"
 }
 
