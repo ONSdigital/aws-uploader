@@ -214,7 +214,7 @@ resource "aws_key_pair" "cloudfront_key_pair" {
 resource "aws_cloudfront_public_key" "cloudfront_encryption_key" {
   comment     = "Cloudfront encryption key"
   encoded_key = data.aws_secretsmanager_secret_version.cloudfront_secret.secret_string
-  name        = "cloudfront-encryption-key"
+  name        = "uploader-cloudfront-encryption-key"
 }
 
 resource "aws_cloudfront_field_level_encryption_profile" "cloudfront_encryption_profile" {
