@@ -208,13 +208,13 @@ data "aws_secretsmanager_secret_version" "cloudfront_secret" {
 
 resource "aws_key_pair" "cloudfront_key_pair" {
   public_key = data.aws_secretsmanager_secret_version.cloudfront_secret.secret_string
-  key_name   = "uploader-cloudfront-encryption-key"
+  key_name   = "uploader-cloudfront-field-encryption-key"
 }
 
 resource "aws_cloudfront_public_key" "cloudfront_encryption_key" {
   comment     = "Cloudfront encryption key"
   encoded_key = data.aws_secretsmanager_secret_version.cloudfront_secret.secret_string
-  name        = "uploader-cloudfront-encryption-key"
+  name        = "uploader-cloudfront-field-encryption-key"
 }
 
 resource "aws_cloudfront_field_level_encryption_profile" "cloudfront_encryption_profile" {
