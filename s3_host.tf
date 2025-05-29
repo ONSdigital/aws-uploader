@@ -118,5 +118,3 @@ module "render_council" {
   council_name=  each.value.name
   bucket-id=module.ons_upload_bucket.bucket_id
 }
-
-

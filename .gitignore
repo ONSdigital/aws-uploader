@@ -32,3 +32,4 @@ override.tf.json
 
 env.sh
 /.idea/
+.terraform.lock.hcl

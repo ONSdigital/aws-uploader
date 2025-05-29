@@ -24,7 +24,7 @@ resource "aws_s3_object" "North-East-Lincolnshire" {
 
 resource "aws_s3_object" "council-rendered" {
   bucket       = var.bucket-id
-  key          = "council-tax/${var.lad_code}-${var.council_name}.html"
+  key          = "council-tax/${var.lad_code}-${urlencode(var.council_name)}.html"
   source_hash  = md5(local.rendered-html)
   content      = local.rendered-html
   content_type = "text/html"
