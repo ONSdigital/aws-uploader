@@ -10,7 +10,7 @@ Given('I have navigated to the uploader page', async function () {
 });
 
 
-Then('I should see "Council Tax Test"', async function () {
+Then('I should see "Council Tax - Test"', async function () {
     let councilNameElement = await this.driver.findElement(By.id('council-name'));
     let actualText = await councilNameElement.getText();
     let pageText = await this.driver.findElement(By.tagName('body')).getText();
