@@ -1,6 +1,7 @@
 {
   "dependencies": {
-    "jest": "^29.7.0"
+    "jest": "^29.7.0",
+    "selenium-webdriver": "^4.33.0"
   },
   "scripts": {
     "test": "cucumber-js"
