@@ -381,7 +381,7 @@ resource "aws_s3_object" "south-derbyshire" {
 
 resource "aws_s3_object" "melton" {
   bucket       = module.ons_upload_bucket.bucket_id
-  key          = "council-tax/E07000133-South-Derbyshire.html"
+  key          = "council-tax/E07000133-Melton.html"
   source_hash  = md5(local.E07000133-council-rendered-html)
   content      = local.E07000133-council-rendered-html
   content_type = "text/html"
