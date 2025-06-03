@@ -197,8 +197,8 @@ locals {
   E09000028-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
     council_name = "Council Tax - Southwark"
     lad_code     = "E09000028"
-  })  
-  
+  })
+
   W06000014-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
     council_name = "Council Tax - Vale Of Glamorgan"
     lad_code     = "W06000014"
