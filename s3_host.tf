@@ -203,6 +203,21 @@ locals {
     council_name = "Council Tax - Ipswich"
     lad_code     = "E07000202"
   })
+
+  E07000039-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
+    council_name = "Council Tax - South Derbyshire"
+    lad_code     = "E07000039"
+  })
+
+  E07000133-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
+    council_name = "Council Tax - Melton"
+    lad_code     = "E07000133"
+  })
+
+  E07000194-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
+    council_name = "Council Tax - Lichfield"
+    lad_code     = "E07000194"
+  })
 }
 
 resource "aws_s3_object" "test" {
@@ -353,5 +368,29 @@ resource "aws_s3_object" "ipswich" {
   key          = "council-tax/E07000202-Ipswich.html"
   source_hash  = md5(local.E07000202-council-rendered-html)
   content      = local.E07000202-council-rendered-html
+  content_type = "text/html"
+}
+
+resource "aws_s3_object" "south-derbyshire" {
+  bucket       = module.ons_upload_bucket.bucket_id
+  key          = "council-tax/E07000039-South-Derbyshire.html"
+  source_hash  = md5(local.E07000039-council-rendered-html)
+  content      = local.E07000039-council-rendered-html
+  content_type = "text/html"
+}
+
+resource "aws_s3_object" "melton" {
+  bucket       = module.ons_upload_bucket.bucket_id
+  key          = "council-tax/E07000133-South-Derbyshire.html"
+  source_hash  = md5(local.E07000133-council-rendered-html)
+  content      = local.E07000133-council-rendered-html
+  content_type = "text/html"
+}
+
+resource "aws_s3_object" "lichfield" {
+  bucket       = module.ons_upload_bucket.bucket_id
+  key          = "council-tax/E07000194-Lichfield.html"
+  source_hash  = md5(local.E07000194-council-rendered-html)
+  content      = local.E07000194-council-rendered-html
   content_type = "text/html"
 }

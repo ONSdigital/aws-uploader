@@ -93,6 +93,11 @@ EOF
     torfaen                        = aws_s3_object.torfaen.source_hash
     vale_of_glamorgan              = aws_s3_object.vale-of-glamorgan.source_hash
     southwark                      = aws_s3_object.southwark.source_hash
+    basingstoke_deane              = aws_s3_object.basingstoke-deane.source_hash
+    ipswich                        = aws_s3_object.ipswich.source_hash
+    south_derbyshire               = aws_s3_object.south-derbyshire.source_hash
+    meltoon                        = aws_s3_object.melton.source_hash
+    lichfield                      = aws_s3_object.lichfield.source_hash
   }
 }
 
