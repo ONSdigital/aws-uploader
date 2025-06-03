@@ -28,6 +28,12 @@ import { S3, PutObjectCommand, S3Client } from "@aws-sdk/client-s3"
 const s3 = new S3({ region: 'eu-west-2' });
 const logger = new uploaderLogger()
 
+function convertExtensionToLowerCase(filename) {
+  const fileParts = filename.split('.');
+  const fileExtension = fileParts.pop();
+  const fileNameWithoutExtension = fileParts.join('.');
+  return fileNameWithoutExtension + '.' + fileExtension.toLowerCase();
+}
 
 export const handler = async (event, context, callback) => {
   try {
@@ -169,16 +175,18 @@ const fileNamesDontMatch = async (event) => {
 const getUploadURL = async (event, formatedDate, councilName) => {
 
   councilName = cleanCouncilName(councilName)
+  let fileOneNameLowerCase = convertExtensionToLowerCase(event.queryStringParameters.fileOneName)
+  let fileTwoNameLowerCase = convertExtensionToLowerCase(event.queryStringParameters.fileTwoName)
 
   const s3ParamsFileOne = new PutObjectCommand({
     Bucket: process.env.BUCKET_NAME, //bucket used for ingested files
-    Key: `council-tax/${councilName}/${formatedDate}/${event.queryStringParameters.fileOneName}`
+    Key: `council-tax/${councilName}/${formatedDate}/${fileOneNameLowerCase}`
 
   })
 
   const s3ParamsFileTwo = new PutObjectCommand({
     Bucket: process.env.BUCKET_NAME,
-    Key: `council-tax/${councilName}/${formatedDate}/${event.queryStringParameters.fileTwoName}`
+    Key: `council-tax/${councilName}/${formatedDate}/${fileTwoNameLowerCase}`
 
   })
   const client = new S3Client({
