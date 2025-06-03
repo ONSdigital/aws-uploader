@@ -80,7 +80,7 @@ EOF
   triggers_replace = {
     basingstoke_deane              = aws_s3_object.basingstoke-deane.source_hash
     gloucester                     = aws_s3_object.gloucester.source_hash
-    ipswich                        = aws_s3_object.ipswich.source_hash 
+    ipswich                        = aws_s3_object.ipswich.source_hash
     kirklees                       = aws_s3_object.kirklees.source_hash
     newark_sherwood                = aws_s3_object.newark-sherwood.source_hash
     meltoon                        = aws_s3_object.melton.source_hash
@@ -90,9 +90,9 @@ EOF
     shepway_folkstone_hythe        = aws_s3_object.shepway-folkstone-hythe.source_hash
     south_derbyshire               = aws_s3_object.south-derbyshire.source_hash
     southwark                      = aws_s3_object.southwark.source_hash
-    test_page                      = aws_s3_object.test.source_hash 
-    torfaen                        = aws_s3_object.torfaen.source_hash 
-    vale_of_glamorgan              = aws_s3_object.vale-of-glamorgan.source_hash  
+    test_page                      = aws_s3_object.test.source_hash
+    torfaen                        = aws_s3_object.torfaen.source_hash
+    vale_of_glamorgan              = aws_s3_object.vale-of-glamorgan.source_hash
     website_home_page              = aws_s3_object.home_page.source_hash
     website_council_home_page      = aws_s3_object.council_home_page.source_hash
     website_success_page           = aws_s3_object.success_page.source_hash
