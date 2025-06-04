@@ -1,7 +1,6 @@
 #tfsec:ignore:aws-dynamodb-enable-at-rest-encryption
 #tfsec:ignore:aws-dynamodb-enable-recovery
 #tfsec:ignore:aws-dynamodb-table-customer-key
-
 resource "aws_dynamodb_table" "terraform_locks" {
   name = "tf-state-${random_string.random.id}-locks"
   #checkov:skip=CKV_AWS_28:no backups needed

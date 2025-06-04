@@ -144,6 +144,7 @@ The deployed production solution is monitored by [uptrends.com](https://uptrends
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.8.0 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.8.0 |
 | <a name="requirement_archive"></a> [archive](#requirement\_archive) | >= 2.7.0 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.94.1 |
 | <a name="requirement_null"></a> [null](#requirement\_null) | >= 3.2.0 |
@@ -153,8 +154,8 @@ The deployed production solution is monitored by [uptrends.com](https://uptrends
 | Name | Version |
 |------|---------|
 | <a name="provider_archive"></a> [archive](#provider\_archive) | 2.7.1 |
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.98.0 |
-| <a name="provider_aws.useast"></a> [aws.useast](#provider\_aws.useast) | 5.98.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.99.1 |
+| <a name="provider_aws.useast"></a> [aws.useast](#provider\_aws.useast) | 5.99.1 |
 | <a name="provider_null"></a> [null](#provider\_null) | 3.2.4 |
 | <a name="provider_terraform"></a> [terraform](#provider\_terraform) | n/a |
 

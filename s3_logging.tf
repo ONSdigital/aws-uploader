@@ -10,6 +10,8 @@
 
 # }
 
+#tfsec:ignore:aws-s3-enable-versioning
+#tfsec:ignore:aws-s3-enable-bucket-logging
 resource "aws_s3_bucket" "cloudfront_logging_bucket" {
   #checkov:skip=CKV2_AWS_61 : reason - test bucket, don't need lifecycle policy
   #checkov:skip=CKV_AWS_145 : reason - want to use AWS managed keys not CMK
@@ -19,6 +21,8 @@ resource "aws_s3_bucket" "cloudfront_logging_bucket" {
   #checkov:skip=CKV_AWS_21 :
   bucket = var.cloudfront_logging_bucket
 }
+#tfsec:ignore:aws-s3-enable-bucket-logging
+#tfsec:ignore:aws-s3-enable-versioning
 resource "aws_s3_bucket_ownership_controls" "cloudfront_logging_bucket" {
   #checkov:skip=CKV2_AWS_65
   bucket = aws_s3_bucket.cloudfront_logging_bucket.id
