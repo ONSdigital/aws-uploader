@@ -1,11 +1,8 @@
-Feature: Error handling in the uploader
+Feature: Upload files via the uploader page
 
-  Scenario: Navigate to the uploader page
-  # Given I have navigated to the uploader page
-  # Then I should see "Council Tax - Test"
-
-  Scenario: Upload files
+  Scenario: Upload files successfully (happy path)
     Given I have navigated to the uploader page
-#     When I upload an extract file
-# And I upload a manifest file
-# And I click "submit"
+    When I upload an extract file
+    And I upload a manifest file
+    And I click "submit"
+    Then I should see a "Success" message
