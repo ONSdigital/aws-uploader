@@ -57,21 +57,17 @@ jobs:
       - in_parallel:
           - get: pull-request
             trigger: true
+            passed: [set-pipeline-pr]
       - task: run-behaviour-tests
         input_mapping:
-          repo-git: repo-git
-        file: repo-git/ci/tasks/javascript/behaviour-test.yml
-        on_failure:
-        put: pull-request
-        params:
-          path: pull-request
-          status: failure
+          repo-git: pull-request
+        file: repo-git/ci/tasks/behaviourTests/task.yml
 
   - name: terraform-plan
     plan:
       - get: pull-request
         trigger: true
-        passed: [set-pipeline-pr, uploader-behaviour-tests]
+        passed: [uploader-behaviour-tests]
 
       - put: pull-request
         params:

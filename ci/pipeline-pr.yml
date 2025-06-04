@@ -59,13 +59,8 @@ jobs:
             trigger: true
       - task: run-behaviour-tests
         input_mapping:
-          repo-git: repo-git
-        file: repo-git/ci/tasks/javascript/behaviour-test.yml
-        on_failure:
-        put: pull-request
-        params:
-          path: pull-request
-          status: failure
+          repo-git: pull-request
+        file: pull-request/ci/tasks/behaviourTests/task.yml
 
   - name: terraform-plan
     plan:
