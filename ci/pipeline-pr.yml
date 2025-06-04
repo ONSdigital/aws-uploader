@@ -57,6 +57,7 @@ jobs:
       - in_parallel:
           - get: pull-request
             trigger: true
+            passed: [set-pipeline-pr]
       - task: run-behaviour-tests
         input_mapping:
           repo-git: pull-request
@@ -66,7 +67,7 @@ jobs:
     plan:
       - get: pull-request
         trigger: true
-        passed: [set-pipeline-pr]
+        passed: [uploader-behaviour-tests]
 
       - put: pull-request
         params:
