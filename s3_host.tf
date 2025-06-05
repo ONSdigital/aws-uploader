@@ -1,3 +1,8 @@
+locals {
+  councils-csv = csvdecode(file("./councils.csv"))
+}
+
+
 #tfsec:ignore:aws-s3-enable-bucket-logging
 #tfsec:ignore:aws-s3-enable-versioning
 module "ons_upload_bucket" {
@@ -105,9 +110,6 @@ resource "aws_s3_object" "result_message" {
   content_type = "text/javascript"
 }
 
-locals {
-  councils-csv = csvdecode(file("./councils.csv"))
-}
 
 module "render_council" {
   source       = "./modules/render_council"
