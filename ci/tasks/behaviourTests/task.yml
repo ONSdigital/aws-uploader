@@ -4,8 +4,8 @@ platform: linux
 image_resource:
   type: docker-image
   source:
-    repository: node
-    tag: "18"
+    repository: selenium/node-chrome
+    tag: 134.0-20250525
 
 inputs:
   - name: repo-git
