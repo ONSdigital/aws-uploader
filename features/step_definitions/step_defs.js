@@ -25,16 +25,16 @@ When('I upload a manifest file', async function () {
     await fileInput.sendKeys(filePath);
 });
 
-When('I click "submit"', async function () {
+When('I click "Submit"', async function () {
     const submitButton = await this.driver.findElement(By.className('ons-btn'));
 
     await submitButton.click();
 });
 
 Then('I should see a "Success" message', async function () {
-  await this.driver.wait(until.elementLocated(By.xpath('//*[contains(text(), "Success")]')), 5000);
-  let pageText = await this.driver.findElement(By.tagName('body')).getText();
+    await this.driver.wait(until.elementLocated(By.xpath('//*[contains(text(), "Success")]')), 5000);
+    let pageText = await this.driver.findElement(By.tagName('body')).getText();
 
-  assert.ok(pageText.includes("Success"), 'The text "Success" was not found on the page');
-  assert.ok(pageText.includes("Information has been successfully submitted"), 'The text "Information has been successfully submitted" was not found on the page');
+    assert.ok(pageText.includes("Success"), 'The text "Success" was not found on the page');
+    assert.ok(pageText.includes("Information has been successfully submitted"), 'The text "Information has been successfully submitted" was not found on the page');
 });

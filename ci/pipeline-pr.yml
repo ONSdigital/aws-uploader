@@ -54,10 +54,9 @@ jobs:
 
   - name: uploader-behaviour-tests
     plan:
-      - in_parallel:
-          - get: pull-request
-            trigger: true
-            passed: [set-pipeline-pr]
+      - get: pull-request
+        trigger: true
+        passed: [set-pipeline-pr]
       - task: run-behaviour-tests
         input_mapping:
           repo-git: pull-request

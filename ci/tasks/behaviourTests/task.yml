@@ -11,4 +11,4 @@ inputs:
   - name: repo-git
 
 run:
-  path: ./pull-request/ci/tasks/behaviourTests/task.sh
+  path: ./repo-git/ci/tasks/behaviourTests/task.sh
