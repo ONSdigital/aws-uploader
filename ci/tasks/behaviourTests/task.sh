@@ -1,5 +1,7 @@
 #!/bin/sh
 
 cd repo-git
-yarn install
-yarn test
+sudo apt update -y
+sudo apt install npm -y
+sudo npm install
+npm test

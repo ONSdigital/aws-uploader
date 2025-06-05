@@ -13,14 +13,14 @@ Given('I have navigated to the uploader page', async function () {
 
 When('I upload an extract file', async function () {
     let fileInput = await this.driver.findElement(By.id('fileOne'));
-    let filePath = '/Users/jameswilliams/IngestRepositories/aws-uploader/features/test_files/CTAX_EXTRACT_E00000000_20250131.csv';
+    let filePath = '/features/test_files/CTAX_EXTRACT_E00000000_20250131.csv';
 
     await fileInput.sendKeys(filePath);
 });
 
 When('I upload a manifest file', async function () {
     let fileInput = await this.driver.findElement(By.id('fileTwo'));
-    let filePath = '/Users/jameswilliams/IngestRepositories/aws-uploader/features/test_files/CTAX_MANI_E00000000_20250131.csv';
+    let filePath = '/features/test_files/CTAX_MANI_E00000000_20250131.csv';
 
     await fileInput.sendKeys(filePath);
 });
