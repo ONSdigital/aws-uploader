@@ -85,8 +85,8 @@ EOF
   },
    {for lad in keys(module.render_council) : lad => module.render_council[lad].hash}
    )
-}
 
+}
 
 resource "aws_cloudfront_response_headers_policy" "custom_security_headers" {
   name    = "csp-security-headers"

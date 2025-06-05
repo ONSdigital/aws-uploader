@@ -105,8 +105,6 @@ resource "aws_s3_object" "result_message" {
   content_type = "text/javascript"
 }
 
-
-
 locals {
  councils-csv = csvdecode(file("./councils.csv"))
 }
@@ -118,3 +116,4 @@ module "render_council" {
   council_name=  each.value.name
   bucket-id=module.ons_upload_bucket.bucket_id
 }
+
