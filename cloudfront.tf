@@ -78,13 +78,13 @@ EOF
   }
 
   triggers_replace = merge({
-    website_home_page              = aws_s3_object.home_page.source_hash
-    website_council_home_page      = aws_s3_object.council_home_page.source_hash
-    website_success_page           = aws_s3_object.success_page.source_hash
-    website_result_message_script  = aws_s3_object.result_message.source_hash
-  },
-   {for lad in keys(module.render_council) : lad => module.render_council[lad].hash}
-   )
+    website_home_page             = aws_s3_object.home_page.source_hash
+    website_council_home_page     = aws_s3_object.council_home_page.source_hash
+    website_success_page          = aws_s3_object.success_page.source_hash
+    website_result_message_script = aws_s3_object.result_message.source_hash
+    },
+    { for lad in keys(module.render_council) : lad => module.render_council[lad].hash }
+  )
 
 }
 

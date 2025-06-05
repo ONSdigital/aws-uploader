@@ -106,14 +106,13 @@ resource "aws_s3_object" "result_message" {
 }
 
 locals {
- councils-csv = csvdecode(file("./councils.csv"))
+  councils-csv = csvdecode(file("./councils.csv"))
 }
 
 module "render_council" {
-  source = "./modules/render_council"
-  for_each = {for c in local.councils-csv : c.lad_code => c}
-  lad_code = each.value.lad_code
-  council_name=  each.value.name
-  bucket-id=module.ons_upload_bucket.bucket_id
+  source       = "./modules/render_council"
+  for_each     = { for c in local.councils-csv : c.lad_code => c }
+  lad_code     = each.value.lad_code
+  council_name = each.value.name
+  bucket-id    = module.ons_upload_bucket.bucket_id
 }
-
