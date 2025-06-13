@@ -1,25 +1,25 @@
-  locals {
-  rendered-html=  templatefile("${path.root}/scripts/template/council-tax-template.html", {
+terraform {
+  #update the version of terraform as required
+  required_version = ">= 1.8.0"
+  #initialise a backend configuration for terraform to save the state file. Do not use local state files.
+  backend "s3" {
+  }
+  #Add in all required providers needed to run the terraform you are using.
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">= 5.94.1"
+    }
+
+  }
+}
+
+locals {
+  rendered-html = templatefile(var.template_path, {
     council_name = "Council Tax - ${var.council_name}"
     lad_code     = var.lad_code
   })
-  }
-/*   resource "aws_s3_object" "test" {
-  bucket       = module.ons_upload_bucket.bucket_id
-  key          = "council-tax/E00000000-Test&Test.html"
-  source_hash  = md5(local.E00000000-council-rendered-html)
-  content      = local.E00000000-council-rendered-html
-  content_type = "text/html"
 }
-
-resource "aws_s3_object" "North-East-Lincolnshire" {
-  bucket       = module.ons_upload_bucket.bucket_id
-  key          = "council-tax/E06000012-North-East-Lincolnshire.html"
-  source_hash  = md5(local.E06000012-council-rendered-html)
-  content      = local.E06000012-council-rendered-html
-  content_type = "text/html"
-}
- */
 
 
 resource "aws_s3_object" "council-rendered" {
