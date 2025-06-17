@@ -17,7 +17,10 @@ locals {
     council_name = "Council Tax - ${var.council_name}"
     lad_code     = var.lad_code
   })
-  council-filename = "${var.lad_code}-${replace(var.council_name, " ", "-")}.html"
+  #remove special characters from council name
+  #replace spaces with dashes in council name
+  clean-council-name2 = replace(replace(var.council_name, "/ *([^A-Za-z0-9-_ ]) */", "$1"), " ", "-")
+  council-filename    = "${var.lad_code}-${local.clean-council-name2}.html"
 }
 
 
