@@ -1,6 +1,6 @@
 # CICD pipeline
 
-This is a example of a basic pipeline witin concourse using YAML. 
+This is a example of a basic pipeline witin concourse using YAML.
 
 ### Useful tutorials
 
@@ -28,9 +28,9 @@ For Windows users, use this [article](https://stackoverflow.com/questions/234000
 
 ### Logging in
 
-In order to use the fly command you need to create a target and login to be able to deploy our pipeline. 
+In order to use the fly command you need to create a target and login to be able to deploy our pipeline.
 ```
-fly --target=cia-shared login --concourse-url=https://concourse.cicd-shared.aws.onsdigital.uk/ --team-name=cia
+fly --target=cid-shared login --concourse-url=https://concourse.cicd-shared.aws.onsdigital.uk/ --team-name=cid
 ```
 - target - This is the local reference for your computer to target the correct team and concourse instance.
 - login - fly command that we want to trigger.
@@ -46,7 +46,7 @@ Navigate to where your pipeline.yml file is located
 To Create or modify a pipeline, run the following command:
 
 ```
-fly --target cia-shared set-pipeline --pipeline dev-pipeline --config pipeline.yml --load-vars-from env/config-variables.yml
+fly --target cid-shared set-pipeline --pipeline uploader-dev --config pipeline.yml --load-vars-from env/dev-vars.yml
 ```
 
 - target - This is your local reference to the concourse instance you want to target (setup in the login step).
@@ -65,18 +65,18 @@ fly --target irex-dev destroy-pipeline --pipeline dev-pipeline
 
 - target - This is your local reference to the concourse instance you want to target (setup in the login step).
 - destroy-pipeline - fly command you want to use to destroy a pipeline.
-- pipeline - The name of the pipeline you want to destroy. 
+- pipeline - The name of the pipeline you want to destroy.
 
 
-## Concourse 
+## Concourse
 
 ### How to use Secrets and Variables
 
 To reference a secret or a variable within concourse your need to double bracket the variable name `((variable))` or secret name `((secret))`.
 
-To declare a variable you can reference it within the `config-variables.yml` file. 
+To declare a variable you can reference it within the `config-variables.yml` file.
 
-To declare a secret, you need to store the secret within AWS Secret Manager under the following format: 
+To declare a secret, you need to store the secret within AWS Secret Manager under the following format:
 
 ```
 /concourse/team_name/secret
