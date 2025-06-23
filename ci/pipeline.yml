@@ -8,22 +8,21 @@ aws_auth: &aws_auth
   AWS_SECRET_ACCESS_KEY: ((aws.secret_key))
 
 groups:
-- name: all
-  jobs:
-  - "*"
-
+  - name: all
+    jobs:
+      - "*"
 
 resource_types:
-- name: terraform
-  type: docker-image
-  source:
-    repository: ljfranklin/terraform-resource
-    tag: latest
+  - name: terraform
+    type: docker-image
+    source:
+      repository: ljfranklin/terraform-resource
+      tag: latest
 
-- name: pull-request
-  type: docker-image
-  source:
-    repository: teliaoss/github-pr-resource
+  - name: pull-request
+    type: docker-image
+    source:
+      repository: teliaoss/github-pr-resource
 
 resources:
   - name: repo-git
@@ -43,16 +42,15 @@ resources:
       base_branch: ((git.branch))
       ignore_drafts: false
 jobs:
- 
-    # Terraform pipeline
+  # Terraform pipeline
   - name: set-pipeline-pr
     plan:
-    - get: pull-request
-      trigger: true  
-    - set_pipeline: self # pipeline's name
-      file: pull-request/ci/pipeline.yml 
-      var_files:
-        - pull-request/ci/env/((concourse.vars))
+      - get: pull-request
+        trigger: true
+      - set_pipeline: self # pipeline's name
+        file: pull-request/ci/pipeline.yml
+        var_files:
+          - pull-request/ci/env/((concourse.vars))
 
   - name: terraform-plan
     plan:
@@ -67,7 +65,7 @@ jobs:
 
       - task: terraform-plan
         file: pull-request/ci/tasks/terraform/terraform-plan.yml
-        vars: 
+        vars:
           access_key: ((aws.access_key))
           secret_key: ((aws.secret_key))
           backend_role: ((aws.backend_role))
@@ -87,62 +85,62 @@ jobs:
             status: FAILURE
 
       - in_parallel:
-        - task: linting
-          file: pull-request/ci/tasks/tflint/task.yml
-          input_mapping:
-            repo-git: pull-request
-          params:
-            S3_BUCKET_NAME: ((aws.s3_bucket))
-            TF_STATE: ((aws.tfstate))
-            AWS_ACCESS_KEY_ID: ((aws.access_key))
-            AWS_SECRET_ACCESS_KEY: ((aws.secret_key))
-          on_failure:
-            put: pull-request
+          - task: linting
+            file: pull-request/ci/tasks/tflint/task.yml
+            input_mapping:
+              repo-git: pull-request
             params:
-              path: pull-request
-              status: FAILURE
+              S3_BUCKET_NAME: ((aws.s3_bucket))
+              TF_STATE: ((aws.tfstate))
+              AWS_ACCESS_KEY_ID: ((aws.access_key))
+              AWS_SECRET_ACCESS_KEY: ((aws.secret_key))
+            on_failure:
+              put: pull-request
+              params:
+                path: pull-request
+                status: FAILURE
 
-        - task: trivy
-          file: pull-request/ci/tasks/trivy/task.yml
-          input_mapping:
-            repo-git: pull-request
-          params:
-            GIT_PAT: ((github_pat))
-          on_failure:
-            put: pull-request
+          - task: trivy
+            file: pull-request/ci/tasks/trivy/task.yml
+            input_mapping:
+              repo-git: pull-request
             params:
-              path: pull-request
-              status: FAILURE
+              GIT_PAT: ((github_pat))
+            on_failure:
+              put: pull-request
+              params:
+                path: pull-request
+                status: FAILURE
 
-        - task: checkov
-          file: pull-request/ci/tasks/checkov/task.yml
-          input_mapping:
-            repo-git: pull-request
-          on_failure:
-            put: pull-request
-            params:
-              path: pull-request
-              status: FAILURE
+          - task: checkov
+            file: pull-request/ci/tasks/checkov/task.yml
+            input_mapping:
+              repo-git: pull-request
+            on_failure:
+              put: pull-request
+              params:
+                path: pull-request
+                status: FAILURE
 
-        - task: gitleaks
-          file: pull-request/ci/tasks/gitleaks/task.yml
-          input_mapping:
-            repo-git: pull-request
-          on_failure:
-            put: pull-request
-            params:
-              path: pull-request
-              status: FAILURE
+          - task: gitleaks
+            file: pull-request/ci/tasks/gitleaks/task.yml
+            input_mapping:
+              repo-git: pull-request
+            on_failure:
+              put: pull-request
+              params:
+                path: pull-request
+                status: FAILURE
 
-        - task: trufflehog
-          file: pull-request/ci/tasks/trufflehog/task.yml
-          input_mapping:
-            repo-git: pull-request
-          on_failure:
-            put: pull-request
-            params:
-              path: pull-request
-              status: FAILURE
+          - task: trufflehog
+            file: pull-request/ci/tasks/trufflehog/task.yml
+            input_mapping:
+              repo-git: pull-request
+            on_failure:
+              put: pull-request
+              params:
+                path: pull-request
+                status: FAILURE
 
       - put: pull-request
         params:
@@ -151,12 +149,12 @@ jobs:
 
   - name: set-pipeline
     plan:
-    - get: repo-git
-      trigger: true
-    - set_pipeline: self # pipeline's name
-      file: repo-git/ci/pipeline.yml 
-      var_files:
-        - repo-git/ci/env/((concourse.vars))
+      - get: repo-git
+        trigger: true
+      - set_pipeline: self # pipeline's name
+        file: repo-git/ci/pipeline.yml
+        var_files:
+          - repo-git/ci/env/((concourse.vars))
 
   - name: terraform-apply
     plan:
@@ -165,11 +163,11 @@ jobs:
         passed: [set-pipeline]
       - get: pull-request
         trigger: false
-        passed: [terraform-plan]  
- 
+        passed: [terraform-plan]
+
       - task: terraform-apply
         file: repo-git/ci/tasks/terraform/terraform-apply.yml
-        vars: 
+        vars:
           access_key: ((aws.access_key))
           secret_key: ((aws.secret_key))
           backend_role: ((aws.backend_role))
@@ -182,3 +180,13 @@ jobs:
           AWS_ACCESS_KEY_ID: ((aws.access_key))
           AWS_SECRET_ACCESS_KEY: ((aws.secret_key))
           BACKEND_ROLE_ARN: ((aws.backend_role))
+
+  - name: uploader-behaviour-tests
+    plan:
+      - get: pull-request
+        trigger: true
+        passed: [terraform-apply]
+      - task: run-behaviour-tests
+        input_mapping:
+          repo-git: pull-request
+        file: pull-request/ci/tasks/behaviourTests/task.yml
