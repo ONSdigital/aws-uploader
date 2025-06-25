@@ -55,11 +55,12 @@ resource "aws_lambda_function" "PreSignedURL" {
   }
 }
 
+#Only wildcarded within bucket which is correct
 data "aws_iam_policy_document" "get_s3_object" {
   statement {
     effect    = "Allow"
     actions   = ["s3:GetObject", "s3:PutObject"]
-    resources = ["${module.ons_upload_ingest_bucket.bucket_arn}/*"]
+    resources = ["${module.ons_upload_ingest_bucket.bucket_arn}/*"] #tfsec:ignore:aws-iam-no-policy-wildcards 
   }
 }
 
