@@ -115,6 +115,27 @@ resource "aws_s3_object" "<CouncilName>" {
 }
 ```
 
+## Running Behaviour tests
+Behaviour tests should be run before raising a Pull Request.
+Depending on your package manager of choice you can run
+```
+yarn install
+yarn test
+```
+
+or
+
+```
+npm install
+npm test
+```
+
+or, you can make use of the makefile and run
+```
+make behaviour-tests
+```
+after installing the package dependencies.
+
 ## Github Automatic reviewers
 
 The template is setup to use codeowners, this is setup within the `.github` folder within the `CODEOWNERS` file. By default it is set to the CIA team, to update this change or add another github team.
