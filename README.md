@@ -91,28 +91,14 @@ terraform plan -var-file=env/env.tfvars
 
 This is a guide to creating new Council Tax upload pages:
 
-Navigate to s3_host.tf (<https://vscode.dev/github/ONSdigital/aws-uploader/blob/new_councils/s3_host.tf#L109>)
+Edit the councils.csv to add the new code and council name to the bottom of the list. Commit the change and the necessary pages will be added.
 
-- Create a local variable following the pattern for existing Council's.
+Be sure that the csv maintains its header row and the lad code is the right format.
+Example first two lines
+"name","lad_code"
+"Test","E00000000"
 
-```
-<LADCode>-council-rendered-html = templatefile("${path.module}/scripts/template/council-tax-template.html", {
-    council_name = "<CouncilName>"
-    lad_code     = "<LADCode>"
-  }
-)
-```
 
-- Create an aws_s3_object resource following the pattern for existing Council's.
-
-```
-resource "aws_s3_object" "<CouncilName>" {
-  bucket       = module.ons_upload_bucket.bucket_id
-  key          = "council-tax/<LADCode>-<CouncilName>.html"
-  source_hash  = md5(local.<LADCode>-council-rendered-html)
-  content      = local.<LADCode>-council-rendered-html
-  content_type = "text/html"
-}
 ```
 
 ## Running Behaviour tests
