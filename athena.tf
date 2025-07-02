@@ -10,15 +10,15 @@ resource "aws_athena_database" "access_logs" {
 resource "aws_athena_workgroup" "access_logs" {
   #checkov:skip=CKV_AWS_82
   #checkov:skip=CKV_AWS_159
+
+  #low risk -only admins use the DB
+
   name = "athena-s3"
-
   configuration {
-    enforce_workgroup_configuration    = false
+    enforce_workgroup_configuration    = true
     publish_cloudwatch_metrics_enabled = true
-
     result_configuration {
       output_location = "s3://${aws_s3_bucket.cloudfront_logging_bucket.bucket}/query_results/"
-
       encryption_configuration {
         encryption_option = "SSE_S3"
       }
