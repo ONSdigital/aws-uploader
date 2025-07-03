@@ -183,10 +183,15 @@ jobs:
 
   - name: uploader-behaviour-tests
     plan:
-      - get: pull-request
+      - get: repo-git
         trigger: true
         passed: [terraform-apply]
       - task: run-behaviour-tests
         input_mapping:
-          repo-git: pull-request
+          repo-git: repo-git
         file: pull-request/ci/tasks/behaviourTests/task.yml
+        on_failure:
+          put: pull-request
+          params:
+            path: pull-request
+            status: FAILURE
