@@ -189,7 +189,7 @@ jobs:
       - task: run-behaviour-tests
         input_mapping:
           repo-git: repo-git
-        file: pull-request/ci/tasks/behaviourTests/task.yml
+        file: repo-git/ci/tasks/behaviourTests/task.yml
         on_failure:
           put: pull-request
           params:
