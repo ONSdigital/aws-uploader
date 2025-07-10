@@ -7,8 +7,8 @@ Feature: Upload files via the uploader page
 
   Scenario: Successfully upload files (happy path)
     Given I have navigated to the uploader page
-    When I upload a correctly named non-zero byte extract file that matches the URL LAD code
-    And I upload a correctly named non-zero byte manifest file that matches the URL LAD code
+    When I upload a correctly named non-zero byte extract file "CTAX_EXTRACT_E00000000_20250131.csv" that matches the URL LAD code
+    And I upload a correctly named non-zero byte manifest file "CTAX_MANI_E00000000_20250131.csv" that matches the URL LAD code
     And I click "Submit"
     Then I should see a "Success" message
 
@@ -21,56 +21,93 @@ Feature: Upload files via the uploader page
 
   Scenario: Fail to upload files due to missing manifest file
     Given I have navigated to the uploader page
-    When I upload a correctly named non-zero byte extract file that matches the URL LAD code
+    When I upload a correctly named non-zero byte extract file "CTAX_EXTRACT_E00000000_20250131.csv" that matches the URL LAD code
     And I click "Submit"
     Then I should see a "You need to fill in both fields" message
     And I should see a "You need to add a Mani file" message
 
   Scenario: Fail to upload files due to missing extract file
     Given I have navigated to the uploader page
-    When I upload a correctly named non-zero byte manifest file that matches the URL LAD code
+    When I upload a correctly named non-zero byte manifest file "CTAX_MANI_E00000000_20250131.csv" that matches the URL LAD code
     And I click "Submit"
     Then I should see a "You need to fill in both fields" message
     And I should see a "You need to add a Extract file" message
 
   Scenario: Upload fails due to manifest file not following naming convention
  	  Given I have navigated to the uploader page
-    When I upload a correctly named non-zero byte extract file that matches the URL LAD code
-    And I upload an incorrectly named non-zero byte manifest file
+    When I upload a correctly named non-zero byte extract file "CTAX_EXTRACT_E00000000_20250131.csv" that matches the URL LAD code
+    And I upload an incorrectly named non-zero byte manifest file "CTAX_MANI_E00000000_202501.csv"
     And I click "Submit"
     Then I should see a “Mani File name does not follow the right pattern” message
 
   Scenario: Upload fails due to extract file not following naming convention
  	  Given I have navigated to the uploader page
-    When I upload a correctly named non-zero byte manifest file that matches the URL LAD code
-    And I upload an incorrectly named non-zero byte extract file
+    When I upload a correctly named non-zero byte manifest file "CTAX_MANI_E00000000_20250131.csv" that matches the URL LAD code
+    And I upload an incorrectly named non-zero byte extract file "CTAX_EXTRACT_E00000000_202501.csv"
     And I click "Submit"
     Then I should see a “Extract File name does not follow the right pattern” message
 
   Scenario: Upload fails due to manifest file not having .csv file extension
  	  Given I have navigated to the uploader page
-    When I upload a correctly named non-zero byte extract file that matches the URL LAD code
-    And I upload a non-zero byte manifest file that does not have a .csv extension
+    When I upload a correctly named non-zero byte extract file "CTAX_EXTRACT_E00000000_20250131.csv" that matches the URL LAD code
+    And I upload a non-zero byte manifest file "CTAX_MANI_E00000000_20250131" that does not have a .csv extension
     And I click "Submit"
     Then I should see a “Mani File name does not follow the right pattern” message
 
   Scenario: Upload fails due to extract file not having .csv file extension
  	  Given I have navigated to the uploader page
-    When I upload a correctly named non-zero byte manifest file that matches the URL LAD code
-    And I upload a non-zero byte extract file that does not have a .csv extension
+    When I upload a correctly named non-zero byte manifest file "CTAX_MANI_E00000000_20250131.csv" that matches the URL LAD code
+    And I upload a non-zero byte extract file "CTAX_EXTRACT_E00000000_20250131" that does not have a .csv extension
     And I click "Submit"
     Then I should see a “Extract File name does not follow the right pattern” message
 
   Scenario: Upload fails due to manifest file not matching URL LAD Code
  	  Given I have navigated to the uploader page
-    When I upload a correctly named non-zero byte extract file that matches the URL LAD code
-    And I upload a correctly named non-zero byte manifest file that does not match the URL LAD Code
+    When I upload a correctly named non-zero byte extract file "CTAX_EXTRACT_E00000000_20250131.csv" that matches the URL LAD code
+    And I upload a correctly named non-zero byte manifest file "CTAX_MANI_E00000001_20250131.csv" that does not match the URL LAD Code
     And I click "Submit"
     Then I should see a “File name does not contain matching LAD code” message
 
   Scenario: Upload fails due to extract file not matching URL LAD Code
  	  Given I have navigated to the uploader page
-    When I upload a correctly named non-zero byte manifest file that matches the URL LAD code
-    And I upload a correctly named non-zero byte extract file that does not match the URL LAD Code
+    When I upload a correctly named non-zero byte manifest file "CTAX_MANI_E00000000_20250131.csv" that matches the URL LAD code
+    And I upload a correctly named non-zero byte extract file "CTAX_EXTRACT_E00000001_20250131.csv" that does not match the URL LAD Code
     And I click "Submit"
     Then I should see a “File name does not contain matching LAD code” message
+
+  Scenario: Upload fails due to extract file not being a csv file
+ 	  Given I have navigated to the uploader page
+    When I upload a correctly named zero byte extract file "CTAX_EXTRACT_E00000000_20250628.csv" that matches the URL LAD code
+    And I upload a correctly named non-zero byte manifest file "CTAX_MANI_E00000000_20250628.csv" that matches the URL LAD code
+    And I click "Submit"
+    Then I should see a “Please upload a CSV file” message
+
+  Scenario: Upload fails due to manifest file not being a csv file
+ 	  Given I have navigated to the uploader page
+    When I upload a correctly named non-zero byte extract file "CTAX_EXTRACT_E00000000_20250627.csv" that matches the URL LAD code
+    And I upload a correctly named zero byte manifest file "CTAX_MANI_E00000000_20250627.csv" that matches the URL LAD code
+    And I click "Submit"
+    Then I should see a “Please upload a CSV file” message
+
+  Scenario: Upload fails due to extract file being zero byte `
+    Given I have navigated to the uploader page
+    When I upload a correctly named zero byte extract file "CTAX_EXTRACT_E00000000_20250630.csv" that matches the URL LAD code
+    And I upload a correctly named non-zero byte manifest file "CTAX_MANI_E00000000_20250630.csv" that matches the URL LAD code
+    And I click "Submit"
+    Then I should see a “Extract File is Empty” message
+    And I should see a “Mani File is Empty” message
+
+  Scenario: Upload fails due to manifest file being zero byte `
+    Given I have navigated to the uploader page
+    When I upload a correctly named non-zero byte extract file "CTAX_EXTRACT_E00000000_20250629.csv" that matches the URL LAD code
+    And I upload a correctly named zero byte manifest file "CTAX_MANI_E00000000_20250629.csv" that matches the URL LAD code
+    And I click "Submit"
+    Then I should see a “Extract File is Empty” message
+    And I should see a “Mani File is Empty” message
+
+  Scenario: Upload fails due to manifest and extract file names not matching
+ 	  Given I have navigated to the uploader page
+    When I upload a correctly named non-zero byte extract file "CTAX_EXTRACT_E00000000_20250131.csv" that matches the URL LAD code
+    And I upload a correctly named non-zero byte manifest file "CTAX_MANI_E00000000_20250130.csv" that matches the URL LAD code
+    And I click "Submit"
+    Then I should see a “File names do not match” message

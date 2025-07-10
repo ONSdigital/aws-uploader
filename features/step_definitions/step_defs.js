@@ -13,67 +13,91 @@ Given('I have navigated to the uploader page', async function () {
 });
 
 //WHEN //
-When('I upload a correctly named non-zero byte extract file that matches the URL LAD code', async function () {
-    let fileInput = await this.driver.findElement(By.id('fileOne'));
+When('I upload a correctly named non-zero byte manifest file {string} that matches the URL LAD code', async function (fileName) {
     const path = require('path');
-    let filePath = path.resolve(process.cwd(), 'features/test_files/CTAX_EXTRACT_E00000000_20250131.csv');
-
-    await fileInput.sendKeys(filePath);
-});
-
-When('I upload a correctly named non-zero byte manifest file that matches the URL LAD code', async function () {
+    const filePath = path.resolve('features', 'test_files', fileName);
     let fileInput = await this.driver.findElement(By.id('fileTwo'));
-    const path = require('path');
-    let filePath = path.resolve(process.cwd(), 'features/test_files/CTAX_MANI_E00000000_20250131.csv');
 
     await fileInput.sendKeys(filePath);
 });
 
-When('I upload an incorrectly named non-zero byte manifest file', async function () {
-    let fileInput = await this.driver.findElement(By.id('fileTwo'));
+When('I upload a correctly named non-zero byte extract file {string} that matches the URL LAD code', async function (fileName) {
     const path = require('path');
-    let filePath = path.resolve(process.cwd(), 'features/test_files/CTAX_MANI_E00000000_202501.csv');
-
-    await fileInput.sendKeys(filePath);
-});
-
-When('I upload an incorrectly named non-zero byte extract file', async function () {
+    const filePath = path.resolve('features', 'test_files', fileName);
     let fileInput = await this.driver.findElement(By.id('fileOne'));
-    const path = require('path');
-    let filePath = path.resolve(process.cwd(), 'features/test_files/CTAX_EXTRACT_E00000000_202501.csv');
 
     await fileInput.sendKeys(filePath);
 });
 
-When('I upload a non-zero byte manifest file that does not have a .csv extension', async function () {
+When('I upload an incorrectly named non-zero byte manifest file {string}', async function (fileName) {
+    const path = require('path');
+    const filePath = path.resolve('features', 'test_files', fileName);
     let fileInput = await this.driver.findElement(By.id('fileTwo'));
-    const path = require('path');
-    let filePath = path.resolve(process.cwd(), 'features/test_files/CTAX_MANI_E00000000_20250131');
 
     await fileInput.sendKeys(filePath);
 });
 
-When('I upload a non-zero byte extract file that does not have a .csv extension', async function () {
+When('I upload an incorrectly named non-zero byte extract file {string}', async function (fileName) {
+    const path = require('path');
+    const filePath = path.resolve('features', 'test_files', fileName);
     let fileInput = await this.driver.findElement(By.id('fileOne'));
-    const path = require('path');
-    let filePath = path.resolve(process.cwd(), 'features/test_files/CTAX_EXTRACT_E00000000_20250131');
 
     await fileInput.sendKeys(filePath);
 });
 
-When('I upload a correctly named non-zero byte manifest file that does not match the URL LAD Code', async function () {
+When('I upload a non-zero byte manifest file {string} that does not have a .csv extension', async function (fileName) {
+    const path = require('path');
+    const filePath = path.resolve('features', 'test_files', fileName);
     let fileInput = await this.driver.findElement(By.id('fileTwo'));
-    const path = require('path');
-    let filePath = path.resolve(process.cwd(), 'features/test_files/CTAX_MANI_E00000001_20250131.csv');
 
     await fileInput.sendKeys(filePath);
 });
 
-When('I upload a correctly named non-zero byte extract file that does not match the URL LAD Code', async function () {
-    let fileInput = await this.driver.findElement(By.id('fileOne'));
+When('I upload a non-zero byte extract file {string} that does not have a .csv extension', async function (fileName) {
     const path = require('path');
-    let filePath = path.resolve(process.cwd(), 'features/test_files/CTAX_EXTRACT_E00000001_20250131.csv');
+    const filePath = path.resolve('features', 'test_files', fileName);
+    let fileInput = await this.driver.findElement(By.id('fileOne'));
 
+    await fileInput.sendKeys(filePath);
+});
+
+When('I upload a correctly named non-zero byte manifest file {string} that does not match the URL LAD Code', async function (fileName) {
+    const path = require('path');
+    const filePath = path.resolve('features', 'test_files', fileName);
+    let fileInput = await this.driver.findElement(By.id('fileTwo'));
+
+    await fileInput.sendKeys(filePath);
+});
+
+When('I upload a correctly named non-zero byte extract file {string} that does not match the URL LAD Code', async function (fileName) {
+    const path = require('path');
+    const filePath = path.resolve('features', 'test_files', fileName);
+    let fileInput = await this.driver.findElement(By.id('fileOne'));
+
+    await fileInput.sendKeys(filePath);
+});
+
+When('I upload a correctly named zero byte extract file {string} that does not match the URL LAD Code', async function (fileName) {
+    const path = require('path');
+    const filePath = path.resolve('features', 'test_files', fileName);
+    let fileInput = await this.driver.findElement(By.id('fileOne'));
+
+    await fileInput.sendKeys(filePath);
+});
+
+When('I upload a correctly named zero byte manifest file {string} that matches the URL LAD code', async function (fileName) {
+    const path = require('path');
+    const filePath = path.resolve('features', 'test_files', fileName);
+
+    let fileInput = await this.driver.findElement(By.id('fileTwo'));
+    await fileInput.sendKeys(filePath);
+});
+
+When('I upload a correctly named zero byte extract file {string} that matches the URL LAD code', async function (fileName) {
+    const path = require('path');
+    const filePath = path.resolve('features', 'test_files', fileName);
+
+    let fileInput = await this.driver.findElement(By.id('fileOne'));
     await fileInput.sendKeys(filePath);
 });
 
@@ -147,4 +171,32 @@ Then('I should see a "You need to add a Extract file" message', async function (
     let pageText = await this.driver.findElement(By.tagName('body')).getText();
 
     assert.ok(pageText.includes("You need to add a Extract file"), 'The text "You need to add a Extract file" was not found on the page');
+});
+
+Then('I should see a “Extract File is Empty” message', async function () {
+    await this.driver.wait(until.elementLocated(By.xpath('//*[contains(text(), "Extract File is Empty")]')), 5000);
+    let pageText = await this.driver.findElement(By.tagName('body')).getText();
+
+    assert.ok(pageText.includes("You need to add a Extract file"), 'The text "Extract File is Empty" was not found on the page');
+});
+
+Then('I should see a “Mani File is Empty” message', async function () {
+    await this.driver.wait(until.elementLocated(By.xpath('//*[contains(text(), "Mani File is Empty")]')), 5000);
+    let pageText = await this.driver.findElement(By.tagName('body')).getText();
+
+    assert.ok(pageText.includes("You need to add a Extract file"), 'The text "Mani File is Empty" was not found on the page');
+});
+
+Then('I should see a “File names do not match” message', async function () {
+    await this.driver.wait(until.elementLocated(By.xpath('//*[contains(text(), "File names do not match")]')), 5000);
+    let pageText = await this.driver.findElement(By.tagName('body')).getText();
+
+    assert.ok(pageText.includes("File names do not match"), 'The text "File names do not match" was not found on the page');
+});
+
+Then('I should see a “Please upload a CSV file” message', async function () {
+    await this.driver.wait(until.elementLocated(By.xpath('//*[contains(text(), "Please upload a CSV file")]')), 5000);
+    let pageText = await this.driver.findElement(By.tagName('body')).getText();
+
+    assert.ok(pageText.includes("Please upload a CSV file"), 'The text "Please upload a CSV file" was not found on the page');
 });
