@@ -44,6 +44,12 @@
     <link rel="apple-touch-icon" type="image/png"
       href="https://cdn.ons.gov.uk/sdc/design-system/70.0.4/favicons/apple-touch-icon.png" sizes="180x180">
     <link rel="manifest" href="https://cdn.ons.gov.uk/sdc/design-system/70.0.4/favicons/manifest.json">
+    <script src="scripts/config.js"></script>
+    <script>
+      if (window.maintenanceMode) {
+        window.location.href = "maintenance_page.html";
+      }
+    </script>
   </head>
 
   <body>
@@ -171,7 +177,7 @@
           <div class="ons-grid">
             <div class="ons-grid__col ons-col-12@m ">
               <main id="main-content" class="ons-page__main ">
-		 <div>
+     <div>
 
         <form id="form">
 
