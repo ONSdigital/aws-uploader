@@ -1,3 +1,75 @@
+##### JAMES' STUFF
+resource "aws_cloudfront_origin_access_control" "s3_oac" {
+  name                              = "s3-oac-${module.ons_upload_bucket.bucket_id}"
+  description                       = "OAC for S3 bucket ${module.ons_upload_bucket.bucket_id}"
+  origin_access_control_origin_type = "s3"
+  signing_behavior                  = "always"
+  signing_protocol                  = "sigv4"
+}
+
+resource "aws_cloudfront_distribution" "s3_distribution" {
+  origin {
+    domain_name              = module.ons_upload_bucket.bucket_regional_domain_name
+    origin_access_control_id = aws_cloudfront_origin_access_control.s3_oac.id
+    origin_id                = "S3-${module.ons_upload_bucket.bucket_id}"
+  }
+
+  enabled             = true
+  is_ipv6_enabled     = true
+  comment             = "CloudFront distribution for static website"
+  default_root_object = "index.html"
+
+  default_cache_behavior {
+    allowed_methods  = ["GET", "HEAD"]
+    cached_methods   = ["GET", "HEAD"]
+    target_origin_id = "S3-${module.ons_upload_bucket.bucket_id}"
+
+    forwarded_values {
+      query_string = false
+      cookies {
+        forward = "none"
+      }
+    }
+
+    viewer_protocol_policy = "redirect-to-https"
+    min_ttl                = 0
+    default_ttl            = 3600
+    max_ttl                = 86400
+  }
+
+  custom_error_response {
+    error_code         = 503
+    response_code      = 503
+    response_page_path = "/council-tax/maintenance_page.html"
+  }
+
+  price_class = "PriceClass_100"
+
+  restrictions {
+    geo_restriction {
+      restriction_type = "none"
+    }
+  }
+
+  viewer_certificate {
+    cloudfront_default_certificate = true
+  }
+
+  tags = {
+    Name        = "Static Website Distribution"
+    Environment = "production"
+  }
+}
+
+output "cloudfront_distribution_domain_name" {
+  value = aws_cloudfront_distribution.s3_distribution.domain_name
+}
+
+output "cloudfront_distribution_id" {
+  value = aws_cloudfront_distribution.s3_distribution.id
+}
+
+#### ANDREI'S STUFF
 resource "aws_cloudfront_origin_access_identity" "oai" {
   comment = "OAI for website"
 }
