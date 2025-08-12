@@ -2,7 +2,13 @@ locals {
   councils-csv = csvdecode(file("./councils.csv"))
 }
 
-
+resource "aws_s3_object" "maintenance_page" {
+  bucket       = module.ons_upload_bucket.bucket_id
+  key          = "council-tax/maintenance_page.html"
+  source       = "${path.module}/scripts/maintenance_page.html"
+  source_hash  = filemd5("${path.module}/scripts/maintenance_page.html")
+  content_type = "text/html"
+}
 #tfsec:ignore:aws-s3-enable-bucket-logging
 #tfsec:ignore:aws-s3-enable-versioning
 module "ons_upload_bucket" {
