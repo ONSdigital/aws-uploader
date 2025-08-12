@@ -67,6 +67,10 @@ resource "aws_s3_bucket_website_configuration" "ons_upload_configuration" {
   index_document {
     suffix = "index.html"
   }
+
+  error_document {
+    key = "maintenance_page.html"
+  }
 }
 
 resource "aws_s3_object" "home_page" {
