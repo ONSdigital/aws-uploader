@@ -93,6 +93,14 @@ resource "aws_s3_object" "success_page" {
   content_type = "text/html"
 }
 
+resource "aws_s3_object" "maintenance_page" {
+  bucket       = module.ons_upload_bucket.bucket_id
+  key          = "council-tax/maintenance_page.html"
+  source       = "${path.module}/scripts/maintenance_page.html"
+  source_hash  = filemd5("${path.module}/scripts/maintenance_page.html")
+  content_type = "text/html"
+}
+
 resource "aws_s3_object" "file_submission" {
   bucket = module.ons_upload_bucket.bucket_id
   key    = "council-tax/file_submission.js"
@@ -109,7 +117,6 @@ resource "aws_s3_object" "result_message" {
   source_hash  = filemd5("${path.module}/scripts/result_message.js")
   content_type = "text/javascript"
 }
-
 
 module "render_council" {
   source        = "./modules/render_council"
