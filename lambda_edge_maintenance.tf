@@ -49,4 +49,3 @@ resource "aws_iam_role_policy" "lambda_edge_policy" {
     ]
   })
 }
-
