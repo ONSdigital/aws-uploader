@@ -1,19 +1,19 @@
 function handler(event) {
     var request = event.request;
-    var uri = request.uri;
+    var url = request.url; // Use `url` instead of `uri`
 
-    // Split URI into path and query string
-    var parts = uri.split('?');
-    var path = parts[0];
-    var queryString = parts[1];
+    // Parse the URL into components
+    var urlParts = url.split('?');
+    var baseUrl = urlParts[0];
+    var queryString = urlParts[1];
 
     // Encode each path segment while preserving forward slashes
-    var encodedPath = path.split('/').map(function(segment) {
+    var encodedBaseUrl = baseUrl.split('/').map(function(segment) {
         return encodeURIComponent(segment);
     }).join('/');
 
-    // Reconstruct URI
-    request.uri = queryString ? encodedPath + '?' + queryString : encodedPath;
+    // Reconstruct the full URL
+    request.url = queryString ? encodedBaseUrl + '?' + queryString : encodedBaseUrl;
 
     return request;
 }
