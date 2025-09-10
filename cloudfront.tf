@@ -49,10 +49,8 @@ resource "aws_cloudfront_distribution" "uploader" {
     cache_policy_id            = "658327ea-f89d-4fab-a63d-7e88639e58f6"
     viewer_protocol_policy     = "redirect-to-https"
     function_association {
-
       event_type   = "viewer-request"
-      function_arn = aws_cloudfront_function.rewrite_default_index_request.arn
-
+      function_arn = aws_cloudfront_function.encode_url.arn
     }
   }
   price_class = "PriceClass_100"
@@ -146,4 +144,12 @@ resource "aws_cloudfront_function" "rewrite_default_index_request" {
   comment = "function for using a second index page"
   publish = true
   code    = file("${path.module}/scripts/second_index.js")
+}
+
+resource "aws_cloudfront_function" "encode_url" {
+  name    = "EncodeURLFunction"
+  runtime = "cloudfront-js-2.0"
+  comment = "Function to encode HTML URLs"
+  publish = true
+  code    = file("${path.module}/scripts/encode_url.js")
 }
