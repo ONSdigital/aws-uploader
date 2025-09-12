@@ -170,7 +170,16 @@ async function onSubmit(event) {
     //}
     const loadingSpinner = document.querySelector('.hods-loading-spinner__content');
     loadingSpinner.style.display = 'block';
-    const urlWithParameters = url + `?fileOneName=$${fileOne.name}&fileOneType=$${fileOne.type}&fileTwoName=$${fileTwo.name}&fileTwoType=$${fileTwo.type}&fileOneSize=$${fileOne.size}&fileTwoSize=$${fileTwo.size}&councilName=$${Council_name}`;
+    // const urlWithParameters = url + `?fileOneName=$${fileOne.name}&fileOneType=$${fileOne.type}&fileTwoName=$${fileTwo.name}&fileTwoType=$${fileTwo.type}&fileOneSize=$${fileOne.size}&fileTwoSize=$${fileTwo.size}&councilName=$${Council_name}`;
+
+    const urlWithParameters = url +
+    `?fileOneName=${encodeURIComponent(fileOne.name)}` +
+    `&fileOneType=${encodeURIComponent(fileOne.type)}` +
+    `&fileTwoName=${encodeURIComponent(fileTwo.name)}` +
+    `&fileTwoType=${encodeURIComponent(fileTwo.type)}` +
+    `&fileOneSize=${encodeURIComponent(fileOne.size)}` +
+    `&fileTwoSize=${encodeURIComponent(fileTwo.size)}` +
+    `&councilName=${encodeURIComponent(Council_name)}`;
 
     fetch(urlWithParameters, options) // Pings API Gateway which triggers lambda. File verification is carried out by lambda - the message in the response depends on if and why the files fail the checks
         .then(response => response.json())
