@@ -8,8 +8,10 @@ function handler(event) {
     var queryString = parts[1];
 
     // Encode each path segment while preserving forward slashes
+    // This handles special characters from HTML pages like spaces, apostrophes, etc.
     var encodedPath = path.split('/').map(function(segment) {
-        return encodeURIComponent(segment);
+        // Only encode if segment is not empty (to avoid encoding root path)
+        return segment ? encodeURIComponent(decodeURIComponent(segment)) : segment;
     }).join('/');
 
     // Reconstruct URI
