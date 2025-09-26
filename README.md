@@ -151,9 +151,8 @@ The deployed production solution is monitored by [uptrends.com](https://uptrends
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.8.0 |
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.8.0 |
 | <a name="requirement_archive"></a> [archive](#requirement\_archive) | >= 2.7.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.94.1 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.94.1, <= 6.0.0 |
 | <a name="requirement_null"></a> [null](#requirement\_null) | >= 3.2.0 |
 
 ## Providers
@@ -256,5 +255,3 @@ The deployed production solution is monitored by [uptrends.com](https://uptrends
 |------|-------------|
 | <a name="output_website_domain"></a> [website\_domain](#output\_website\_domain) | domain name for the cloudfront website |
 <!-- END_TF_DOCS -->
-
-

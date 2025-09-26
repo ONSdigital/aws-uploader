@@ -18,7 +18,7 @@ locals {
     lad_code     = var.lad_code
   })
   #URL encode special characters in council name for filename
-  clean-council-name2 = replace(replace(replace(replace(replace(var.council_name, "&", "%26"), " ", "-"), "(", "%28"), ")", "%29"), "/", "%2F")
+  clean-council-name2 = urlencode(var.council_name)
   council-filename    = "${var.lad_code}-${local.clean-council-name2}.html"
 }
 
