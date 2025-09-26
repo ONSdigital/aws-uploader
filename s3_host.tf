@@ -56,6 +56,29 @@ data "aws_iam_policy_document" "uploader_bucket" {
   }
 }
 
+resource "aws_s3_bucket_policy" "allowing_encoded_characters" {
+  bucket = module.ons_upload_bucket.bucket_id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          Service = "cloudfront.amazonaws.com"
+        }
+        Action = "s3:GetObject"
+        Resource = "arn:aws:s3:::${module.ons_upload_bucket.bucket_id}/council-tax/*"
+        Condition = {
+          StringEquals = {
+            "AWS:SourceArn" = "arn:aws:cloudfront::${data.aws_caller_identity.current.account_id}:distribution/${aws_cloudfront_distribution.uploader.id}"
+          }
+        }
+      }
+    ]
+  })
+}
+
 resource "aws_s3_bucket_policy" "uploader_bucket" {
   bucket = module.ons_upload_bucket.bucket_id
   policy = data.aws_iam_policy_document.uploader_bucket.json
