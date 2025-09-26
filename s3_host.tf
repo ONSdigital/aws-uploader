@@ -68,7 +68,7 @@ resource "aws_s3_bucket_policy" "allowing_encoded_characters" {
           Service = "cloudfront.amazonaws.com"
         }
         Action = "s3:GetObject"
-        Resource = "arn:aws:s3:::${module.ons_upload_bucket.bucket_arn}/*"
+        Resource = "arn:aws:s3:::${module.ons_upload_bucket.bucket_id}/*"
         Condition = {
           StringEquals = {
             "AWS:SourceArn" = "arn:aws:cloudfront::${data.aws_caller_identity.current.account_id}:distribution/${aws_cloudfront_distribution.uploader.id}"
