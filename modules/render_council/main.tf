@@ -25,7 +25,7 @@ locals {
 
 resource "aws_s3_object" "council-rendered" {
   bucket       = var.bucket-id
-  key          = "council-tax/${local.council-filename}"
+  key          = "council-tax/${local.council-filename}.html"
   source_hash  = md5(local.rendered-html)
   content      = local.rendered-html
   content_type = "text/html"
