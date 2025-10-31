@@ -2,6 +2,14 @@ async function handler(event) {
     var request = event.request;
     var uri = request.uri;
     
+    // Decode percent-encoded URLs
+    try {
+        uri = decodeURIComponent(uri);
+        request.uri = uri;
+    } catch (e) {
+        // If decoding fails, continue with original URI
+    }
+    
     // Check whether the URI is missing a file name.
     if (uri.endsWith('/')) {
         request.uri += 'index.html';
