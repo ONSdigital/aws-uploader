@@ -1,5 +1,6 @@
-const url = "${api_url}pre-signed-url"; // API Gateway URL. Once API Gateway is called, the lambda is triggered which
-// carries out file validation and returns pre-signed URLs if files pass checks
+const url = "${api_url}multipart-url"; // API Gateway URL for multipart uploads
+const completeUrl = "${api_url}complete-multipart"; // API Gateway URL for completing multipart uploads
+const abortUrl = "${api_url}abort-multipart"; // API Gateway URL for aborting multipart uploads
 
 const options = {
     method: 'GET',
@@ -226,9 +227,21 @@ async function onSubmit(event) {
                 ])
                 .then(results => {
                     console.log("Upload results:", results);
+                    // Complete multipart uploads
                     return Promise.all(results.map(result => {
                         if (result.success) {
-                            console.log('Successfully uploaded file with key:', result.key);
+                            console.log('Completing multipart upload for key:', result.key);
+                            return fetch(completeUrl, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    uploadId: result.uploadId,
+                                    key: result.key,
+                                    parts: result.parts
+                                })
+                            }).then(response => response.json());
                         }
                     }));
                 })
@@ -239,6 +252,30 @@ async function onSubmit(event) {
                 .catch(error => {
                     loadingSpinner.style.display = "none";
                     console.error('Error uploading files:', error);
+                    
+                    // Attempt to abort any incomplete uploads
+                    if (data.fileOne && data.fileOne.uploadId) {
+                        fetch(abortUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                uploadId: data.fileOne.uploadId,
+                                key: data.fileOne.key
+                            })
+                        }).catch(abortError => console.error('Error aborting file one upload:', abortError));
+                    }
+                    
+                    if (data.fileTwo && data.fileTwo.uploadId) {
+                        fetch(abortUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                uploadId: data.fileTwo.uploadId,
+                                key: data.fileTwo.key
+                            })
+                        }).catch(abortError => console.error('Error aborting file two upload:', abortError));
+                    }
+                    
                     bothFilesErrorStyle();
                     addItem("There has been an issue with the upload, please contact ingest.service@ons.gov.uk", "fileOne");
                     commonErrorStyle(2);

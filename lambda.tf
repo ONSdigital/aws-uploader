@@ -28,6 +28,24 @@ data "archive_file" "PreSignedURL" {
   output_path = "${path.module}/PreSignedURL.zip"
 }
 
+data "archive_file" "multiparturl" {
+  type        = "zip"
+  source_file = "${path.module}/src/multiparturl.mjs"
+  output_path = "${path.module}/multiparturl.zip"
+}
+
+data "archive_file" "completeMultipartUpload" {
+  type        = "zip"
+  source_file = "${path.module}/src/completeMultipartUpload.mjs"
+  output_path = "${path.module}/completeMultipartUpload.zip"
+}
+
+data "archive_file" "abortMultipartUpload" {
+  type        = "zip"
+  source_file = "${path.module}/src/abortMultipartUpload.mjs"
+  output_path = "${path.module}/abortMultipartUpload.zip"
+}
+
 
 resource "aws_lambda_function" "PreSignedURL" {
   #checkov:skip=CKV_AWS_173: we are using AWS encryption keys
@@ -60,7 +78,7 @@ data "aws_iam_policy_document" "get_s3_object" {
   statement {
     effect    = "Allow"
     actions   = ["s3:GetObject", "s3:PutObject"]
-    resources = ["${module.ons_upload_ingest_bucket.bucket_arn}/*"] #tfsec:ignore:aws-iam-no-policy-wildcards 
+    resources = ["${module.ons_upload_ingest_bucket.bucket_arn}/*"] #tfsec:ignore:aws-iam-no-policy-wildcards
   }
 }
 
@@ -88,3 +106,33 @@ resource "aws_lambda_permission" "presignedurl_permission" {
 
   source_arn = "${aws_apigatewayv2_api.api.execution_arn}/*/*"
 }
+<<<<<<< HEAD
+=======
+
+resource "aws_lambda_permission" "multiparturl_permission" {
+  statement_id  = "AllowMultipartAPIInvoke"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.multiparturl.function_name
+  principal     = "apigateway.amazonaws.com"
+
+  source_arn = "${aws_apigatewayv2_api.api.execution_arn}/*/*"
+}
+
+resource "aws_lambda_permission" "complete_multipart_permission" {
+  statement_id  = "AllowCompleteMultipartAPIInvoke"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.completeMultipartUpload.function_name
+  principal     = "apigateway.amazonaws.com"
+
+  source_arn = "${aws_apigatewayv2_api.api.execution_arn}/*/*"
+}
+
+resource "aws_lambda_permission" "abort_multipart_permission" {
+  statement_id  = "AllowAbortMultipartAPIInvoke"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.abortMultipartUpload.function_name
+  principal     = "apigateway.amazonaws.com"
+
+  source_arn = "${aws_apigatewayv2_api.api.execution_arn}/*/*"
+}
+>>>>>>> c46efbb (trying to finish off the multi-part uploader)
