@@ -106,8 +106,6 @@ resource "aws_lambda_permission" "presignedurl_permission" {
 
   source_arn = "${aws_apigatewayv2_api.api.execution_arn}/*/*"
 }
-<<<<<<< HEAD
-=======
 
 resource "aws_lambda_permission" "multiparturl_permission" {
   statement_id  = "AllowMultipartAPIInvoke"
@@ -135,4 +133,3 @@ resource "aws_lambda_permission" "abort_multipart_permission" {
 
   source_arn = "${aws_apigatewayv2_api.api.execution_arn}/*/*"
 }
->>>>>>> c46efbb (trying to finish off the multi-part uploader)
