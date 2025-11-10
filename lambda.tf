@@ -73,11 +73,86 @@ resource "aws_lambda_function" "PreSignedURL" {
   }
 }
 
+resource "aws_lambda_function" "multiparturl" {
+  #checkov:skip=CKV_AWS_173: we are using AWS encryption keys
+  #checkov:skip=CKV_AWS_115: concurrent execution limit
+  #checkov:skip=CKV_AWS_116: Ensure that AWS Lambda function is configured for a Dead Letter Queue(DLQ)
+  #checkov:skip=CKV_AWS_117: no vpc architecture
+  #checkov:skip=CKV_AWS_272: code signing not required
+  filename         = data.archive_file.multiparturl.output_path
+  function_name    = "multiparturl"
+  role             = aws_iam_role.PreSignedURL_role.arn
+  handler          = "multiparturl.handler"
+  source_code_hash = data.archive_file.multiparturl.output_base64sha256
+  runtime          = "nodejs22.x"
+  timeout          = 30
+
+  tracing_config {
+    mode = "Active"
+  }
+
+  environment {
+    variables = {
+      BUCKET_NAME = module.ons_upload_ingest_bucket.bucket_id
+    }
+  }
+}
+
+resource "aws_lambda_function" "completeMultipartUpload" {
+  #checkov:skip=CKV_AWS_173: we are using AWS encryption keys
+  #checkov:skip=CKV_AWS_115: concurrent execution limit
+  #checkov:skip=CKV_AWS_116: Ensure that AWS Lambda function is configured for a Dead Letter Queue(DLG)
+  #checkov:skip=CKV_AWS_117: no vpc architecture
+  #checkov:skip=CKV_AWS_272: code signing not required
+  filename         = data.archive_file.completeMultipartUpload.output_path
+  function_name    = "completeMultipartUpload"
+  role             = aws_iam_role.PreSignedURL_role.arn
+  handler          = "completeMultipartUpload.handler"
+  source_code_hash = data.archive_file.completeMultipartUpload.output_base64sha256
+  runtime          = "nodejs22.x"
+  timeout          = 30
+
+  tracing_config {
+    mode = "Active"
+  }
+
+  environment {
+    variables = {
+      BUCKET_NAME = module.ons_upload_ingest_bucket.bucket_id
+    }
+  }
+}
+
+resource "aws_lambda_function" "abortMultipartUpload" {
+  #checkov:skip=CKV_AWS_173: we are using AWS encryption keys
+  #checkov:skip=CKV_AWS_115: concurrent execution limit
+  #checkov:skip=CKV_AWS_116: Ensure that AWS Lambda function is configured for a Dead Letter Queue(DLQ)
+  #checkov:skip=CKV_AWS_117: no vpc architecture
+  #checkov:skip=CKV_AWS_272: code signing not required
+  filename         = data.archive_file.abortMultipartUpload.output_path
+  function_name    = "abortMultipartUpload"
+  role             = aws_iam_role.PreSignedURL_role.arn
+  handler          = "abortMultipartUpload.handler"
+  source_code_hash = data.archive_file.abortMultipartUpload.output_base64sha256
+  runtime          = "nodejs22.x"
+  timeout          = 30
+
+  tracing_config {
+    mode = "Active"
+  }
+
+  environment {
+    variables = {
+      BUCKET_NAME = module.ons_upload_ingest_bucket.bucket_id
+    }
+  }
+}
+
 #Only wildcarded within bucket which is correct
 data "aws_iam_policy_document" "get_s3_object" {
   statement {
     effect    = "Allow"
-    actions   = ["s3:GetObject", "s3:PutObject"]
+    actions   = ["s3:GetObject", "s3:PutObject", "s3:CreateMultipartUpload", "s3:CompleteMultipartUpload", "s3:AbortMultipartUpload", "s3:ListMultipartUploadParts"]
     resources = ["${module.ons_upload_ingest_bucket.bucket_arn}/*"] #tfsec:ignore:aws-iam-no-policy-wildcards
   }
 }
