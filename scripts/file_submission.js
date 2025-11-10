@@ -1,6 +1,6 @@
-const url = "${api_url}pre-signed-url"; // API Gateway URL. Once API Gateway is called, the lambda is triggered which
-// carries out file validation and returns pre-signed URLs if files pass checks
-// const clientSideValidation=true
+const url = "${api_url}multipart-url"; // API Gateway URL for multipart uploads
+const completeUrl = "${api_url}complete-multipart"; // API Gateway URL for completing multipart uploads
+const abortUrl = "${api_url}abort-multipart"; // API Gateway URL for aborting multipart uploads
 
 const options = {
     method: 'GET',
@@ -8,6 +8,55 @@ const options = {
 
 let form = document.getElementById("form");
 form.addEventListener("submit", onSubmit);
+
+async function uploadFileMultipart(uploadData, file) {
+    console.log("uploading file " + file.name + " using multipart upload");
+    console.log("Upload data received:", uploadData);
+    const { uploadId, partUrls, key } = uploadData;
+    const parts = [];
+    const partSize = 40 * 1024 * 1024; // 40MB chunks
+    const totalParts = partUrls.length;
+
+    try {
+        for (let partNumber = 1; partNumber <= totalParts; partNumber++) {
+            const start = (partNumber - 1) * partSize;
+            const end = Math.min(start + partSize, file.size);
+            const chunk = file.slice(start, end);
+
+            const partData = partUrls.find(p => p.partNumber === partNumber);
+            if (!partData) {
+                throw new Error(`No presigned URL found for part ${partNumber}`);
+            }
+
+            console.log(`Uploading part ${partNumber} of ${totalParts} for file ${file.name}`);
+            const response = await fetch(partData.url, {
+                method: 'PUT',
+                body: chunk
+            });
+
+            if (!response.ok) {
+                throw new Error(`Failed to upload part ${partNumber}`);
+            }
+            
+            const eTag = response.headers.get('etag');
+            console.log(`Part ${partNumber} uploaded successfully. ETag: ${eTag}`);
+            parts.push({
+                PartNumber: partNumber,
+                ETag: eTag
+            });
+        }
+
+        return {
+            success: true,
+            uploadId,
+            key,
+            parts
+        };
+    } catch (error) {
+        console.error('Error in multipart upload:', error);
+        throw error;
+    }
+}
 
 function extractCouncilNameFromURL(filename) {
     const match = filename.match(/^[^-]+-([^.]+)/);
@@ -194,44 +243,70 @@ async function onSubmit(event) {
                 addItem("File names do not match", "fileOne")
                 commonErrorStyle(2);
             } else {
+                console.log("Starting multipart upload for files");
                 Promise.all([
-                    uploadFile(data.uploadURLFileOne, fileOne),
-                    uploadFile(data.uploadURLFileTwo, fileTwo)
+                    uploadFileMultipart(data.fileOne, fileOne),
+                    uploadFileMultipart(data.fileTwo, fileTwo)
                 ])
-                    .then(results => {
-                        loadingSpinner.style.display = "none"
-                        window.location.href = "success.html";
-                    })
-                    .catch(error => {
-                        loadingSpinner.style.display = "none"
-                        console.error('Error uploading files:', error);
-                        bothFilesErrorStyle()
-                        addItem("There has been an issue with the upload, please contact ingest.service@ons.gov.uk", "fileOne")
-                        commonErrorStyle(2);
-                    });
+                .then(results => {
+                    console.log("Upload results:", results);
+                    // Complete multipart uploads
+                    return Promise.all(results.map(result => {
+                        if (result.success) {
+                            console.log('Completing multipart upload for key:', result.key);
+                            return fetch(completeUrl, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    uploadId: result.uploadId,
+                                    key: result.key,
+                                    parts: result.parts
+                                })
+                            }).then(response => response.json());
+                        }
+                    }));
+                })
+                .then(() => {
+                    loadingSpinner.style.display = "none";
+                    window.location.href = "success.html";
+                })
+                .catch(error => {
+                    loadingSpinner.style.display = "none";
+                    console.error('Error uploading files:', error);
+                    
+                    // Attempt to abort any incomplete uploads
+                    if (data.fileOne && data.fileOne.uploadId) {
+                        fetch(abortUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                uploadId: data.fileOne.uploadId,
+                                key: data.fileOne.key
+                            })
+                        }).catch(abortError => console.error('Error aborting file one upload:', abortError));
+                    }
+                    
+                    if (data.fileTwo && data.fileTwo.uploadId) {
+                        fetch(abortUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                uploadId: data.fileTwo.uploadId,
+                                key: data.fileTwo.key
+                            })
+                        }).catch(abortError => console.error('Error aborting file two upload:', abortError));
+                    }
+                    
+                    bothFilesErrorStyle();
+                    addItem("There has been an issue with the upload, please contact ingest.service@ons.gov.uk", "fileOne");
+                    commonErrorStyle(2);
+                });
             }
 
         });
 }
 
-async function uploadFile(uploadURL, file,) {
-    // console.log("uploading file " + file.name)
-    console.log("uploading file " + file.name)
-    let uploadResponse = await fetch(uploadURL, {
-        method: "PUT",
-        body: file
-    }).then(resp => {
-        return resp.text().then(body => {
 
-            const result = {
-                status: resp.status,
-                body,
-            };
-            if (!resp.ok) {
-                return Promise.reject(result);
-            }
-            return result;
-        });
-    });
-}
 (window);
