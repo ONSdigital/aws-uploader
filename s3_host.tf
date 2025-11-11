@@ -56,6 +56,16 @@ data "aws_iam_policy_document" "uploader_bucket" {
   }
 }
 
+
+locals {
+  file_submission_js = templatefile("${path.module}/scripts/file_submission.js", {
+    api_url = aws_apigatewayv2_stage.api.invoke_url
+  })
+
+  multi_file_submission_js = templatefile("${path.module}/scripts/multi_file_submission.js", {
+    api_url = aws_apigatewayv2_stage.api.invoke_url
+  })
+}
 resource "aws_s3_bucket_policy" "uploader_bucket" {
   bucket = module.ons_upload_bucket.bucket_id
   policy = data.aws_iam_policy_document.uploader_bucket.json
