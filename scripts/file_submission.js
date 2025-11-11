@@ -195,8 +195,8 @@ async function onSubmit(event) {
                 commonErrorStyle(2);
             } else {
                 Promise.all([
-                    uploadFile(data.uploadURLFileOne, fileOne),
-                    uploadFile(data.uploadURLFileTwo, fileTwo)
+                    uploadFile(data.fileOneUpload, fileOne),
+                    uploadFile(data.fileTwoUpload, fileTwo)
                 ])
                     .then(results => {
                         loadingSpinner.style.display = "none"
@@ -214,24 +214,67 @@ async function onSubmit(event) {
         });
 }
 
-async function uploadFile(uploadURL, file,) {
-    // console.log("uploading file " + file.name)
+async function uploadFile(uploadData, file) {
     console.log("uploading file " + file.name)
-    let uploadResponse = await fetch(uploadURL, {
-        method: "PUT",
-        body: file
-    }).then(resp => {
-        return resp.text().then(body => {
-
-            const result = {
-                status: resp.status,
-                body,
-            };
-            if (!resp.ok) {
-                return Promise.reject(result);
-            }
-            return result;
+    
+    if (uploadData.multipart) {
+        return await uploadMultipartFile(uploadData, file);
+    } else {
+        return await fetch(uploadData.uploadURL, {
+            method: "PUT",
+            body: file
+        }).then(resp => {
+            return resp.text().then(body => {
+                const result = {
+                    status: resp.status,
+                    body,
+                };
+                if (!resp.ok) {
+                    return Promise.reject(result);
+                }
+                return result;
+            });
         });
+    }
+}
+
+async function uploadMultipartFile(uploadData, file) {
+    const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB chunks
+    const parts = [];
+    
+    for (let i = 0; i < uploadData.parts.length; i++) {
+        const start = i * CHUNK_SIZE;
+        const end = Math.min(start + CHUNK_SIZE, file.size);
+        const chunk = file.slice(start, end);
+        
+        const response = await fetch(uploadData.parts[i].uploadURL, {
+            method: "PUT",
+            body: chunk
+        });
+        
+        if (!response.ok) {
+            throw new Error(`Failed to upload part ${i + 1}`);
+        }
+        
+        parts.push({
+            ETag: response.headers.get('ETag'),
+            PartNumber: uploadData.parts[i].PartNumber
+        });
+    }
+    
+    // Complete multipart upload
+    const completeResponse = await fetch(uploadData.completeURL, {
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ parts })
     });
+    
+    if (!completeResponse.ok) {
+        throw new Error('Failed to complete multipart upload');
+    }
+    
+    return { status: completeResponse.status };
 }
 (window);
