@@ -253,7 +253,7 @@ async function uploadMultipartFile(uploadData, file) {
         });
         
         if (!response.ok) {
-            throw new Error(`Failed to upload part ${i + 1}`);
+            throw new Error(`Failed to upload part $${i + 1}`);
         }
         
         parts.push({
