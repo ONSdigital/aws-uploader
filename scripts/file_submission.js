@@ -43,12 +43,47 @@ async function onSubmit(event) {
 
 
     function bothFilesErrorStyle() {
-        let extractFileError = document.getElementById('extract-file-error');
-        let maniFileError = document.getElementById('mani-file-error');
-        extractFileError.classList.add("ons-panel--error", "ons-panel--no-title");
-        maniFileError.style.display = 'block';
-        maniFileError.classList.add("ons-panel--error", "ons-panel--no-title");
+        let extractFile// API Configuration
+const url = '${api_url}/pre-signed-url';
+const options = {
+    method: 'GET',
+    headers: {
+        'Content-Type': 'application/json'
     }
+};
+
+// Helper functions
+function extractCouncilNameFromURL(urlPart) {
+    const parts = urlPart.split('-');
+    parts.shift(); // Remove LAD code
+    return parts.join('-').replace('.html', '');
+}
+
+function commonErrorStyle(errorCount) {
+    const errorsList = document.getElementById('errors-list');
+    const errorsTitle = document.getElementById('errors-list-title');
+    const errorsParagraph = document.getElementById('errors-list-paragraph');
+    const errorsText = document.getElementById('errors-list-text');
+    
+    errorsList.style.display = 'block';
+    errorsParagraph.style.display = 'block';
+    
+    if (errorCount === 1) {
+        errorsTitle.innerHTML = '<h2 class="ons-panel__title ons-u-fs-r--b">There is 1 problem with your answer</h2>';
+        errorsText.textContent = 'There is 1 problem with your answer';
+    } else {
+        errorsTitle.innerHTML = `<h2 class="ons-panel__title ons-u-fs-r--b">There are ${errorCount} problems with your answer</h2>`;
+        errorsText.textContent = `There are ${errorCount} problems with your answer`;
+    }
+}
+
+function bothFilesErrorStyle() {
+    let extractFileError = document.getElementById('extract-file-error');
+    let maniFileError = document.getElementById('mani-file-error');
+    extractFileError.classList.add("ons-panel--error", "ons-panel--no-title");
+    maniFileError.style.display = 'block';
+    maniFileError.classList.add("ons-panel--error", "ons-panel--no-title");
+}
 
     function fileOneErrorStyle() {
         let extractFileCSVError = document.getElementById('extract-file-csv-error')
@@ -83,6 +118,11 @@ async function onSubmit(event) {
     }
 
 
+// Form submission handler
+document.getElementById('form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const form = this;
+    
     clearErrors()
 
     // if (clientSideValidation) {
@@ -249,15 +289,23 @@ async function uploadMultipartFile(uploadData, file) {
         
         const response = await fetch(uploadData.parts[i].uploadURL, {
             method: "PUT",
-            body: chunk
+            body: chunk,
+            headers: {
+                'Content-Type': 'application/octet-stream'
+            }
         });
         
         if (!response.ok) {
-            throw new Error(`Failed to upload part $${i + 1}`);
+            throw new Error(`Failed to upload part ${i + 1}`);
+        }
+        
+        const etag = response.headers.get('ETag');
+        if (!etag) {
+            throw new Error(`No ETag received for part ${i + 1}`);
         }
         
         parts.push({
-            ETag: response.headers.get('ETag'),
+            ETag: etag,
             PartNumber: uploadData.parts[i].PartNumber
         });
     }
@@ -266,15 +314,18 @@ async function uploadMultipartFile(uploadData, file) {
     const completeResponse = await fetch(uploadData.completeURL, {
         method: "POST",
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
         },
         body: JSON.stringify({ parts })
     });
     
     if (!completeResponse.ok) {
-        throw new Error('Failed to complete multipart upload');
+        const errorText = await completeResponse.text();
+        throw new Error(`Failed to complete multipart upload: ${errorText}`);
     }
     
     return { status: completeResponse.status };
 }
-(window);
+
+}); // End form event listener
