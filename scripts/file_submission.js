@@ -87,11 +87,97 @@ function bothFilesErrorStyle() {
 
     function fileOneErrorStyle() {
         let extractFileCSVError = document.getElementById('extract-file-csv-error')
-        let extractFileError = document.getElementById('extract-file-error');
-        let extractManiFileError = document.getElementById('errors-list')
-        extractFileError.classList.add("ons-panel--error", "ons-panel--no-title");
-        extractFileCSVError.style.display = 'block';
+        let extractFileError = document.getElementById// API Configuration
+const url = '${api_url}/pre-signed-url';
+const options = {
+    method: 'GET',
+    headers: {
+        'Content-Type': 'application/json'
     }
+};
+
+// Helper functions
+function extractCouncilNameFromURL(urlPart) {
+    const parts = urlPart.split('-');
+    parts.shift(); // Remove LAD code
+    return parts.join('-').replace('.html', '');
+}
+
+function commonErrorStyle(errorCount) {
+    const errorsList = document.getElementById('errors-list');
+    const errorsTitle = document.getElementById('errors-list-title');
+    const errorsParagraph = document.getElementById('errors-list-paragraph');
+    const errorsText = document.getElementById('errors-list-text');
+    
+    errorsList.style.display = 'block';
+    errorsParagraph.style.display = 'block';
+    
+    if (errorCount === 1) {
+        errorsTitle.innerHTML = '<h2 class="ons-panel__title ons-u-fs-r--b">There is 1 problem with your answer</h2>';
+        errorsText.textContent = 'There is 1 problem with your answer';
+    } else {
+        errorsTitle.innerHTML = `<h2 class="ons-panel__title ons-u-fs-r--b">There are ${errorCount} problems with your answer</h2>`;
+        errorsText.textContent = `There are ${errorCount} problems with your answer`;
+    }
+}
+
+function bothFilesErrorStyle() {
+    let extractFileError = document.getElementById('extract-file-error');
+    let maniFileError = document.getElementById('mani-file-error');
+    extractFileError.classList.add("ons-panel--error", "ons-panel--no-title");
+    maniFileError.style.display = 'block';
+    maniFileError.classList.add("ons-panel--error", "ons-panel--no-title");
+}
+
+function fileOneErrorStyle() {
+    let extractFileCSVError = document.getEl// API Configuration
+const url = '${api_url}/pre-signed-url';
+const options = {
+    method: 'GET',
+    headers: {
+        'Content-Type': 'application/json'
+    }
+};
+
+// Helper functions
+function extractCouncilNameFromURL(urlPart) {
+    const parts = urlPart.split('-');
+    parts.shift(); // Remove LAD code
+    return parts.join('-').replace('.html', '');
+}
+
+function commonErrorStyle(errorCount) {
+    const errorsList = document.getElementById('errors-list');
+    const errorsTitle = document.getElementById('errors-list-title');
+    const errorsParagraph = document.getElementById('errors-list-paragraph');
+    const errorsText = document.getElementById('errors-list-text');
+    
+    errorsList.style.display = 'block';
+    errorsParagraph.style.display = 'block';
+    
+    if (errorCount === 1) {
+        errorsTitle.innerHTML = '<h2 class="ons-panel__title ons-u-fs-r--b">There is 1 problem with your answer</h2>';
+        errorsText.textContent = 'There is 1 problem with your answer';
+    } else {
+        errorsTitle.innerHTML = `<h2 class="ons-panel__title ons-u-fs-r--b">There are ${errorCount} problems with your answer</h2>`;
+        errorsText.textContent = `There are ${errorCount} problems with your answer`;
+    }
+}
+
+function bothFilesErrorStyle() {
+    let extractFileError = document.getElementById('extract-file-error');
+    let maniFileError = document.getElementById('mani-file-error');
+    extractFileError.classList.add("ons-panel--error", "ons-panel--no-title");
+    maniFileError.style.display = 'block';
+    maniFileError.classList.add("ons-panel--error", "ons-panel--no-title");
+}
+
+function fileOneErrorStyle() {
+    let extractFileCSVError = document.getElementById('extract-file-csv-error');
+    let extractFileError = document.getElementById('extract-file-error');
+    extractFileError.classList.add("ons-panel--error", "ons-panel--no-title");
+    extractFileCSVError.style.display = 'block';
+}
 
     function fileTwoErrorStyle() {
         let maniFileCSVError = document.getElementById('mani-file-csv-error')
