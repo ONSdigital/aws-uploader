@@ -1,5 +1,5 @@
 // API Configuration
-const url = '${api_url}/pre-signed-url';
+const url = '${api_url}pre-signed-url';
 const options = {
     method: 'GET',
     headers: {
