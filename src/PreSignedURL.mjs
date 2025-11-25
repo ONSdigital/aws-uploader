@@ -236,6 +236,6 @@ const createMultipartUpload = async (key, fileSize) => {
     multipart: true,
     uploadId,
     parts,
-    completeURL: `${process.env.API_GATEWAY_URL}/complete-multipart?bucket=${process.env.BUCKET_NAME}&key=${encodeURIComponent(key)}&uploadId=${uploadId}`
+    completeURL: `${process.env.API_GATEWAY_URL}complete-multipart?bucket=${process.env.BUCKET_NAME}&key=${encodeURIComponent(key)}&uploadId=${uploadId}`
   };
 }
