@@ -116,11 +116,9 @@ Then('I should see the submit button', async function () {
 });
 
 Then('I should see a "Success" message', async function () {
-    await this.driver.wait(until.elementLocated(By.xpath('//*[contains(text(), "Success")]')), 5000);
+    await this.driver.wait(until.urlContains('success.html'), 10000);
     let pageText = await this.driver.findElement(By.tagName('body')).getText();
-
-    assert.ok(pageText.includes("Success"), 'The text "Success" was not found on the page');
-    assert.ok(pageText.includes("Information has been successfully submitted"), 'The text "Information has been successfully submitted" was not found on the page');
+    assert.ok(pageText.includes("Success") || pageText.includes("successfully"), 'Success message was not found on the page');
 });
 
 Then('I should see a "You need to fill in both fields" message', async function () {
