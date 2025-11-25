@@ -5,11 +5,12 @@ const { createDriver } = require('../support/webdriver'); // Import the WebDrive
 const { until } = require('selenium-webdriver');
 
 // GIVEN //
-Given('I have navigated to the uploader page', async function () {
+Given('I have navigated to the uploader page', { timeout: 30000 }, async function () {
     let URL = "https://uploader.ingest-dev.aws.onsdigital.uk/council-tax/E00000000-Test.html";
 
     this.driver = await createDriver();
     await this.driver.get(URL);
+    await this.driver.wait(until.elementLocated(By.id('fileOne')), 20000);
 });
 
 //WHEN //
