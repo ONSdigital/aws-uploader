@@ -1,4 +1,5 @@
 // API Configuration
+console.log('file_submission.js loaded - version with date comparison');
 const url = '${api_url}pre-signed-url';
 const options = {
     method: 'GET',
@@ -27,8 +28,8 @@ function commonErrorStyle(errorCount) {
         errorsTitle.innerHTML = '<h2 class="ons-panel__title ons-u-fs-r--b">There is 1 problem with your answer</h2>';
         errorsText.textContent = 'There is 1 problem with your answer';
     } else {
-        errorsTitle.innerHTML = `<h2 class="ons-panel__title ons-u-fs-r--b">There are $${errorCount} problems with your answer</h2>`;
-        errorsText.textContent = `There are $${errorCount} problems with your answer`;
+        errorsTitle.innerHTML = `<h2 class="ons-panel__title ons-u-fs-r--b">There are ${errorCount} problems with your answer</h2>`;
+        errorsText.textContent = `There are ${errorCount} problems with your answer`;
     }
 }
 
@@ -84,14 +85,16 @@ document.getElementById('form').addEventListener('submit', function(e) {
         fileOneErrorStyle();
         addItem("You need to add a Extract file", "fileOne");
         valid = false;
+        errCount++;
     }
     if (form.fileTwo.files.length < 1) {
         fileTwoErrorStyle();
         addItem("You need to add a Mani file", "fileTwo");
         valid = false;
+        errCount++;
     }
     if (!valid) {
-        commonErrorStyle("You need to fill in both fields");
+        commonErrorStyle(errCount);
         return false;
     }
 
@@ -148,6 +151,17 @@ document.getElementById('form').addEventListener('submit', function(e) {
 
     if (!valid) {
         commonErrorStyle(errCount);
+        return false;
+    }
+
+    // Extract dates from filenames and compare
+    const fileOneDate = fileOne.name.match(/\d{8}\.csv/)?.[0]?.replace('.csv', '');
+    const fileTwoDate = fileTwo.name.match(/\d{8}\.csv/)?.[0]?.replace('.csv', '');
+    
+    if (fileOneDate && fileTwoDate && fileOneDate !== fileTwoDate) {
+        bothFilesErrorStyle();
+        addItem("File names do not match", "fileOne");
+        commonErrorStyle(1);
         return false;
     }
 
