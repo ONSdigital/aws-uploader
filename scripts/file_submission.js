@@ -81,27 +81,23 @@ document.getElementById('form').addEventListener('submit', function(e) {
     let valid = true;
     let errCount = 0;
 
-    // Check if any files are missing and show appropriate error messages
     if (form.fileOne.files.length < 1 || form.fileTwo.files.length < 1) {
         addItem("You need to fill in both fields", "fileOne");
-        errCount++;
         valid = false;
+        errCount++;
     }
-    
     if (form.fileOne.files.length < 1) {
         fileOneErrorStyle();
         addItem("You need to add a Extract file", "fileOne");
-        errCount++;
         valid = false;
+        errCount++;
     }
-    
     if (form.fileTwo.files.length < 1) {
         fileTwoErrorStyle();
         addItem("You need to add a Mani file", "fileTwo");
-        errCount++;
         valid = false;
+        errCount++;
     }
-    
     if (!valid) {
         commonErrorStyle(errCount);
         return false;
