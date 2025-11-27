@@ -28,7 +28,7 @@ import { S3, PutObjectCommand, S3Client, CreateMultipartUploadCommand, UploadPar
 const s3 = new S3({ region: 'eu-west-2' });
 const logger = new uploaderLogger()
 
-// All files will use multipart upload
+const MULTIPART_THRESHOLD = 10 * 1024 * 1024; // 10MB threshold for multipart
 
 function convertExtensionToLowerCase(filename) {
   const fileParts = filename.split('.');
@@ -204,7 +204,17 @@ const getUploadURL = async (event, formatedDate, councilName) => {
 
 const createUploadData = async (fileName, fileSize, formatedDate, councilName) => {
   const key = `council-tax/${councilName}/${formatedDate}/${fileName}`;
-  return await createMultipartUpload(key, fileSize);
+  
+  if (fileSize > MULTIPART_THRESHOLD) {
+    return await createMultipartUpload(key, fileSize);
+  } else {
+    const s3Params = new PutObjectCommand({
+      Bucket: process.env.BUCKET_NAME,
+      Key: key
+    });
+    const uploadURL = await getSignedUrl(s3, s3Params, { expiresIn: 1800 });
+    return { uploadURL, multipart: false };
+  }
 }
 
 const createMultipartUpload = async (key, fileSize) => {
@@ -236,6 +246,6 @@ const createMultipartUpload = async (key, fileSize) => {
     multipart: true,
     uploadId,
     parts,
-    completeURL: `${process.env.API_GATEWAY_URL}complete-multipart?bucket=${process.env.BUCKET_NAME}&key=${encodeURIComponent(key)}&uploadId=${uploadId}`
+    completeURL: `${process.env.API_GATEWAY_URL}/complete-multipart?bucket=${process.env.BUCKET_NAME}&key=${encodeURIComponent(key)}&uploadId=${uploadId}`
   };
 }
