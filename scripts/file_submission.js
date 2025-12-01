@@ -170,6 +170,10 @@ document.getElementById('form').addEventListener('submit', function(e) {
         return false;
     }
 
+    // Show loading banner immediately
+    const loadingBanner = document.getElementById('loading-banner');
+    loadingBanner.style.display = 'block';
+    
     const loadingSpinner = document.querySelector('.hods-loading-spinner__content');
     loadingSpinner.style.display = 'block';
     const urlWithParameters = url + `?fileOneName=$${fileOne.name}&fileOneType=$${fileOne.type}&fileTwoName=$${fileTwo.name}&fileTwoType=$${fileTwo.type}&fileOneSize=$${fileOne.size}&fileTwoSize=$${fileTwo.size}&councilName=$${Council_name}`;
@@ -179,19 +183,23 @@ document.getElementById('form').addEventListener('submit', function(e) {
         .then(data => {
             console.log("message : " + data.message);
             if (data.message === "File is not .csv") {
+                loadingBanner.style.display = 'none';
                 fileOneErrorStyle();
                 addItem("Please upload a CSV file", "fileOne");
                 commonErrorStyle(1);
             } else if (data.message === "maniFile is not .csv") {
+                loadingBanner.style.display = 'none';
                 fileTwoErrorStyle();
                 addItem("Please upload a CSV file", "fileTwo");
                 commonErrorStyle(1);
             } else if (data.message === "File is empty") {
+                loadingBanner.style.display = 'none';
                 bothFilesErrorStyle();
                 addItem("Extract file is empty", "fileOne");
                 addItem("Mani file is empty", "fileTwo");
                 commonErrorStyle(2);
             } else if (data.message === "File names do not match") {
+                loadingBanner.style.display = 'none';
                 bothFilesErrorStyle();
                 addItem("File names do not match", "fileOne");
                 commonErrorStyle(2);
@@ -202,10 +210,12 @@ document.getElementById('form').addEventListener('submit', function(e) {
                 ])
                     .then(results => {
                         loadingSpinner.style.display = "none";
+                        loadingBanner.style.display = 'none';
                         window.location.href = "success.html";
                     })
                     .catch(error => {
                         loadingSpinner.style.display = "none";
+                        loadingBanner.style.display = 'none';
                         console.error('Error uploading files:', error);
                         bothFilesErrorStyle();
                         addItem("There has been an issue with the upload, please contact ingest.service@ons.gov.uk", "fileOne");
