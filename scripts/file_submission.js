@@ -170,9 +170,11 @@ document.getElementById('form').addEventListener('submit', function(e) {
         return false;
     }
 
-    // Show loading banner immediately
+    // Show loading banner and disable submit button immediately
     const loadingBanner = document.getElementById('loading-banner');
+    const submitBtn = document.getElementById('submit-btn');
     loadingBanner.style.display = 'block';
+    submitBtn.disabled = true;
     
     const loadingSpinner = document.querySelector('.hods-loading-spinner__content');
     loadingSpinner.style.display = 'block';
@@ -184,22 +186,26 @@ document.getElementById('form').addEventListener('submit', function(e) {
             console.log("message : " + data.message);
             if (data.message === "File is not .csv") {
                 loadingBanner.style.display = 'none';
+                submitBtn.disabled = false;
                 fileOneErrorStyle();
                 addItem("Please upload a CSV file", "fileOne");
                 commonErrorStyle(1);
             } else if (data.message === "maniFile is not .csv") {
                 loadingBanner.style.display = 'none';
+                submitBtn.disabled = false;
                 fileTwoErrorStyle();
                 addItem("Please upload a CSV file", "fileTwo");
                 commonErrorStyle(1);
             } else if (data.message === "File is empty") {
                 loadingBanner.style.display = 'none';
+                submitBtn.disabled = false;
                 bothFilesErrorStyle();
                 addItem("Extract file is empty", "fileOne");
                 addItem("Mani file is empty", "fileTwo");
                 commonErrorStyle(2);
             } else if (data.message === "File names do not match") {
                 loadingBanner.style.display = 'none';
+                submitBtn.disabled = false;
                 bothFilesErrorStyle();
                 addItem("File names do not match", "fileOne");
                 commonErrorStyle(2);
@@ -216,6 +222,7 @@ document.getElementById('form').addEventListener('submit', function(e) {
                     .catch(error => {
                         loadingSpinner.style.display = "none";
                         loadingBanner.style.display = 'none';
+                        submitBtn.disabled = false;
                         console.error('Error uploading files:', error);
                         bothFilesErrorStyle();
                         addItem("There has been an issue with the upload, please contact ingest.service@ons.gov.uk", "fileOne");
