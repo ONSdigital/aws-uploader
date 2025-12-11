@@ -28,7 +28,7 @@ import { S3, PutObjectCommand, S3Client, CreateMultipartUploadCommand, UploadPar
 const s3 = new S3({ region: 'eu-west-2' });
 const logger = new uploaderLogger()
 
-const MULTIPART_THRESHOLD = 10 * 1024 * 1024; // 10MB threshold for multipart
+const MULTIPART_THRESHOLD = 5 * 1024 * 1024; // 5MB threshold for multipart
 
 function convertExtensionToLowerCase(filename) {
   const fileParts = filename.split('.');
