@@ -81,3 +81,11 @@ Feature: Upload files via the uploader page
     And I upload a correctly named non-zero byte manifest file "CTAX_MANI_E00000000_20250130.csv" that matches the URL LAD code
     And I click "Submit"
     Then I should see a “File names do not match” message
+
+  Scenario: Successfully upload large files using multipart upload
+    Given I have navigated to the uploader page
+    When I upload a large extract file "CTAX_EXTRACT_E00000000_20250132.csv" over 5MB that matches the URL LAD code
+    And I upload a correctly named non-zero byte manifest file "CTAX_MANI_E00000000_20250132.csv" that matches the URL LAD code
+    And I click "Submit"
+    Then I should see a "Success" message
+    And the files should have been uploaded using multipart upload

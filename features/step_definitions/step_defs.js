@@ -171,3 +171,30 @@ Then('I should see a “File names do not match” message', async function () {
 
     assert.ok(pageText.includes("File names do not match"), 'The text "File names do not match" was not found on the page');
 });
+
+When('I upload a large extract file {string} over 5MB that matches the URL LAD code', async function (fileName) {
+    const path = require('path');
+    const filePath = path.resolve('features', 'test_files', fileName);
+    let fileInput = await this.driver.findElement(By.id('fileOne'));
+
+    await fileInput.sendKeys(filePath);
+});
+
+When('I upload a large manifest file {string} over 5MB that matches the URL LAD code', async function (fileName) {
+    const path = require('path');
+    const filePath = path.resolve('features', 'test_files', fileName);
+    let fileInput = await this.driver.findElement(By.id('fileTwo'));
+
+    await fileInput.sendKeys(filePath);
+});
+
+Then('the files should have been uploaded using multipart upload', async function () {
+    const logs = await this.driver.manage().logs().get('browser');
+    const multipartLogs = logs.filter(log =>
+        log.message.includes('multipart') ||
+        log.message.includes('uploadId') ||
+        log.message.includes('parts')
+    );
+
+    assert.ok(multipartLogs.length > 0, 'No evidence of multipart upload found in browser logs');
+});
