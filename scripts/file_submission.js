@@ -176,8 +176,6 @@ document.getElementById('form').addEventListener('submit', function(e) {
     loadingBanner.style.display = 'block';
     submitBtn.disabled = true;
     
-    const loadingSpinner = document.querySelector('.hods-loading-spinner__content');
-    loadingSpinner.style.display = 'block';
     const urlWithParameters = url + `?fileOneName=$${fileOne.name}&fileOneType=$${fileOne.type}&fileTwoName=$${fileTwo.name}&fileTwoType=$${fileTwo.type}&fileOneSize=$${fileOne.size}&fileTwoSize=$${fileTwo.size}&councilName=$${Council_name}`;
 
     fetch(urlWithParameters, options)
@@ -215,12 +213,10 @@ document.getElementById('form').addEventListener('submit', function(e) {
                     uploadFile(data.fileTwoUpload, fileTwo)
                 ])
                     .then(results => {
-                        loadingSpinner.style.display = "none";
                         loadingBanner.style.display = 'none';
                         window.location.href = "success.html";
                     })
                     .catch(error => {
-                        loadingSpinner.style.display = "none";
                         loadingBanner.style.display = 'none';
                         submitBtn.disabled = false;
                         console.error('Error uploading files:', error);
