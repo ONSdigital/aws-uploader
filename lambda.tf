@@ -28,6 +28,12 @@ data "archive_file" "PreSignedURL" {
   output_path = "${path.module}/PreSignedURL.zip"
 }
 
+data "archive_file" "CompleteMultipart" {
+  type        = "zip"
+  source_file = "${path.module}/src/CompleteMultipart.mjs"
+  output_path = "${path.module}/CompleteMultipart.zip"
+}
+
 
 resource "aws_lambda_function" "PreSignedURL" {
   #checkov:skip=CKV_AWS_173: we are using AWS encryption keys
@@ -50,7 +56,35 @@ resource "aws_lambda_function" "PreSignedURL" {
 
   environment {
     variables = {
-      BUCKET_NAME = module.ons_upload_ingest_bucket.bucket_id
+      BUCKET_NAME     = module.ons_upload_ingest_bucket.bucket_id
+      API_GATEWAY_URL = aws_apigatewayv2_stage.api.invoke_url
+    }
+  }
+}
+
+resource "aws_lambda_function" "CompleteMultipart" {
+  #checkov:skip=CKV_AWS_173: we are using AWS encryption keys
+  #checkov:skip=CKV_AWS_115: concurrent execution limit
+  #checkov:skip=CKV_AWS_116: Ensure that AWS Lambda function is configured for a Dead Letter Queue(DLQ)
+  #checkov:skip=CKV_AWS_117: no vpc architecture
+  #checkov:skip=CKV_AWS_272: code signing not required
+  filename         = data.archive_file.CompleteMultipart.output_path
+  function_name    = "CompleteMultipart"
+  role             = aws_iam_role.PreSignedURL_role.arn
+  handler          = "CompleteMultipart.handler"
+  source_code_hash = data.archive_file.CompleteMultipart.output_base64sha256
+  # tflint-ignore: aws_lambda_function_invalid_runtime
+  runtime = "nodejs22.x"
+  timeout = 30
+
+  tracing_config {
+    mode = "Active"
+  }
+
+  environment {
+    variables = {
+      BUCKET_NAME     = module.ons_upload_ingest_bucket.bucket_id
+      API_GATEWAY_URL = aws_apigatewayv2_stage.api.invoke_url
     }
   }
 }
@@ -59,7 +93,7 @@ resource "aws_lambda_function" "PreSignedURL" {
 data "aws_iam_policy_document" "get_s3_object" {
   statement {
     effect    = "Allow"
-    actions   = ["s3:GetObject", "s3:PutObject"]
+    actions   = ["s3:GetObject", "s3:PutObject", "s3:CreateMultipartUpload", "s3:CompleteMultipartUpload", "s3:AbortMultipartUpload", "s3:UploadPart"]
     resources = ["${module.ons_upload_ingest_bucket.bucket_arn}/*"] #tfsec:ignore:aws-iam-no-policy-wildcards 
   }
 }
@@ -84,6 +118,15 @@ resource "aws_lambda_permission" "presignedurl_permission" {
   statement_id  = "AllowUploaderAPIInvoke"
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.PreSignedURL.function_name
+  principal     = "apigateway.amazonaws.com"
+
+  source_arn = "${aws_apigatewayv2_api.api.execution_arn}/*/*"
+}
+
+resource "aws_lambda_permission" "complete_multipart_permission" {
+  statement_id  = "AllowCompleteMultipartAPIInvoke"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.CompleteMultipart.function_name
   principal     = "apigateway.amazonaws.com"
 
   source_arn = "${aws_apigatewayv2_api.api.execution_arn}/*/*"
