@@ -11,4 +11,10 @@ inputs:
   - name: repo-git
 
 run:
-  path: ./repo-git/ci/tasks/unitTests/task.sh
+  path: sh
+  args:
+    - -exc
+    - |
+      cd repo-git
+      npm install
+      npm run test:unit
