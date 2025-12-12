@@ -236,8 +236,10 @@ async function uploadFile(uploadData, file) {
     console.log("uploading file " + file.name);
     
     if (uploadData.multipart) {
+        window.localStorage.setItem('lastUploadWasMultipart', 'true');
         return await uploadMultipartFile(uploadData, file);
     } else {
+        window.localStorage.setItem('lastUploadWasMultipart', 'false');
         return await fetch(uploadData.uploadURL, {
             method: "PUT",
             body: file

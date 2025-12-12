@@ -189,12 +189,9 @@ When('I upload a large manifest file {string} over 5MB that matches the URL LAD 
 });
 
 Then('the files should have been uploaded using multipart upload', async function () {
-    const logs = await this.driver.manage().logs().get('browser');
-    const multipartLogs = logs.filter(log =>
-        log.message.includes('multipart') ||
-        log.message.includes('uploadId') ||
-        log.message.includes('parts')
-    );
-
-    assert.ok(multipartLogs.length > 0, 'No evidence of multipart upload found in browser logs');
+    const multipartUsed = await this.driver.executeScript(() => {
+        return window.localStorage.getItem('lastUploadWasMultipart') === 'true';
+    });
+    
+    assert.ok(multipartUsed, 'Multipart upload was not used for large files');
 });
