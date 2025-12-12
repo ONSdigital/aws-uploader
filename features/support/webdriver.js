@@ -6,11 +6,16 @@ async function createDriver() {
     chromeOptions.addArguments('--headless');
     chromeOptions.addArguments('--disable-gpu');
     chromeOptions.addArguments('--window-size=1920,1080');
+    chromeOptions.addArguments('--no-sandbox');
+    chromeOptions.addArguments('--disable-dev-shm-usage');
 
-    return await new Builder()
+    const driver = await new Builder()
         .forBrowser(Browser.CHROME)
         .setChromeOptions(chromeOptions)
         .build();
+    
+    await driver.manage().setTimeouts({ pageLoad: 30000 });
+    return driver;
 }
 
 module.exports = { createDriver };

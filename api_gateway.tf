@@ -3,7 +3,7 @@ resource "aws_apigatewayv2_api" "api" {
   protocol_type = "HTTP"
   cors_configuration {
     allow_origins = ["https://${local.website_address}"]
-    allow_methods = ["GET", "OPTIONS"]
+    allow_methods = ["GET", "POST", "OPTIONS"]
     allow_headers = ["Content-Type", "Authorization", "X-Amz-Date", "X-Api-Key", "X-Amz-Security-Token"]
     max_age       = 300
   }
@@ -41,6 +41,13 @@ resource "aws_apigatewayv2_route" "options" {
   target    = "integrations/${aws_apigatewayv2_integration.options.id}"
 }
 
+resource "aws_apigatewayv2_route" "complete_multipart" {
+  #checkov:skip=CKV_AWS_309: Decision Auth is not required for this API
+  api_id    = aws_apigatewayv2_api.api.id
+  route_key = "POST /complete-multipart"
+  target    = "integrations/${aws_apigatewayv2_integration.complete_multipart.id}"
+}
+
 resource "aws_apigatewayv2_integration" "get" {
   api_id                 = aws_apigatewayv2_api.api.id
   integration_type       = "AWS_PROXY"
@@ -54,5 +61,13 @@ resource "aws_apigatewayv2_integration" "options" {
   integration_type       = "AWS_PROXY"
   integration_uri        = aws_lambda_function.PreSignedURL.arn #put the arn of the lambda
   integration_method     = "OPTIONS"
+  payload_format_version = "2.0"
+}
+
+resource "aws_apigatewayv2_integration" "complete_multipart" {
+  api_id                 = aws_apigatewayv2_api.api.id
+  integration_type       = "AWS_PROXY"
+  integration_uri        = aws_lambda_function.CompleteMultipart.arn
+  integration_method     = "POST"
   payload_format_version = "2.0"
 }

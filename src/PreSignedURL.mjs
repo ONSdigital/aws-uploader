@@ -24,9 +24,11 @@ function cleanCouncilName(councilName) {
 }
 
 // New way of using AWS SDk v3
-import { S3, PutObjectCommand, S3Client } from "@aws-sdk/client-s3"
+import { S3, PutObjectCommand, S3Client, CreateMultipartUploadCommand, UploadPartCommand, CompleteMultipartUploadCommand } from "@aws-sdk/client-s3"
 const s3 = new S3({ region: 'eu-west-2' });
 const logger = new uploaderLogger()
+
+const MULTIPART_THRESHOLD = 5 * 1024 * 1024; // 5MB threshold for multipart
 
 function convertExtensionToLowerCase(filename) {
   const fileParts = filename.split('.');
@@ -84,8 +86,8 @@ export const handler = async (event, context, callback) => {
     } else {
       const result = await getUploadURL(event, formatedDate, CouncilName);
       const resultBody = JSON.parse(result.body);
-      logger.logSuccess(LADCode, event.queryStringParameters.fileOneName, resultBody.uploadURLFileOne, result.statusCode, CouncilName);
-      logger.logSuccess(LADCode, event.queryStringParameters.fileTwoName, resultBody.uploadURLFileTwo, result.statusCode, CouncilName);
+      logger.logSuccess(LADCode, event.queryStringParameters.fileOneName, 'multipart/single', result.statusCode, CouncilName);
+      logger.logSuccess(LADCode, event.queryStringParameters.fileTwoName, 'multipart/single', result.statusCode, CouncilName);
       return result;
     }
   } catch (error) {
@@ -178,25 +180,13 @@ const getUploadURL = async (event, formatedDate, councilName) => {
   let fileOneNameLowerCase = convertExtensionToLowerCase(event.queryStringParameters.fileOneName)
   let fileTwoNameLowerCase = convertExtensionToLowerCase(event.queryStringParameters.fileTwoName)
 
-  const s3ParamsFileOne = new PutObjectCommand({
-    Bucket: process.env.BUCKET_NAME, //bucket used for ingested files
-    Key: `council-tax/${councilName}/${formatedDate}/${fileOneNameLowerCase}`
+  const fileOneSize = parseInt(event.queryStringParameters.fileOneSize);
+  const fileTwoSize = parseInt(event.queryStringParameters.fileTwoSize);
 
-  })
+  const fileOneUpload = await createUploadData(fileOneNameLowerCase, fileOneSize, formatedDate, councilName);
+  const fileTwoUpload = await createUploadData(fileTwoNameLowerCase, fileTwoSize, formatedDate, councilName);
 
-  const s3ParamsFileTwo = new PutObjectCommand({
-    Bucket: process.env.BUCKET_NAME,
-    Key: `council-tax/${councilName}/${formatedDate}/${fileTwoNameLowerCase}`
-
-  })
-  const client = new S3Client({
-
-
-  })
-  let uploadURLFileOne = await getSignedUrl(s3, s3ParamsFileOne, { expiresIn: 1800 })
-  let uploadURLFileTwo = await getSignedUrl(s3, s3ParamsFileTwo, { expiresIn: 1800 })
   return new Promise((resolve, reject) => {
-
     resolve({
       "statusCode": 200,
       "isBase64Encoded": false,
@@ -204,10 +194,58 @@ const getUploadURL = async (event, formatedDate, councilName) => {
         'Access-Control-Allow-Origin': '*',
       },
       "body": JSON.stringify({
-        "uploadURLFileOne": uploadURLFileOne,
-        "uploadURLFileTwo": uploadURLFileTwo,
+        "fileOneUpload": fileOneUpload,
+        "fileTwoUpload": fileTwoUpload,
         "message": "Success",
       })
     })
   })
+}
+
+const createUploadData = async (fileName, fileSize, formatedDate, councilName) => {
+  const key = `council-tax/${councilName}/${formatedDate}/${fileName}`;
+  
+  if (fileSize > MULTIPART_THRESHOLD) {
+    return await createMultipartUpload(key, fileSize);
+  } else {
+    const s3Params = new PutObjectCommand({
+      Bucket: process.env.BUCKET_NAME,
+      Key: key
+    });
+    const uploadURL = await getSignedUrl(s3, s3Params, { expiresIn: 1800 });
+    return { uploadURL, multipart: false };
+  }
+}
+
+const createMultipartUpload = async (key, fileSize) => {
+  const createParams = new CreateMultipartUploadCommand({
+    Bucket: process.env.BUCKET_NAME,
+    Key: key
+  });
+  
+  const createResult = await s3.send(createParams);
+  const uploadId = createResult.UploadId;
+  
+  const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB
+  const numParts = Math.ceil(fileSize / CHUNK_SIZE);
+  const parts = [];
+  
+  for (let i = 1; i <= numParts; i++) {
+    const uploadPartParams = new UploadPartCommand({
+      Bucket: process.env.BUCKET_NAME,
+      Key: key,
+      PartNumber: i,
+      UploadId: uploadId
+    });
+    
+    const uploadURL = await getSignedUrl(s3, uploadPartParams, { expiresIn: 1800 });
+    parts.push({ PartNumber: i, uploadURL });
+  }
+  
+  return {
+    multipart: true,
+    uploadId,
+    parts,
+    completeURL: `${process.env.API_GATEWAY_URL}complete-multipart?bucket=${process.env.BUCKET_NAME}&key=${encodeURIComponent(key)}&uploadId=${uploadId}`
+  };
 }
