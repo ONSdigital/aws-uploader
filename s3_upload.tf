@@ -24,8 +24,9 @@ resource "aws_s3_bucket_cors_configuration" "uploader" {
 
   cors_rule {
     allowed_headers = ["*"]
-    allowed_methods = ["PUT"]
+    allowed_methods = ["PUT", "POST"]
     allowed_origins = ["https://${local.website_address}"]
+    expose_headers  = ["ETag"]
   }
 
 }
