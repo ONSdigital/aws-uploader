@@ -165,8 +165,7 @@
           <div class="ons-grid__col ons-col-12@m ">
             <main id="main-content" class="ons-page__main ">
               <div>
-                <div tabindex="-1" class="ons-panel ons-panel--error"
-                  id="errors-list" style="display:none">
+                <div tabindex="-1" class="ons-panel ons-panel--error" id="errors-list" style="display:none">
                   <div class="ons-panel__header" id="errors-list-title">
                   </div>
                   <div class="ons-panel__body">
@@ -179,11 +178,11 @@
                     <strong id="errors-list-text"></strong>
                   </p>
                 </div>
-                <div class="ons-panel ons-panel--info" id="loading-banner" style="display: none">
+                <div class="ons-panel ons-panel--info ons-panel--no-title ons-u-mb-l" id="loading-banner" style="display: none">
+                  <span class="ons-panel__assistive-text ons-u-vh">Important information: </span>
                   <div class="ons-panel__body">
-                    <p class="ons-panel__info">
-                      <strong>The request is being submitted, please do not navigate away from the page or attempt to resubmit</strong>
-                    </p>
+                    <p>The data are being submitted. The upload process may take some time for larger files. Please do
+                      not attempt to resubmit the data or refresh the page.</p>
                   </div>
                 </div>
                 <form id="form">
@@ -191,53 +190,52 @@
                   <div class="ons-panel" id="extract-file-error">
                     <!-- ons-panel--error ons-panel--no-title" id="extract-file-error" style="display: ">-->
                     <span class="ons-panel__assistive-text ons-u-vh">Error: </span>
-                      <p class="ons-panel__error" id="extract-file-csv-error" style="display: none">
-                        <strong id="extract-file-error-text"></strong>
-                      </p>
+                    <p class="ons-panel__error" id="extract-file-csv-error" style="display: none">
+                      <strong id="extract-file-error-text"></strong>
+                    </p>
+                    <div class="ons-field">
                       <div class="ons-field">
-                        <div class="ons-field">
-                          <label class="ons-label ons-label--with-description" for="fileOne"
+                        <label class="ons-label ons-label--with-description" for="fileOne"
                           aria-describedby="extract-description">Upload the EXTRACT file</label>
-                          <span id="extract-description-error"
-                            class="ons-label__description ons-input--with-description">File must be named with the
-                            format 'CTAX_EXTRACT_${lad_code}_yyyymmdd' where the 8 digits are your LAD code and yyyymmdd
-                            is the data run date</span>
-                          <input name="extractFile" type="file" id="fileOne"
-                            class="ons-input ons-input--text ons-input-type__input ons-input--upload" accept=".csv"
-                            >
-                        </div>
+                        <span id="extract-description-error"
+                          class="ons-label__description ons-input--with-description">File must be named with the
+                          format 'CTAX_EXTRACT_${lad_code}_yyyymmdd' where the 8 digits are your LAD code and yyyymmdd
+                          is the data run date</span>
+                        <input name="extractFile" type="file" id="fileOne"
+                          class="ons-input ons-input--text ons-input-type__input ons-input--upload" accept=".csv">
                       </div>
+                    </div>
                   </div>
                   <!-- Error message for mani-upload -->
                   <div class="ons-panel" id="mani-file-error">
                     <!-- ons-panel--error ons-panel--no-title" id="mani-file-error" style="display: ">-->
                     <span class="ons-panel__assistive-text ons-u-vh">Error: </span>
-                      <p class="ons-panel__error" id="mani-file-csv-error" style="display: none">
-                        <strong id="mani-file-error-text"></strong>
-                      </p>
+                    <p class="ons-panel__error" id="mani-file-csv-error" style="display: none">
+                      <strong id="mani-file-error-text"></strong>
+                    </p>
+                    <div class="ons-field">
                       <div class="ons-field">
-                        <div class="ons-field">
-                          <label class="ons-label ons-label--with-description" for="fileTwo"
-                            aria-describedby="mani-description">Upload the MANI file</label>
-                          <span id="mani-description" class="ons-label__description ons-input--with-description">File
-                            must be named with the format 'CTAX_MANI_${lad_code}_yyyymmdd' where the 8 digits are your
-                            LAD code and yyyymmdd is the data run date</span>
-                          <input name="maniFile" type="file" id="fileTwo"
-                            class="ons-input ons-input--text ons-input-type__input ons-input--upload" accept=".csv"
-                            aria-describedby="mani-description">
-                        </div>
+                        <label class="ons-label ons-label--with-description" for="fileTwo"
+                          aria-describedby="mani-description">Upload the MANI file</label>
+                        <span id="mani-description" class="ons-label__description ons-input--with-description">File
+                          must be named with the format 'CTAX_MANI_${lad_code}_yyyymmdd' where the 8 digits are your
+                          LAD code and yyyymmdd is the data run date</span>
+                        <input name="maniFile" type="file" id="fileTwo"
+                          class="ons-input ons-input--text ons-input-type__input ons-input--upload" accept=".csv"
+                          aria-describedby="mani-description">
+                      </div>
                     </div>
                   </div>
-                      <button type="submit" id="submit-btn" class="ons-btn" style="margin-top: 3%;">
-                        <span class="ons-btn__inner"><span class="ons-btn__text">Submit</span>
-                        </span>
-                      </button>
-                      <div class="hods-loading-spinner">
-                        <div class="hods-loading-spinner__spinner" aria-live="polite" role="status"></div>
-                        <div style="display: none" class="hods-loading-spinner__content">
-                          <h1 class="govuk-heading-m">Loading...</h1>
-                        </div>
-                      </div>
+                  <button type="submit" id="submit-btn" class="ons-btn" style="margin-top: 3%;">
+                    <span class="ons-btn__inner"><span class="ons-btn__text">Submit</span>
+                    </span>
+                  </button>
+                  <div class="hods-loading-spinner">
+                    <div class="hods-loading-spinner__spinner" aria-live="polite" role="status"></div>
+                    <div style="display: none" class="hods-loading-spinner__content">
+                      <h1 class="govuk-heading-m">Loading...</h1>
+                    </div>
+                  </div>
                 </form>
               </div>
             </main>
@@ -357,4 +355,5 @@
 
   <div class="embeddable"></div>
 </body>
+
 </html>
