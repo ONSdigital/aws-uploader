@@ -1,4 +1,3 @@
-#checkov:skip=CKV2_AWS_34:Encryption not required for non-sensitive boolean flag
 data "archive_file" "maintenance_check" {
   type        = "zip"
   source_file = "${path.module}/src/maintenance-check.js"
@@ -38,7 +37,13 @@ resource "aws_iam_role_policy_attachment" "maintenance_check_edge_ssm" {
   policy_arn = aws_iam_policy.ssm_read.arn
 }
 
+
 resource "aws_lambda_function" "maintenance_check_edge" {
+  #checkov:skip=CKV_AWS_272:Code signing not required for edge function
+  #checkov:skip=CKV_AWS_116:DLQ not supported for Lambda@Edge
+  #checkov:skip=CKV_AWS_115:Concurrency limits not needed for edge function
+  #checkov:skip=CKV_AWS_117:VPC not supported for Lambda@Edge
+  #checkov:skip=CKV_AWS_50:X-Ray tracing not supported for Lambda@Edge
   provider         = aws.useast
   filename         = data.archive_file.maintenance_check.output_path
   function_name    = "maintenance-check-edge"
