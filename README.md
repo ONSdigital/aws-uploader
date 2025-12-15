@@ -135,6 +135,22 @@ Dependabot is setup to check dependency versions within terraform, this will aut
 Concourse uses YAML to create the pipelines, which is works well until you start to create bigger pipelines to support bigger environments.
 Within the `ci` folder there are two examples `aviator` and `concourse`. Read the README in both sections to work out which is better for your usecase.
 
+## Maintenance Mode
+
+The service can be put into maintenance mode to prevent file uploads during system maintenance.
+
+**Activate maintenance mode:**
+```bash
+aws ssm put-parameter --name "/uploader/maintenance-mode" --value "true" --overwrite
+```
+
+**Deactivate maintenance mode:**
+```bash
+aws ssm put-parameter --name "/uploader/maintenance-mode" --value "false" --overwrite
+```
+
+Changes take effect within 60 seconds due to Lambda caching.
+
 ## Monitoring
 
 The deployed production solution is monitored by [uptrends.com](https://uptrends.com). There are two monitors in place
