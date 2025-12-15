@@ -51,7 +51,7 @@ async function isMaintenanceMode() {
   }
 }
 
-// All files will use multipart upload
+const MULTIPART_THRESHOLD = 5 * 1024 * 1024; // 5MB threshold for multipart
 
 function convertExtensionToLowerCase(filename) {
   const fileParts = filename.split('.');
@@ -235,7 +235,17 @@ const getUploadURL = async (event, formatedDate, councilName) => {
 
 const createUploadData = async (fileName, fileSize, formatedDate, councilName) => {
   const key = `council-tax/${councilName}/${formatedDate}/${fileName}`;
-  return await createMultipartUpload(key, fileSize);
+  
+  if (fileSize > MULTIPART_THRESHOLD) {
+    return await createMultipartUpload(key, fileSize);
+  } else {
+    const s3Params = new PutObjectCommand({
+      Bucket: process.env.BUCKET_NAME,
+      Key: key
+    });
+    const uploadURL = await getSignedUrl(s3, s3Params, { expiresIn: 1800 });
+    return { uploadURL, multipart: false };
+  }
 }
 
 const createMultipartUpload = async (key, fileSize) => {
