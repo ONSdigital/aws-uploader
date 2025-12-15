@@ -98,28 +98,28 @@ Example first two lines
 "name","lad_code"
 "Test","E00000000"
 
-
-```
-
 ## Running Behaviour tests
 Behaviour tests should be run before raising a Pull Request.
 Depending on your package manager of choice you can run
-```
+
+```bash
 yarn install
 yarn test
 ```
 
 or
 
-```
+```bash
 npm install
 npm test
 ```
 
 or, you can make use of the makefile and run
-```
+
+```bash
 make behaviour-tests
 ```
+
 after installing the package dependencies.
 
 ## Github Automatic reviewers
@@ -140,6 +140,7 @@ Within the `ci` folder there are two examples `aviator` and `concourse`. Read th
 The service can be put into maintenance mode to prevent file uploads during system maintenance.
 
 **Activate maintenance mode:**
+
 ```bash
 aws ssm put-parameter --name "/uploader/maintenance-mode" --value "true" --overwrite
 ```
