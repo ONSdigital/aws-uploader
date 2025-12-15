@@ -37,6 +37,7 @@ const CACHE_TTL = 60000; // 60 seconds
 async function isMaintenanceMode() {
   const now = Date.now();
   if (maintenanceMode !== null && now - maintenanceCacheTime < CACHE_TTL) {
+    logger.logInfo(`Maintenance mode (cached): ${maintenanceMode}`);
     return maintenanceMode;
   }
   
@@ -45,8 +46,10 @@ async function isMaintenanceMode() {
     const response = await ssm.send(command);
     maintenanceMode = response.Parameter.Value === 'true';
     maintenanceCacheTime = now;
+    logger.logInfo(`Maintenance mode (from SSM): ${maintenanceMode}, value: ${response.Parameter.Value}`);
     return maintenanceMode;
   } catch (error) {
+    logger.logError('N/A', 'N/A', 'N/A', 500, `Error checking maintenance mode: ${error.message}`);
     return false; // Default to not in maintenance if parameter doesn't exist
   }
 }
