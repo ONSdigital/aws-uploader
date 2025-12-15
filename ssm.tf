@@ -1,5 +1,5 @@
-#checkov:skip=CKV2_AWS_34:Encryption not required for non-sensitive boolean flag
 resource "aws_ssm_parameter" "maintenance_mode" {
+  #checkov:skip=CKV2_AWS_34:Encryption not required for non-sensitive boolean flag
   name  = "/uploader/maintenance-mode"
   type  = "String"
   value = "false"
