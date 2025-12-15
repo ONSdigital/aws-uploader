@@ -137,7 +137,7 @@ Within the `ci` folder there are two examples `aviator` and `concourse`. Read th
 
 ## Maintenance Mode
 
-The service can be put into maintenance mode to prevent file uploads during system maintenance.
+The service can be put into maintenance mode to prevent access during system maintenance. A Lambda@Edge function checks the maintenance status and redirects users to a maintenance page.
 
 **Activate maintenance mode:**
 
@@ -150,7 +150,7 @@ aws ssm put-parameter --name "/uploader/maintenance-mode" --value "true" --overw
 aws ssm put-parameter --name "/uploader/maintenance-mode" --value "false" --overwrite
 ```
 
-Changes take effect within 60 seconds due to Lambda caching.
+Changes take effect within 60 seconds due to Lambda@Edge caching.
 
 ## Monitoring
 

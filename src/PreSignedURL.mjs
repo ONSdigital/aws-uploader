@@ -25,34 +25,8 @@ function cleanCouncilName(councilName) {
 
 // New way of using AWS SDk v3
 import { S3, PutObjectCommand, S3Client, CreateMultipartUploadCommand, UploadPartCommand, CompleteMultipartUploadCommand } from "@aws-sdk/client-s3"
-import { SSMClient, GetParameterCommand } from "@aws-sdk/client-ssm"
 const s3 = new S3({ region: 'eu-west-2' });
-const ssm = new SSMClient({ region: 'eu-west-2' });
 const logger = new uploaderLogger()
-
-let maintenanceMode = null;
-let maintenanceCacheTime = 0;
-const CACHE_TTL = 60000; // 60 seconds
-
-async function isMaintenanceMode() {
-  const now = Date.now();
-  if (maintenanceMode !== null && now - maintenanceCacheTime < CACHE_TTL) {
-    logger.logInfo(`Maintenance mode (cached): ${maintenanceMode}`);
-    return maintenanceMode;
-  }
-  
-  try {
-    const command = new GetParameterCommand({ Name: '/uploader/maintenance-mode' });
-    const response = await ssm.send(command);
-    maintenanceMode = response.Parameter.Value === 'true';
-    maintenanceCacheTime = now;
-    logger.logInfo(`Maintenance mode (from SSM): ${maintenanceMode}, value: ${response.Parameter.Value}`);
-    return maintenanceMode;
-  } catch (error) {
-    logger.logError('N/A', 'N/A', 'N/A', 500, `Error checking maintenance mode: ${error.message}`);
-    return false; // Default to not in maintenance if parameter doesn't exist
-  }
-}
 
 const MULTIPART_THRESHOLD = 5 * 1024 * 1024; // 5MB threshold for multipart
 
@@ -65,14 +39,6 @@ function convertExtensionToLowerCase(filename) {
 
 export const handler = async (event, context, callback) => {
   try {
-    if (await isMaintenanceMode()) {
-      return {
-        statusCode: 503,
-        headers: { 'Access-Control-Allow-Origin': '*' },
-        body: JSON.stringify({ message: 'Service temporarily unavailable for maintenance' })
-      };
-    }
-
     logger.logInfo("Starting verification checks")
 
     //-- Starting verification checks --
