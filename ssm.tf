@@ -1,6 +1,6 @@
 resource "aws_ssm_parameter" "maintenance_mode" {
   name  = "/uploader/maintenance-mode"
-  type  = "String"
+  type  = "SecureString"
   value = "false"
 
   lifecycle {
