@@ -9,8 +9,8 @@ exports.handler = async (event) => {
     const request = event.Records[0].cf.request;
     const uri = request.uri;
     
-    // Skip maintenance check for the maintenance page itself
-    if (uri === '/maintenance.html') {
+    // Skip maintenance check for the maintenance page itself and static assets
+    if (uri === '/maintenance.html' || uri.startsWith('/css/') || uri.startsWith('/js/')) {
         return request;
     }
     
