@@ -23,11 +23,14 @@ exports.handler = async (event) => {
         console.log('Using cached maintenance config:', maintenanceConfig);
         if (maintenanceConfig.enabled) {
             console.log('Redirecting to maintenance page (cached)');
+            const location = maintenanceConfig.message 
+                ? `/maintenance.html?message=${encodeURIComponent(maintenanceConfig.message)}`
+                : '/maintenance.html';
             return {
                 status: '302',
                 statusDescription: 'Found',
                 headers: {
-                    'location': [{ key: 'Location', value: '/maintenance.html' }]
+                    'location': [{ key: 'Location', value: location }]
                 }
             };
         }
@@ -52,11 +55,14 @@ exports.handler = async (event) => {
         
         if (maintenanceConfig.enabled) {
             console.log('Redirecting to maintenance page (from SSM)');
+            const location = maintenanceConfig.message 
+                ? `/maintenance.html?message=${encodeURIComponent(maintenanceConfig.message)}`
+                : '/maintenance.html';
             return {
                 status: '302',
                 statusDescription: 'Found',
                 headers: {
-                    'location': [{ key: 'Location', value: '/maintenance.html' }]
+                    'location': [{ key: 'Location', value: location }]
                 }
             };
         }

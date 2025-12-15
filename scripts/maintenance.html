@@ -180,10 +180,17 @@
             <main id="main-content" class="ons-page__main ">
               <h1>This service is temporarily unavailable</h1>
               <p>We are undergoing planned maintenance.</p>
-              <p>You will be able to use this service again from:<br /><strong>9am on Monday 19 November 2019</strong>
-              </p>
+              <p id="maintenance-message">You will be able to use this service again soon.</p>
               <p>If you need to speak to someone about your survey, <a href="#0">contact us</a>.</p>
             </main>
+            <script>
+              // Display custom maintenance message if available
+              const urlParams = new URLSearchParams(window.location.search);
+              const message = urlParams.get('message');
+              if (message) {
+                document.getElementById('maintenance-message').innerHTML = decodeURIComponent(message);
+              }
+            </script>
           </div>
         </div>
       </div>
