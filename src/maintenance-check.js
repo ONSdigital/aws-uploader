@@ -1,7 +1,7 @@
 const { SSMClient, GetParameterCommand } = require('@aws-sdk/client-ssm');
 const ssm = new SSMClient({ region: 'eu-west-2' });
 
-let maintenanceMode = null;
+let maintenanceConfig = null;
 let cacheTime = 0;
 const CACHE_TTL = 60000; // 60 seconds
 
@@ -19,9 +19,9 @@ exports.handler = async (event) => {
     
     // Check cache first
     const now = Date.now();
-    if (maintenanceMode !== null && now - cacheTime < CACHE_TTL) {
-        console.log('Using cached maintenance mode:', maintenanceMode);
-        if (maintenanceMode) {
+    if (maintenanceConfig !== null && now - cacheTime < CACHE_TTL) {
+        console.log('Using cached maintenance config:', maintenanceConfig);
+        if (maintenanceConfig.enabled) {
             console.log('Redirecting to maintenance page (cached)');
             return {
                 status: '302',
@@ -40,10 +40,17 @@ exports.handler = async (event) => {
         const command = new GetParameterCommand({ Name: '/uploader/maintenance-mode' });
         const response = await ssm.send(command);
         console.log('SSM response:', response.Parameter.Value);
-        maintenanceMode = response.Parameter.Value === 'true';
+        
+        // Support both simple boolean and JSON format
+        let value = response.Parameter.Value;
+        if (value === 'true' || value === 'false') {
+            maintenanceConfig = { enabled: value === 'true', message: null };
+        } else {
+            maintenanceConfig = JSON.parse(value);
+        }
         cacheTime = now;
         
-        if (maintenanceMode) {
+        if (maintenanceConfig.enabled) {
             console.log('Redirecting to maintenance page (from SSM)');
             return {
                 status: '302',
@@ -55,7 +62,7 @@ exports.handler = async (event) => {
         }
     } catch (error) {
         console.log('Error checking maintenance mode:', error);
-        maintenanceMode = false;
+        maintenanceConfig = { enabled: false, message: null };
     }
     
     console.log('Allowing request through');

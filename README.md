@@ -139,10 +139,16 @@ Within the `ci` folder there are two examples `aviator` and `concourse`. Read th
 
 The service can be put into maintenance mode to prevent access during system maintenance. A Lambda@Edge function checks the maintenance status and redirects users to a maintenance page.
 
-**Activate maintenance mode:**
+**Activate maintenance mode (simple):**
 
 ```bash
 aws ssm put-parameter --name "/uploader/maintenance-mode" --value "true" --overwrite
+```
+
+**Activate with custom message and date:**
+
+```bash
+aws ssm put-parameter --name "/uploader/maintenance-mode" --value '{"enabled":true,"message":"Service will be back at 2pm on Monday 16 December 2024"}' --overwrite
 ```
 
 **Deactivate maintenance mode:**
