@@ -25,10 +25,33 @@ function cleanCouncilName(councilName) {
 
 // New way of using AWS SDk v3
 import { S3, PutObjectCommand, S3Client, CreateMultipartUploadCommand, UploadPartCommand, CompleteMultipartUploadCommand } from "@aws-sdk/client-s3"
+import { SSMClient, GetParameterCommand } from "@aws-sdk/client-ssm"
 const s3 = new S3({ region: 'eu-west-2' });
+const ssm = new SSMClient({ region: 'eu-west-2' });
 const logger = new uploaderLogger()
 
-const MULTIPART_THRESHOLD = 5 * 1024 * 1024; // 5MB threshold for multipart
+let maintenanceMode = null;
+let maintenanceCacheTime = 0;
+const CACHE_TTL = 60000; // 60 seconds
+
+async function isMaintenanceMode() {
+  const now = Date.now();
+  if (maintenanceMode !== null && now - maintenanceCacheTime < CACHE_TTL) {
+    return maintenanceMode;
+  }
+  
+  try {
+    const command = new GetParameterCommand({ Name: '/uploader/maintenance-mode' });
+    const response = await ssm.send(command);
+    maintenanceMode = response.Parameter.Value === 'true';
+    maintenanceCacheTime = now;
+    return maintenanceMode;
+  } catch (error) {
+    return false; // Default to not in maintenance if parameter doesn't exist
+  }
+}
+
+// All files will use multipart upload
 
 function convertExtensionToLowerCase(filename) {
   const fileParts = filename.split('.');
@@ -39,6 +62,14 @@ function convertExtensionToLowerCase(filename) {
 
 export const handler = async (event, context, callback) => {
   try {
+    if (await isMaintenanceMode()) {
+      return {
+        statusCode: 503,
+        headers: { 'Access-Control-Allow-Origin': '*' },
+        body: JSON.stringify({ message: 'Service temporarily unavailable for maintenance' })
+      };
+    }
+
     logger.logInfo("Starting verification checks")
 
     //-- Starting verification checks --
@@ -204,17 +235,7 @@ const getUploadURL = async (event, formatedDate, councilName) => {
 
 const createUploadData = async (fileName, fileSize, formatedDate, councilName) => {
   const key = `council-tax/${councilName}/${formatedDate}/${fileName}`;
-  
-  if (fileSize > MULTIPART_THRESHOLD) {
-    return await createMultipartUpload(key, fileSize);
-  } else {
-    const s3Params = new PutObjectCommand({
-      Bucket: process.env.BUCKET_NAME,
-      Key: key
-    });
-    const uploadURL = await getSignedUrl(s3, s3Params, { expiresIn: 1800 });
-    return { uploadURL, multipart: false };
-  }
+  return await createMultipartUpload(key, fileSize);
 }
 
 const createMultipartUpload = async (key, fileSize) => {
