@@ -148,7 +148,7 @@ aws ssm put-parameter --name "/uploader/maintenance-mode" --value "true" --type 
 **Activate with custom message and date:**
 
 ```bash
-aws ssm put-parameter --name "/uploader/maintenance-mode" --value '{"enabled":true,"message":"Service will be back at 2pm on Monday 16 December 2024"}' --type String --overwrite
+aws ssm put-parameter --name "/uploader/maintenance-mode" --value '{"enabled":true,"message":"2pm on Monday 16 December 2025"}' --type String --overwrite
 ```
 
 **Deactivate maintenance mode:**
