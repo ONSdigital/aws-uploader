@@ -151,11 +151,15 @@ aws ssm put-parameter --name "/uploader/maintenance-mode" --value "true" --type 
 
 ```bash
 aws ssm put-parameter --name "/uploader/maintenance-mode" --value '{"enabled":true,"message":"2 pm on Monday 16 December 2025"}' --type String --overwrite
+
+aws cloudfront create-invalidation --distribution-id E3VWJQT6ALVUTZ --paths "/council-tax/*"
 ```
 
 **Deactivate maintenance mode:**
 ```bash
 aws ssm put-parameter --name "/uploader/maintenance-mode" --value "false" --type String --overwrite
+
+aws cloudfront create-invalidation --distribution-id E3VWJQT6ALVUTZ --paths "/council-tax/*"
 ```
 
 Changes take effect within 60 seconds due to Lambda@Edge caching.
