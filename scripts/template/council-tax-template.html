@@ -11,7 +11,11 @@
     .ons-page__container .ons-panel.ons-panel--info.ons-panel--no-title {
       border-left-width: 8px !important;
       border-left-style: solid !important;
-      border-left-color: var(--ons-color-info) !important;
+      border-left-color: var(--ons-color-info, #206095) !important;
+    }
+    /* Extra safety: ensure all info panels get a left border */
+    .ons-panel.ons-panel--info {
+      border-left: 8px solid var(--ons-color-info, #206095) !important;
     }
   </style>
 
@@ -190,9 +194,10 @@
                   </p>
                 </div>
 
-                <div class="ons-panel ons-panel--info ons-panel--no-title ons-u-mb-l" id="loading-banner"
+                <div aria-labelledby="loading-banner-assistive" role="status" tabindex="-1"
+                  class="ons-panel ons-panel--info ons-panel--no-title ons-u-mb-l" id="loading-banner"
                   style="display: none">
-                  <span class="ons-panel__assistive-text ons-u-vh">Important information: </span>
+                  <span id="loading-banner-assistive" class="ons-panel__assistive-text ons-u-vh">Important information: </span>
                   <div class="ons-panel__body">
                     <p>The data are being submitted. The upload process may take some time for larger files. Please do
                       not attempt to resubmit the data or refresh the page.</p>
