@@ -152,6 +152,8 @@ aws ssm put-parameter --name "/uploader/maintenance-mode" --value '{"enabled":tr
 aws ssm put-parameter --name "/uploader/maintenance-mode" --value "false" --type String --overwrite
 ```
 
+Changes take effect within 60 seconds due to Lambda@Edge caching. However, you can invalidate the cache instantluy with the below commands.
+
 **List cloudfront cache:**
 ```bash
 aws cloudfront list-distributions
@@ -161,8 +163,6 @@ aws cloudfront list-distributions
 ```bash
 aws cloudfront create-invalidation --distribution-id <distribution_Id> --paths "/council-tax/*"
 ```
-
-Changes take effect within 60 seconds due to Lambda@Edge caching.
 
 ## Monitoring
 
