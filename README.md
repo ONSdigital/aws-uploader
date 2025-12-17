@@ -141,12 +141,6 @@ The service can be put into maintenance mode to prevent access during system mai
 
 Authenticate with the AWS account user credentials
 
-**Activate maintenance mode (simple):**
-
-```bash
-aws ssm put-parameter --name "/uploader/maintenance-mode" --value "true" --type String --overwrite
-```
-
 **Activate with custom message and date:**
 
 ```bash
