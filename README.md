@@ -145,15 +145,21 @@ Authenticate with the AWS account user credentials
 
 ```bash
 aws ssm put-parameter --name "/uploader/maintenance-mode" --value '{"enabled":true,"message":"2 pm on Monday 16 December 2025"}' --type String --overwrite
-
-aws cloudfront create-invalidation --distribution-id E3VWJQT6ALVUTZ --paths "/council-tax/*"
 ```
 
 **Deactivate maintenance mode:**
 ```bash
 aws ssm put-parameter --name "/uploader/maintenance-mode" --value "false" --type String --overwrite
+```
 
-aws cloudfront create-invalidation --distribution-id E3VWJQT6ALVUTZ --paths "/council-tax/*"
+**List cloudfront cache:**
+```bash
+aws cloudfront list-distributions
+```
+
+**Invalidate the cache:**
+```bash
+aws cloudfront create-invalidation --distribution-id <distribution_Id> --paths "/council-tax/*"
 ```
 
 Changes take effect within 60 seconds due to Lambda@Edge caching.
