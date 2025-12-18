@@ -1,5 +1,5 @@
 module.exports = {
   default: {
-    timeout: 30000
-  }
+    timeout: 30000,
+  },
 };
