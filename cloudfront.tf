@@ -48,11 +48,16 @@ resource "aws_cloudfront_distribution" "uploader" {
     response_headers_policy_id = aws_cloudfront_response_headers_policy.custom_security_headers.id
     cache_policy_id            = "658327ea-f89d-4fab-a63d-7e88639e58f6"
     viewer_protocol_policy     = "redirect-to-https"
-    function_association {
 
+    function_association {
       event_type   = "viewer-request"
       function_arn = aws_cloudfront_function.rewrite_default_index_request.arn
+    }
 
+    lambda_function_association {
+      event_type   = "origin-request"
+      lambda_arn   = aws_lambda_function.maintenance_check_edge.qualified_arn
+      include_body = false
     }
   }
   price_class = "PriceClass_100"

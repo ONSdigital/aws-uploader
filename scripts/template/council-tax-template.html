@@ -6,20 +6,32 @@
     body {
       height: auto;
     }
+
+    /* Ensure ONS info panel shows the left blue bar even when nested */
+    .ons-page__container .ons-panel.ons-panel--info.ons-panel--no-title {
+      border-left-width: 8px !important;
+      border-left-style: solid !important;
+      border-left-color: var(--ons-color-info, #206095) !important;
+    }
+
+    /* Extra safety: ensure all info panels get a left border */
+    .ons-panel.ons-panel--info {
+      border-left: 8px solid var(--ons-color-info, #206095) !important;
+    }
   </style>
 
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>ONS-Uploader</title>
-  <link rel="stylesheet" href="https://cdn.ons.gov.uk/sdc/design-system/70.0.4/css/main.css">
-  <link rel="stylesheet" media="print" href="https://cdn.ons.gov.uk/sdc/design-system/70.0.4/css/print.css">
+  <link rel="stylesheet" href="https://cdn.ons.gov.uk/sdc/design-system/70.0.8/css/main.css">
+  <link rel="stylesheet" media="print" href="https://cdn.ons.gov.uk/sdc/design-system/70.0.8/css/print.css">
   <meta name="theme-color" content="#206095">
   <!-- Open Graph -->
   <meta property="og:type" content="website">
   <meta property="og:url" content="">
   <meta property="og:title" content="">
-  <meta property="og:image" content="https://cdn.ons.gov.uk/sdc/design-system/70.0.4/favicons/opengraph.png">
+  <meta property="og:image" content="https://cdn.ons.gov.uk/sdc/design-system/70.0.8/favicons/opengraph.png">
   <meta property="og:image:type" content="image/png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
@@ -27,19 +39,23 @@
   <meta property="og:site_name" content="Service name">
   <meta property="og:locale" content="en">
   <!-- Favicons -->
-  <link rel="icon" type="image/x-icon" href="https://cdn.ons.gov.uk/sdc/design-system/70.0.4/favicons/favicon.ico">
-  <link rel="icon" type="image/png" href="https://cdn.ons.gov.uk/sdc/design-system/70.0.4/favicons/favicon-32x32.png"
+  <link rel="icon" type="image/x-icon" href="https://cdn.ons.gov.uk/sdc/design-system/70.0.8/favicons/favicon.ico">
+  <link rel="icon" type="image/png" href="https://cdn.ons.gov.uk/sdc/design-system/70.0.8/favicons/favicon-32x32.png"
     sizes="32x32">
-  <link rel="icon" type="image/png" href="https://cdn.ons.gov.uk/sdc/design-system/70.0.4/favicons/favicon-16x16.png"
+  <link rel="icon" type="image/png" href="https://cdn.ons.gov.uk/sdc/design-system/70.0.8/favicons/favicon-16x16.png"
     sizes="16x16">
-  <link rel="mask-icon" href="https://cdn.ons.gov.uk/sdc/design-system/70.0.4/favicons/safari-pinned-tab.svg"
+  <link rel="mask-icon" href="https://cdn.ons.gov.uk/sdc/design-system/70.0.8/favicons/safari-pinned-tab.svg"
     color="#000000">
   <link rel="apple-touch-icon" type="image/png"
-    href="https://cdn.ons.gov.uk/sdc/design-system/70.0.4/favicons/apple-touch-icon.png" sizes="180x180">
-  <link rel="manifest" href="https://cdn.ons.gov.uk/sdc/design-system/70.0.4/favicons/manifest.json">
+    href="https://cdn.ons.gov.uk/sdc/design-system/70.0.8/favicons/apple-touch-icon.png" sizes="180x180">
+  <link rel="manifest" href="https://cdn.ons.gov.uk/sdc/design-system/70.0.8/favicons/manifest.json">
 </head>
 
 <body>
+  <script>
+    document.body.className = ((document.body.className) ? document.body.className + ' ons-js-enabled' :
+      'ons-js-enabled');
+  </script>
   <div class="ons-page">
     <div class="ons-page__content">
       <a class="ons-skip-to-content" href="#main-content">Skip to main content</a>
@@ -173,17 +189,24 @@
                     </ol>
                   </div>
                 </div>
-                <div class="ons-panel__body">
+                <div>
                   <p class="ons-panel__error" id="errors-list-paragraph" style="display: none">
                     <strong id="errors-list-text"></strong>
                   </p>
                 </div>
-                <div class="ons-panel ons-panel--info ons-panel--no-title ons-u-mb-l" id="loading-banner" style="display: none">
-                  <span class="ons-panel__assistive-text ons-u-vh">Important information: </span>
+
+                <div aria-labelledby="loading-banner-assistive" role="status" tabindex="-1"
+                  class="ons-panel ons-panel--info ons-panel--no-title ons-u-mb-l" id="loading-banner"
+                  style="display: none">
+                  <span id="loading-banner-assistive" class="ons-panel__assistive-text ons-u-vh">Important information:
+                  </span>
                   <div class="ons-panel__body">
-                    <p>The data are being submitted. The upload process may take some time for larger files. Please do not attempt to resubmit the data or refresh the page.</p>
+                    <p>The data files are being submitted. The upload process may take some time for larger files.
+                      Please do
+                      not attempt to resubmit the data or refresh the page.</p>
                   </div>
                 </div>
+
                 <form id="form">
                   <!-- Error message for extract-upload -->
                   <div class="ons-panel" id="extract-file-error">
