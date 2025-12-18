@@ -52,7 +52,7 @@ jobs:
         var_files:
           - pull-request/ci/env/((concourse.vars))
 
-  - name: e
+  - name: unit-tests
     plan:
       - get: pull-request
         trigger: true
