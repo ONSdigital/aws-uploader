@@ -110,6 +110,14 @@ resource "aws_s3_object" "result_message" {
   content_type = "text/javascript"
 }
 
+resource "aws_s3_object" "maintenance_page" {
+  bucket       = module.ons_upload_bucket.bucket_id
+  key          = "maintenance.html"
+  source       = "${path.module}/scripts/maintenance.html"
+  source_hash  = filemd5("${path.module}/scripts/maintenance.html")
+  content_type = "text/html"
+}
+
 
 module "render_council" {
   source        = "./modules/render_council"
