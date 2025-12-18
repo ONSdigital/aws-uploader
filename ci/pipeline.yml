@@ -52,11 +52,27 @@ jobs:
         var_files:
           - pull-request/ci/env/((concourse.vars))
 
-  - name: terraform-plan
+  - name: e
     plan:
       - get: pull-request
         trigger: true
         passed: [set-pipeline-pr]
+
+      - task: run-unit-tests
+        input_mapping:
+          repo-git: pull-request
+        file: pull-request/ci/tasks/unitTests/task.yml
+        on_failure:
+          put: pull-request
+          params:
+            path: pull-request
+            status: FAILURE
+
+  - name: terraform-plan
+    plan:
+      - get: pull-request
+        trigger: true
+        passed: [unit-tests]
 
       - put: pull-request
         params:
