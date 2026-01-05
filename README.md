@@ -98,28 +98,28 @@ Example first two lines
 "name","lad_code"
 "Test","E00000000"
 
-
-```
-
 ## Running Behaviour tests
 Behaviour tests should be run before raising a Pull Request.
 Depending on your package manager of choice you can run
-```
+
+```bash
 yarn install
 yarn test
 ```
 
 or
 
-```
+```bash
 npm install
 npm test
 ```
 
 or, you can make use of the makefile and run
-```
+
+```bash
 make behaviour-tests
 ```
+
 after installing the package dependencies.
 
 ## Github Automatic reviewers
@@ -134,6 +134,35 @@ Dependabot is setup to check dependency versions within terraform, this will aut
 
 Concourse uses YAML to create the pipelines, which is works well until you start to create bigger pipelines to support bigger environments.
 Within the `ci` folder there are two examples `aviator` and `concourse`. Read the README in both sections to work out which is better for your usecase.
+
+## Maintenance Mode
+
+The service can be put into maintenance mode to prevent access during system maintenance. A Lambda@Edge function checks the maintenance status and redirects users to a maintenance page.
+
+Authenticate with the AWS account user credentials
+
+**Activate with custom message and date:**
+
+```bash
+aws ssm put-parameter --name "/uploader/maintenance-mode" --value '{"enabled":true,"message":"2 pm on Monday 16 December 2025"}' --type String --overwrite
+```
+
+**Deactivate maintenance mode:**
+```bash
+aws ssm put-parameter --name "/uploader/maintenance-mode" --value "false" --type String --overwrite
+```
+
+Changes take effect within 60 seconds due to Lambda@Edge caching. However, you can invalidate the cache instantluy with the below commands.
+
+**List cloudfront cache:**
+```bash
+aws cloudfront list-distributions
+```
+
+**Invalidate the cache:**
+```bash
+aws cloudfront create-invalidation --distribution-id <distribution_Id> --paths "/council-tax/*"
+```
 
 ## Monitoring
 
