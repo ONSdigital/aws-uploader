@@ -91,7 +91,7 @@ terraform plan -var-file=env/env.tfvars
 
 This is a guide to creating new Council Tax upload pages:
 
-Edit the councils.csv to add the new code and council name to the bottom of the list. Commit the change and the necessary pages will be added.
+Edit the councils.csv to add the new LAD code and council name to the bottom of the list. Commit the change and the necessary pages will be added.
 
 Be sure that the csv maintains its header row and the lad code is the right format.
 Example first two lines
@@ -285,4 +285,3 @@ The deployed production solution is monitored by [uptrends.com](https://uptrends
 |------|-------------|
 | <a name="output_website_domain"></a> [website\_domain](#output\_website\_domain) | domain name for the cloudfront website |
 <!-- END_TF_DOCS -->
-
