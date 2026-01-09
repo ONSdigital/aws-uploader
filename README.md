@@ -98,6 +98,28 @@ Example first two lines
 "name","lad_code"
 "Test","E00000000"
 
+#### Naming convention and gotchas
+1. Keep the 'councils.csv' documented sorted alphabetically on "name"
+2. Each word in the "name" should be capitalised i.e. Ebbw Vale not Ebbw vale or ebbw vale
+3. Ands can be "ands" as in "Cheshire West And Chester" or ampersands (&) as in "Newark & Sherwood". Pay attention to this and if in doubt check the councils website i.e. https://www.cheshirewestandchester.gov.uk/vs. https://www.newark-sherwooddc.gov.uk/
+4. UA (Unitary Authority) should be capitalised - as in "Nottingham UA"
+
+#### Convert council names to Proper Case (Excel):
+We get a list of councils from Tim which will contain something like "CARDIFF", "1234567" - follow the steps below to format in Excel
+
+• Add a new column and use the PROPER() function to change council names from UPPER CASE to Proper Case (where B2 is the council name):
+=PROPER(B2)
+
+• Note: This will convert SOUTHAMPTON UA to Southampton Ua. You’ll need to manually correct “Ua” back to “UA” where required.
+
+#### Generate formatted output for council name and code (Excel):
+• Use the following formula to create the desired format, where E2 is the Proper Cased Council Name, and B2 is the LAD Code:
+="""" & E2 & """,""" & B2 & """"
+
+• This will output something like "Southampton UA","E06000045"
+
+• This saves you from typing each entry manually.
+
 ## Running Behaviour tests
 Behaviour tests should be run before raising a Pull Request.
 Depending on your package manager of choice you can run
@@ -146,6 +168,8 @@ Authenticate with the AWS account user credentials
 ```bash
 aws ssm put-parameter --name "/uploader/maintenance-mode" --value '{"enabled":true,"message":"2 pm on Monday 16 December 2025"}' --type String --overwrite
 ```
+
+In this case "2 pm on Monday 16 December 2025"" is an example - put whatever message you want in.
 
 **Deactivate maintenance mode:**
 ```bash
