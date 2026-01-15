@@ -89,11 +89,54 @@ terraform plan -var-file=env/env.tfvars
 
 ### Onboarding New Councils
 
-This is a guide to creating new Council Tax upload pages:
+This is a guide to creating new Council Tax upload pages. 
 
-Edit the councils.csv to add the new LAD code and council name to the bottom of the list. Commit the change and the necessary pages will be added.
+When onboarding new councils, please *avoid retyping* council names or LAD codes.  Manual typing increases the risk of missepllings and formatting inconsistencies. Instead, copy the values directly from the reference document and use the steps below to generate the required CSV format.
 
-Be sure that the csv maintains its header row and the lad code is the right format.
+The CSV requires the exact structure:
+```
+"<Proper Cased Council Name>","<LAD Code>"
+```
+
+#### Extracting the reference data
+
+If the reference data is in a Word document:
+1. Open the Word file
+2. Highlight the council and LAD code
+3. Copy them into an Excel sheet
+4. Place vales in seperate columns:
+  * Column A: Council Name
+  * Column B: LAD Code
+
+If the reference data is in an Excel file (.xlsx):
+1. Open the spreadsheet
+2. Locate the council name and LAD code
+3. Copy the exact values into your working Excel sheet (Columns A and B)
+4. Avoid retyping unless absolutely necessary
+
+#### Standardise the council name (Proper Case)
+If the council name has inconsistent casing, use Excel's `PROPER()` function, where A1 is your council name (replace A1 if your cell differs):
+```
+=PROPER(A1)
+```
+
+#### Generate the correct CSV line
+Use this Excel formula to build a correctly formatted CSV entry, where A1 is your council name and B1 is your LAD code (replace these cells if yours differ):
+```
+="""" & PROPER(A1) & """,""" & B1 & """"
+```
+
+Copy the formula down your cells if you have multiple councils to add.
+
+This should produce an output like:
+```
+"Neath Port Talbot","W06000012"
+```
+
+#### Add the output to the CSV
+Copy the generated line(s) from Excel and paste them in alphabetical order into the councils.csv file. Commit the change and the necessary pages will be added.
+
+Be sure that the csv maintains its header row and the LAD code is the right format.
 Example first two lines
 "name","lad_code"
 "Test","E00000000"
@@ -103,22 +146,6 @@ Example first two lines
 2. Each word in the "name" should be capitalised i.e. Ebbw Vale not Ebbw vale or ebbw vale
 3. Ands can be "ands" as in "Cheshire West And Chester" or ampersands (&) as in "Newark & Sherwood". Pay attention to this and if in doubt check the councils website i.e. https://www.cheshirewestandchester.gov.uk/vs. https://www.newark-sherwooddc.gov.uk/
 4. UA (Unitary Authority) should be capitalised - as in "Nottingham UA"
-
-#### Convert council names to Proper Case (Excel):
-We get a list of councils from Tim which will contain something like "CARDIFF", "1234567" - follow the steps below to format in Excel
-
-• Add a new column and use the PROPER() function to change council names from UPPER CASE to Proper Case (where B2 is the council name):
-=PROPER(B2)
-
-• Note: This will convert SOUTHAMPTON UA to Southampton Ua. You’ll need to manually correct “Ua” back to “UA” where required.
-
-#### Generate formatted output for council name and code (Excel):
-• Use the following formula to create the desired format, where E2 is the Proper Cased Council Name, and B2 is the LAD Code:
-="""" & E2 & """,""" & B2 & """"
-
-• This will output something like "Southampton UA","E06000045"
-
-• This saves you from typing each entry manually.
 
 ## Running Behaviour tests
 Behaviour tests should be run before raising a Pull Request.
