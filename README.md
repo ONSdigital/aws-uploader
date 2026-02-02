@@ -219,7 +219,7 @@ aws cloudfront create-invalidation --distribution-id <distribution_Id> --paths "
 
 The deployed production solution is monitored by [uptrends.com](https://uptrends.com). There are two monitors in place
 
-- Connectivity to <https://uploader.ingest.aws.onsdigital.uk/council-tax/E07000175-Newark&Sherwood.html>
+- Connectivity to <https://uploader.ingest.aws.onsdigital.uk/council-tax/H00000000-Health-Status.html>
 - The presence of a fixed string in the page is also tested for - this is currently "Upload the EXTRACT file".
  ![ uptrends screenshot ](docs/uptrends1.png)![ uptrends screenshot 2 ](docs/uptrends2.png)
 
