@@ -38,17 +38,3 @@ resource "null_resource" "execute_query" {
     EOT
   }
 }
-
-resource "null_resource" "create_filtered_view" {
-  provisioner "local-exec" {
-    command = <<EOT
-    $(aws sts assume-role --role-arn arn:aws:iam::${var.target_account_id}:role/aws_shared_concourse --role-session-name aws-athena-run-query --query 'Credentials.`export#AWS_ACCESS_KEY_ID=`,AccessKeyId`#AWS_SECRET_ACCESS_KEY=`,SecretAccessKey`#AWS_SESSION_TOKEN=`,SessionToken]' --output text | sed $'s/\t//g' | sed 's/#/ /g')
-      aws athena start-query-execution \
-      --query-string "CREATE OR REPLACE VIEW cloudfront_filtered_logs AS SELECT * FROM cloudfront_standard_logs WHERE LOWER(cs_uri_stem) NOT LIKE '%health-status%'" \
-      --query-execution-context "Database=${aws_athena_database.access_logs.id}" \
-      --result-configuration "OutputLocation=s3://${aws_s3_bucket.cloudfront_logging_bucket.id}/query_results/create_filtered_view/"
-    EOT
-  }
-
-  depends_on = [null_resource.execute_query]
-}
