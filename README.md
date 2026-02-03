@@ -1,4 +1,4 @@
-# AWS Uploader
+# AWS Uploader 
 
 This solution hosts the infrastructure to build a website that allows specific users to upload EXTRACT and MANI files inside a secured S3 bucket and deploy it into
 dev, pre-prod and production environments.
