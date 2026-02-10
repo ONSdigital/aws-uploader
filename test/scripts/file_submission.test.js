@@ -30,9 +30,8 @@ describe("File submission validation", () => {
 
     // assert
     const errors = getErrors();
-    expect(errors.length).toBe(2);
-    expect(errors[0].textContent).toMatch(/you need to add an extract file/i);
-    expect(errors[1].textContent).toMatch(/you need to add a mani file/i);
+    expect(errors.length).toBe(1);
+    expect(errors[0].textContent).toMatch(/you need to upload both files/i);
   });
 
   test("when only EXTRACT file is missing a single specific error message should be displayed", () => {
