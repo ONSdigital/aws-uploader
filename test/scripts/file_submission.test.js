@@ -11,7 +11,7 @@ describe("File submission validation", () => {
     return document.querySelectorAll("#errors-list-item li");
   }
 
-  test("when both files missing a single combined error message should be displayed", () => {
+  test("when both files missing, individual error messages should be displayed for each file", () => {
     // arrange
     const form = document.getElementById("form");
 
@@ -30,8 +30,9 @@ describe("File submission validation", () => {
 
     // assert
     const errors = getErrors();
-    expect(errors.length).toBe(1);
-    expect(errors[0].textContent).toMatch(/both files|upload both/i);
+    expect(errors.length).toBe(2);
+    expect(errors[0].textContent).toMatch(/you need to add an extract file/i);
+    expect(errors[1].textContent).toMatch(/you need to add a mani file/i);
   });
 
   test("when only EXTRACT file is missing a single specific error message should be displayed", () => {
