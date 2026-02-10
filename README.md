@@ -147,20 +147,41 @@ Example first two lines
 3. Ands can be "ands" as in "Cheshire West And Chester" or ampersands (&) as in "Newark & Sherwood". Pay attention to this and if in doubt check the councils website i.e. https://www.cheshirewestandchester.gov.uk/vs. https://www.newark-sherwooddc.gov.uk/
 4. UA (Unitary Authority) should be capitalised - as in "Nottingham UA"
 
-## Running Behaviour tests
-Behaviour tests should be run before raising a Pull Request.
+## Testing
+Tests should be run before raising a Pull Request.
 Depending on your package manager of choice you can run
 
 ```bash
-yarn install
-yarn test
+yarn
 ```
 
 or
 
 ```bash
 npm install
-npm test
+```
+
+### Unit Tests
+Run Jest unit tests:
+```bash
+yarn test:unit
+```
+
+or
+
+```bash
+npm test:unit
+```
+
+### Integration tests
+```bash
+yarn test:integration
+```
+
+or
+
+```bash
+npm test:integration
 ```
 
 or, you can make use of the makefile and run
@@ -169,7 +190,16 @@ or, you can make use of the makefile and run
 make behaviour-tests
 ```
 
-after installing the package dependencies.
+### Run All Tests
+```bash
+yarn test
+```
+
+or
+
+```bash
+npm test
+```
 
 ## Github Automatic reviewers
 

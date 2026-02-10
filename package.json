@@ -6,8 +6,9 @@
     "selenium-webdriver": "^4.33.0"
   },
   "scripts": {
-    "test": "cucumber-js",
-    "test:unit": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
+    "test": "yarn test:unit && yarn test:integration",
+    "test:unit": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "test:integration": "cucumber-js"
   },
   "name": "aws-uploader",
   "version": "1.0.0",
