@@ -146,7 +146,7 @@ Then("I should see the submit button", async function () {
   assert.ok(submitButton.isDisplayed());
 });
 
-Then('I should see a "Success" message', async function () {
+Then('I should see a "Success" message', {timeout: 25000}, async function () {
   await this.driver.wait(
     until.elementLocated(By.xpath('//*[contains(text(), "Success")]')),
     20000,
