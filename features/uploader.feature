@@ -21,14 +21,14 @@ Feature: Upload files via the uploader page
     Given I have navigated to the uploader page
     When I upload a correctly named non-zero byte extract file "CTAX_EXTRACT_E00000000_20250131.csv" that matches the URL LAD code
     And I click "Submit"
-    Then I should NOT see a "You need to fill in both fields" message
+    Then I should NOT see a "You need to upload both files" message
     And I should see a "You need to add a Mani file" message
 
   Scenario: Fail to upload files due to missing extract file
     Given I have navigated to the uploader page
     When I upload a correctly named non-zero byte manifest file "CTAX_MANI_E00000000_20250131.csv" that matches the URL LAD code
     And I click "Submit"
-    Then I should NOT see a "You need to fill in both fields" message
+    Then I should NOT see a "You need to upload both files" message
     And I should see a "You need to add an Extract file" message
 
   Scenario: Upload fails due to manifest file not following naming convention

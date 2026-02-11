@@ -182,16 +182,15 @@ Then(
 );
 
 Then(
-  'I should NOT see a "You need to fill in both fields" message',
+  'I should NOT see a "You need to upload both files" message',
   async function () {
-    // Wait a moment for the page to settle
     await this.driver.sleep(1000);
 
     let pageText = await this.driver.findElement(By.tagName("body")).getText();
 
     assert.ok(
-      !pageText.includes("You need to fill in both fields"),
-      'The text "You need to fill in both fields" was unexpectedly found on the page',
+      !pageText.includes("You need to upload both files"),
+      'The text "You need to upload both files" was unexpectedly found on the page',
     );
   },
 );
