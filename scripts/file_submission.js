@@ -27,10 +27,8 @@ function commonErrorStyle(errorCount) {
   if (errorCount === 1) {
     errorsTitle.innerHTML =
       '<h2 class="ons-panel__title ons-u-fs-r--b">There is 1 problem with your answer</h2>';
-    errorsText.textContent = "There is 1 problem with your answer";
   } else {
     errorsTitle.innerHTML = `<h2 class="ons-panel__title ons-u-fs-r--b">There are $${errorCount} problems with your answer</h2>`;
-    errorsText.textContent = `There are $${errorCount} problems with your answer`;
   }
 }
 
