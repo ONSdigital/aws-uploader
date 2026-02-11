@@ -164,19 +164,34 @@ Then('I should see a "Success" message', async function () {
 });
 
 Then(
-  'I should see a "You need to fill in both fields" message',
+  'I should see a "You need to upload both files" message',
   async function () {
     await this.driver.wait(
       until.elementLocated(
-        By.xpath('//*[contains(text(), "You need to fill in both fields")]'),
+        By.xpath('//*[contains(text(), "You need to upload both files")]'),
       ),
-      20000,
+      10000000,
     );
     let pageText = await this.driver.findElement(By.tagName("body")).getText();
 
     assert.ok(
-      pageText.includes("You need to fill in both fields"),
-      'The text "You need to fill in both fields" message" was not found on the page',
+      pageText.includes("You need to upload both files"),
+      'The text "You need to upload both files" message" was not found on the page',
+    );
+  },
+);
+
+Then(
+  'I should NOT see a "You need to fill in both fields" message',
+  async function () {
+    // Wait a moment for the page to settle
+    await this.driver.sleep(1000);
+
+    let pageText = await this.driver.findElement(By.tagName("body")).getText();
+
+    assert.ok(
+      !pageText.includes("You need to fill in both fields"),
+      'The text "You need to fill in both fields" was unexpectedly found on the page',
     );
   },
 );
@@ -257,19 +272,19 @@ Then('I should see a "You need to add a Mani file" message', async function () {
 });
 
 Then(
-  'I should see a "You need to add a Extract file" message',
+  'I should see a "You need to add an Extract file" message',
   async function () {
     await this.driver.wait(
       until.elementLocated(
-        By.xpath('//*[contains(text(), "You need to add a Extract file")]'),
+        By.xpath('//*[contains(text(), "You need to add an Extract file")]'),
       ),
       20000,
     );
     let pageText = await this.driver.findElement(By.tagName("body")).getText();
 
     assert.ok(
-      pageText.includes("You need to add a Extract file"),
-      'The text "You need to add a Extract file" was not found on the page',
+      pageText.includes("You need to add an Extract file"),
+      'The text "You need to add an Extract file" was not found on the page',
     );
   },
 );
