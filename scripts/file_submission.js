@@ -88,22 +88,29 @@ document.getElementById("form").addEventListener("submit", function (e) {
   let valid = true;
   let errCount = 0;
 
-  if (form.fileOne.files.length < 1 || form.fileTwo.files.length < 1) {
-    addItem("You need to fill in both fields", "fileOne");
+  const hasFileOne = form.fileOne.files.length > 0;
+  const hasFileTwo = form.fileTwo.files.length > 0;
+
+  // both missing
+  if (!hasFileOne && !hasFileTwo) {
+    bothFilesErrorStyle();
+    addItem("You need to upload both files", "fileOne");
     valid = false;
-    errCount++;
+    errCount = 1;
   }
-  if (form.fileOne.files.length < 1) {
+  // only EXTRACT missing
+  else if (!hasFileOne) {
     fileOneErrorStyle();
-    addItem("You need to add a Extract file", "fileOne");
+    addItem("You need to add an Extract file", "fileOne");
     valid = false;
-    errCount++;
+    errCount = 1;
   }
-  if (form.fileTwo.files.length < 1) {
+  // only MANI missing
+  else if (!hasFileTwo) {
     fileTwoErrorStyle();
     addItem("You need to add a Mani file", "fileTwo");
     valid = false;
-    errCount++;
+    errCount = 1;
   }
   if (!valid) {
     commonErrorStyle(errCount);
