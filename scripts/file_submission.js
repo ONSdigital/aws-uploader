@@ -94,14 +94,14 @@ document.getElementById("form").addEventListener("submit", function (e) {
     fileOneErrorStyle();
     addItem("You need to add an Extract file", "fileOne");
     valid = false;
-    errCount = 1;
+    errCount++;
   }
   // only MANI missing
   if (!hasFileTwo) {
     fileTwoErrorStyle();
     addItem("You need to add a Mani file", "fileTwo");
     valid = false;
-    errCount = 1;
+    errCount++;
   }
   if (!valid) {
     commonErrorStyle(errCount);
