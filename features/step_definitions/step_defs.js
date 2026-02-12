@@ -333,3 +333,43 @@ Then(
     assert.ok(true);
   },
 );
+
+Then('I should see a "There are 2 problems with your answer" message once', async function () {
+  await this.driver.wait(
+    until.elementLocated(
+      By.xpath('//*[contains(normalize-space(.), "There are 2 problems with your answer")]'),
+    ),
+    20000,
+  );
+
+  let pageText = await this.driver.findElement(By.tagName("body")).getText();
+  const searchText = "There are 2 problems with your answer";
+
+  const occurrences = (pageText.match(new RegExp(searchText, 'g')) || []).length;
+
+  assert.strictEqual(
+    occurrences,
+    1,
+    `Expected to find "${searchText}" exactly once, but found it ${occurrences} times`,
+  );
+});
+
+Then('I should see a "There is 1 problem with your answer" message once', async function () {
+  await this.driver.wait(
+    until.elementLocated(
+      By.xpath('//*[contains(normalize-space(.), "There is 1 problem with your answer")]'),
+    ),
+    20000,
+  );
+
+  let pageText = await this.driver.findElement(By.tagName("body")).getText();
+  const searchText = "There is 1 problem with your answer";
+
+  const occurrences = (pageText.match(new RegExp(searchText, 'g')) || []).length;
+
+  assert.strictEqual(
+    occurrences,
+    1,
+    `Expected to find "${searchText}" exactly once, but found it ${occurrences} times`,
+  );
+});
