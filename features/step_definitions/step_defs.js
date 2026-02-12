@@ -337,7 +337,7 @@ Then(
 Then('I should see a "There are 2 problems with your answer" message once', async function () {
   await this.driver.wait(
     until.elementLocated(
-      By.xpath('//*[contains(text(), "There are 2 problems with your answer")]'),
+      By.xpath('//*[contains(normalize-space(.), "There are 2 problems with your answer")]'),
     ),
     20000,
   );
