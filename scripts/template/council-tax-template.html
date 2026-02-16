@@ -192,18 +192,6 @@
                 <div>
                 </div>
 
-                <div aria-labelledby="loading-banner-assistive" role="status" tabindex="-1"
-                  class="ons-panel ons-panel--info ons-panel--no-title ons-u-mb-l" id="loading-banner"
-                  style="display: none">
-                  <span id="loading-banner-assistive" class="ons-panel__assistive-text ons-u-vh">Important information:
-                  </span>
-                  <div class="ons-panel__body">
-                    <p>The data files are being submitted. The upload process may take some time for larger files.
-                      Please do
-                      not attempt to resubmit the data or refresh the page.</p>
-                  </div>
-                </div>
-
                 <form id="form">
                   <!-- Error message for extract-upload -->
                   <div class="ons-panel" id="extract-file-error">
@@ -243,6 +231,14 @@
                           class="ons-input ons-input--text ons-input-type__input ons-input--upload" accept=".csv"
                           aria-describedby="mani-description">
                       </div>
+                    </div>
+                  </div>
+                  <div aria-labelledby="submit-info-assistive" role="note"
+                    class="ons-panel ons-panel--info ons-panel--no-title ons-u-mt-m ons-u-mb-s">
+                    <span id="submit-info-assistive" class="ons-panel__assistive-text ons-u-vh">Important information:
+                    </span>
+                    <div class="ons-panel__body">
+                      <p>Uploads may take time for large files. Once submitted, do not refresh or resubmit.</p>
                     </div>
                   </div>
                   <button type="submit" id="submit-btn" class="ons-btn" style="margin-top: 3%;">
