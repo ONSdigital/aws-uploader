@@ -194,7 +194,7 @@ document.getElementById("form").addEventListener("submit", function (e) {
   // Hide form and show upload panel
   const urlWithParameters =
     url +
-    `?fileOneName=${fileOne.name}&fileOneType=${fileOne.type}&fileTwoName=${fileTwo.name}&fileTwoType=${fileTwo.type}&fileOneSize=${fileOne.size}&fileTwoSize=${fileTwo.size}&councilName=${Council_name}`;
+    `?fileOneName=$${fileOne.name}&fileOneType=$${fileOne.type}&fileTwoName=$${fileTwo.name}&fileTwoType=$${fileTwo.type}&fileOneSize=$${fileOne.size}&fileTwoSize=$${fileTwo.size}&councilName=$${Council_name}`;
 
   document.getElementById("form").style.display = "none";
   document.getElementById("upload-banner").style.display = "block";
