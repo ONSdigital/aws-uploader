@@ -114,9 +114,6 @@ document.getElementById("form").addEventListener("submit", function (e) {
     return false;
   }
 
-  console.log("DEBUG: upload-banner element:", document.getElementById("upload-banner"));
-  console.log("DEBUG: form element:", document.getElementById("form"));
-
   const fileOne = form.fileOne.files[0];
   const fileTwo = form.fileTwo.files[0];
   const currentUrl = window.location.href;
