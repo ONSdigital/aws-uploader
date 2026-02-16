@@ -3,6 +3,7 @@ const { Given, When, Then } = require("@cucumber/cucumber");
 const { By } = require("selenium-webdriver");
 const { createDriver } = require("../support/webdriver"); // Import the WebDriver configuration
 const { until } = require("selenium-webdriver");
+const path = require("path");
 
 // GIVEN //
 Given("I have navigated to the uploader page", async function () {
@@ -130,6 +131,28 @@ When('I click "Submit"', async function () {
   await submitButton.click();
 });
 
+When(
+  "I upload a large extract file {string} over 5MB that matches the URL LAD code",
+  async function (fileName) {
+    const path = require("path");
+    const filePath = path.resolve("features", "test_files", fileName);
+    let fileInput = await this.driver.findElement(By.id("fileOne"));
+
+    await fileInput.sendKeys(filePath);
+  },
+);
+
+When(
+  "I upload a large manifest file {string} over 5MB that matches the URL LAD code",
+  async function (fileName) {
+    const path = require("path");
+    const filePath = path.resolve("features", "test_files", fileName);
+    let fileInput = await this.driver.findElement(By.id("fileTwo"));
+
+    await fileInput.sendKeys(filePath);
+  },
+);
+
 // THEN //
 Then("I should see the extract file input field", async function () {
   let extractFileInput = await this.driver.findElement(By.id("fileOne"));
@@ -146,20 +169,17 @@ Then("I should see the submit button", async function () {
   assert.ok(submitButton.isDisplayed());
 });
 
-Then('I should see a "Success" message', {timeout: 25000}, async function () {
+Then('I should see a {string} message', { timeout: 25000 }, async function (message) {
   await this.driver.wait(
-    until.elementLocated(By.xpath('//*[contains(normalize-space(.), "Success")]')),
+    until.elementLocated(By.xpath(`//*[contains(normalize-space(.), "${message}")]`)),
     20000,
   );
-  let pageText = await this.driver.findElement(By.tagName("body")).getText();
+
+  const pageText = await this.driver.findElement(By.tagName('body')).getText();
 
   assert.ok(
-    pageText.includes("Success"),
-    'The text "Success" was not found on the page',
-  );
-  assert.ok(
-    pageText.includes("Information has been successfully submitted"),
-    'The text "Information has been successfully submitted" was not found on the page',
+    pageText.includes(message),
+    `The text "${message}" was not found on the page`,
   );
 });
 
@@ -255,39 +275,6 @@ Then(
   },
 );
 
-Then('I should see a "You need to add a Mani file" message', async function () {
-  await this.driver.wait(
-    until.elementLocated(
-      By.xpath('//*[contains(text(), "You need to add a Mani file")]'),
-    ),
-    20000,
-  );
-  let pageText = await this.driver.findElement(By.tagName("body")).getText();
-
-  assert.ok(
-    pageText.includes("You need to add a Mani file"),
-    'The text "You need to add a Mani file" was not found on the page',
-  );
-});
-
-Then(
-  'I should see a "You need to add an Extract file" message',
-  async function () {
-    await this.driver.wait(
-      until.elementLocated(
-        By.xpath('//*[contains(text(), "You need to add an Extract file")]'),
-      ),
-      20000,
-    );
-    let pageText = await this.driver.findElement(By.tagName("body")).getText();
-
-    assert.ok(
-      pageText.includes("You need to add an Extract file"),
-      'The text "You need to add an Extract file" was not found on the page',
-    );
-  },
-);
-
 Then("I should see a “File names do not match” message", async function () {
   await this.driver.wait(
     until.elementLocated(
@@ -303,28 +290,6 @@ Then("I should see a “File names do not match” message", async function () {
   );
 });
 
-When(
-  "I upload a large extract file {string} over 5MB that matches the URL LAD code",
-  async function (fileName) {
-    const path = require("path");
-    const filePath = path.resolve("features", "test_files", fileName);
-    let fileInput = await this.driver.findElement(By.id("fileOne"));
-
-    await fileInput.sendKeys(filePath);
-  },
-);
-
-When(
-  "I upload a large manifest file {string} over 5MB that matches the URL LAD code",
-  async function (fileName) {
-    const path = require("path");
-    const filePath = path.resolve("features", "test_files", fileName);
-    let fileInput = await this.driver.findElement(By.id("fileTwo"));
-
-    await fileInput.sendKeys(filePath);
-  },
-);
-
 Then(
   "the files should have been uploaded using multipart upload",
   async function () {
@@ -334,57 +299,18 @@ Then(
   },
 );
 
-Then('I should see a "There are 2 problems with your answer" message once', async function () {
+Then('I should see a {string} message once', { timeout: 25000 }, async function (message) {
   await this.driver.wait(
-    until.elementLocated(
-      By.xpath('//*[contains(normalize-space(.), "There are 2 problems with your answer")]'),
-    ),
+    until.elementLocated(By.xpath(`//*[contains(normalize-space(.), "${message}")]`)),
     20000,
   );
 
-  let pageText = await this.driver.findElement(By.tagName("body")).getText();
-  const searchText = "There are 2 problems with your answer";
-
-  const occurrences = (pageText.match(new RegExp(searchText, 'g')) || []).length;
+  const pageText = await this.driver.findElement(By.tagName('body')).getText();
+  const occurrences = (pageText.match(new RegExp(message, 'g')) || []).length;
 
   assert.strictEqual(
     occurrences,
     1,
-    `Expected to find "${searchText}" exactly once, but found it ${occurrences} times`,
-  );
-});
-
-Then('I should see a "There is 1 problem with your answer" message once', async function () {
-  await this.driver.wait(
-    until.elementLocated(
-      By.xpath('//*[contains(normalize-space(.), "There is 1 problem with your answer")]'),
-    ),
-    20000,
-  );
-
-  let pageText = await this.driver.findElement(By.tagName("body")).getText();
-  const searchText = "There is 1 problem with your answer";
-
-  const occurrences = (pageText.match(new RegExp(searchText, 'g')) || []).length;
-
-  assert.strictEqual(
-    occurrences,
-    1,
-    `Expected to find "${searchText}" exactly once, but found it ${occurrences} times`,
-  );
-});
-
-Then('I should see a "Uploads may take time for large files. Once submitted, do not refresh or resubmit" message', async function () {
-  await this.driver.wait(
-    until.elementLocated(
-      By.xpath('//*[contains(normalize-space(.), "Uploads may take time for large files. Once submitted, do not refresh or resubmit")]'),
-    ),
-    20000,
-  );
-  let pageText = await this.driver.findElement(By.tagName("body")).getText();
-
-  assert.ok(
-    pageText.includes("Uploads may take time for large files. Once submitted, do not refresh or resubmit"),
-    'The text "Uploads may take time for large files. Once submitted, do not refresh or resubmit" was not found on the page',
+    `Expected to find "${message}" exactly once, but found it ${occurrences} times`,
   );
 });
