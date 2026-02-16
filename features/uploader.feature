@@ -3,6 +3,7 @@ Feature: Upload files via the uploader page
     Given I have navigated to the uploader page
     Then I should see the extract file input field
     And I should see the mani file input field
+    And I should see a "Uploads may take time for large files. Once submitted, do not refresh or resubmit" message
     And I should see the submit button
 
   Scenario: Successfully upload files (happy path)

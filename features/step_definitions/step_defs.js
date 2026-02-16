@@ -148,7 +148,7 @@ Then("I should see the submit button", async function () {
 
 Then('I should see a "Success" message', {timeout: 25000}, async function () {
   await this.driver.wait(
-    until.elementLocated(By.xpath('//*[contains(text(), "Success")]')),
+    until.elementLocated(By.xpath('//*[contains(normalize-space(.), "Success")]')),
     20000,
   );
   let pageText = await this.driver.findElement(By.tagName("body")).getText();
@@ -371,5 +371,20 @@ Then('I should see a "There is 1 problem with your answer" message once', async 
     occurrences,
     1,
     `Expected to find "${searchText}" exactly once, but found it ${occurrences} times`,
+  );
+});
+
+Then('I should see a "Uploads may take time for large files. Once submitted, do not refresh or resubmit" message', async function () {
+  await this.driver.wait(
+    until.elementLocated(
+      By.xpath('//*[contains(normalize-space(.), "Uploads may take time for large files. Once submitted, do not refresh or resubmit")]'),
+    ),
+    20000,
+  );
+  let pageText = await this.driver.findElement(By.tagName("body")).getText();
+
+  assert.ok(
+    pageText.includes("Uploads may take time for large files. Once submitted, do not refresh or resubmit"),
+    'The text "Uploads may take time for large files. Once submitted, do not refresh or resubmit" was not found on the page',
   );
 });
