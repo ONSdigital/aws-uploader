@@ -191,7 +191,6 @@ document.getElementById("form").addEventListener("submit", function (e) {
     return false;
   }
 
-
   // Hide form and show upload panel
   const urlWithParameters =
     url +
