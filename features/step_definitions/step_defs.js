@@ -314,3 +314,14 @@ Then('I should see a {string} message once', { timeout: 25000 }, async function 
     `Expected to find "${message}" exactly once, but found it ${occurrences} times`,
   );
 });
+
+Then('the form should no longer be visible', async function () {
+  const form = await this.driver.findElement(By.id('form'));
+  const isDisplayed = await form.getCssValue('display');
+
+  assert.strictEqual(
+    isDisplayed,
+    'none',
+    'Expected the form to be hidden but it was still visible',
+  );
+});
