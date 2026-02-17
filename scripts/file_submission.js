@@ -242,7 +242,7 @@ document.getElementById("form").addEventListener("submit", function (e) {
             showFormWithError(() => {
               bothFilesErrorStyle();
               addItem(
-                "There has been an issue with the upload, please contact ingest.service@ons.gov.uk",
+                "There has been an issue with the upload, please contact council.tax@ons.gov.uk",
                 "fileOne",
               );
               commonErrorStyle(1);
