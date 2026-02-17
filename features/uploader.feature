@@ -3,6 +3,7 @@ Feature: Upload files via the uploader page
     Given I have navigated to the uploader page
     Then I should see the extract file input field
     And I should see the mani file input field
+    And I should see a "Uploads may take time for large files. Once submitted, do not refresh or resubmit" message
     And I should see the submit button
 
   Scenario: Successfully upload files (happy path)
@@ -10,7 +11,9 @@ Feature: Upload files via the uploader page
     When I upload a correctly named non-zero byte extract file "CTAX_EXTRACT_E00000000_20250131.csv" that matches the URL LAD code
     And I upload a correctly named non-zero byte manifest file "CTAX_MANI_E00000000_20250131.csv" that matches the URL LAD code
     And I click "Submit"
-    Then I should see a "Success" message
+    Then the form should no longer be visible
+    And I should see a "Uploading. Do not refresh or close the page." message
+    And I should see a "Success" message
 
   Scenario: Fail to upload files due to both files missing
     Given I have navigated to the uploader page
