@@ -4,7 +4,7 @@ locals {
 }
 
 # alerting webhook
-data "aws_secretsmanager_secret" "secretsmanager_secret_cia_ingest_slack" {
+data "aws_secretsmanager_secret" "secretsmanager_secret_ct_uploader_slack" {
   name = "ct_uploader_slack"
 }
 
