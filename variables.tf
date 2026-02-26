@@ -6,10 +6,17 @@ variable "region" {
   default     = "eu-west-2"
   description = "Region in which to create resources"
 }
+
+variable "environment" {
+  type        = string
+  description = "type of environment e.g sandbox, dev, preprod, prod"
+}
+
 variable "upload_host_bucket_name" {
   type        = string
   description = "Hosting the html for ONS Uploader webapp"
 }
+
 variable "upload_ingest_bucket_name" {
   type        = string
   description = "Bucket for ingesting files"

@@ -1,3 +1,4 @@
+environment               = "prod"
 upload_host_bucket_name   = "aws-uploader-ost-prod"
 upload_ingest_bucket_name = "aws-uploader-ingest-ost-prod"
 cloudfront_logging_bucket = "cloudfront-logging-ost-prod"
