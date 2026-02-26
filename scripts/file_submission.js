@@ -89,6 +89,10 @@ document.getElementById("form").addEventListener("submit", function (e) {
 
   clearErrors();
 
+  // TEMP: Remove after verifying Slack alert
+  console.error("TEST_OPERATIONAL_ERROR: Verifying Slack alert integration");
+  throw new Error("TEST_OPERATIONAL_ERROR: Verifying Slack alert integration");
+
   let valid = true;
   let errCount = 0;
 
