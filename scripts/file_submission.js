@@ -46,11 +46,22 @@ function bothFilesErrorStyle() {
   maniFileError.classList.add("ons-panel--error", "ons-panel--no-title");
 }
 
+function injectAssistiveErrorText(panelElement) {
+  if (!panelElement.querySelector(".ons-panel__assistive-text")) {
+    const span = document.createElement("span");
+    span.className = "ons-panel__assistive-text ons-u-vh";
+    span.textContent = "Error: ";
+    panelElement.insertBefore(span, panelElement.firstChild);
+  }
+}
+
 function fileOneErrorStyle() {
   let extractFileCSVError = document.getElementById("extract-file-csv-error");
   let extractFileError = document.getElementById("extract-file-error");
   extractFileError.classList.add("ons-panel--error", "ons-panel--no-title");
   extractFileCSVError.style.display = "block";
+
+  injectAssistiveErrorText(extractFileError);
 }
 
 function fileTwoErrorStyle() {
@@ -58,6 +69,9 @@ function fileTwoErrorStyle() {
   let maniFileError = document.getElementById("mani-file-error");
   maniFileError.classList.add("ons-panel--error", "ons-panel--no-title");
   maniFileCSVError.style.display = "block";
+
+  injectAssistiveErrorText(maniFileError);
+
 }
 
 function addItem(line, anchor) {
@@ -74,6 +88,11 @@ function addItem(line, anchor) {
 function clearErrors() {
   document.getElementById("errors-list").style.display = "none";
   document.getElementById("errors-list-item").innerHTML = "";
+
+  document.querySelectorAll(
+    "#extract-file-error .ons-panel__assistive-text, #mani-file-error .ons-panel__assistive-text"
+  ).forEach(el => el.remove());
+
   let cls = document.getElementsByClassName("ons-panel--no-title");
   if (cls.length > 0) {
     for (var i = 0; i < cls.length; i++) {
