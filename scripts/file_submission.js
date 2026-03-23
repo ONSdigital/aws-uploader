@@ -26,16 +26,17 @@ function commonErrorStyle(errorCount) {
   const errorsTitle = document.getElementById("errors-list-title");
   const errorsText = document.getElementById("errors-list-text");
 
-  errorsList.style.display = "block";
-
   if (errorCount === 1) {
-    errorsTitle.innerHTML =
-      '<h2 class="ons-panel__title ons-u-fs-r--b">There is 1 problem with your answer</h2>';
+    errorsTitle.innerHTML = '<h2 class="ons-panel__title ons-u-fs-r--b">There is 1 problem with your answer</h2>';
     errorsText.textContent = "There is 1 problem with your answer";
   } else {
-    errorsTitle.innerHTML = `<h2 class="ons-panel__title ons-u-fs-r--b">There are $${errorCount} problems with your answer</h2>`;
-    errorsText.textContent = `There are $${errorCount} problems with your answer`;
+    errorsTitle.innerHTML = `<h2 class="ons-panel__title ons-u-fs-r--b">There are ${errorCount} problems with your answer</h2>`;
+    errorsText.textContent = `There are ${errorCount} problems with your answer`;
   }
+
+  errorsList.style.display = "block";
+
+  setTimeout(() => errorsList.focus(), 100);
 }
 
 function bothFilesErrorStyle() {
