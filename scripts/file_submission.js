@@ -36,8 +36,6 @@ function commonErrorStyle(errorCount) {
     errorsTitle.innerHTML = `<h2 class="ons-panel__title ons-u-fs-r--b">There are $${errorCount} problems with your answer</h2>`;
     errorsText.textContent = `There are $${errorCount} problems with your answer`;
   }
-
-  setTimeout(() => errorsList.focus(), 100);
 }
 
 function bothFilesErrorStyle() {
