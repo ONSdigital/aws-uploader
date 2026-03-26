@@ -24,19 +24,22 @@ function extractCouncilNameFromURL(urlPart) {
 function commonErrorStyle(errorCount) {
   const errorsList = document.getElementById("errors-list");
   const errorsTitle = document.getElementById("errors-list-title");
-  const errorsText = document.getElementById("errors-list-text");
-
-  errorsList.style.display = "block";
 
   if (errorCount === 1) {
     errorsTitle.innerHTML =
       '<h2 class="ons-panel__title ons-u-fs-r--b">There is 1 problem with your answer</h2>';
-    errorsText.textContent = "There is 1 problem with your answer";
   } else {
-    errorsTitle.innerHTML = `<h2 class="ons-panel__title ons-u-fs-r--b">There are $${errorCount} problems with your answer</h2>`;
-    errorsText.textContent = `There are $${errorCount} problems with your answer`;
+    errorsTitle.innerHTML =
+      `<h2 class="ons-panel__title ons-u-fs-r--b">There are ${errorCount} problems with your answer</h2>`;
   }
+
+  errorsList.hidden = false;
+
+  setTimeout(() => {
+    errorsList.focus();
+  }, 0);
 }
+
 
 function bothFilesErrorStyle() {
   let extractFileError = document.getElementById("extract-file-error");
@@ -86,20 +89,12 @@ function addItem(line, anchor) {
 }
 
 function clearErrors() {
-  document.getElementById("errors-list").style.display = "none";
+  const errorsList = document.getElementById("errors-list");
+
+  errorsList.hidden = true;
   document.getElementById("errors-list-item").innerHTML = "";
-
-  document.querySelectorAll(
-    "#extract-file-error .ons-panel__assistive-text, #mani-file-error .ons-panel__assistive-text"
-  ).forEach(el => el.remove());
-
-  let cls = document.getElementsByClassName("ons-panel--no-title");
-  if (cls.length > 0) {
-    for (var i = 0; i < cls.length; i++) {
-      cls[i].classList.remove("ons-panel--error", "ons-panel--no-title");
-    }
-  }
 }
+
 
 // Form submission handler
 document.getElementById("form").addEventListener("submit", function (e) {
