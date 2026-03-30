@@ -1,142 +1,177 @@
-"name","lad_code"
-"Amber Valley","E07000032"
-"Arun","E07000224"
-"Babergh","E07000200"
-"Barking & Dagenham","E09000002"
-"Barnet","E09000003"
-"Barrow-In-Furness","E07000027"
-"Basingstoke & Deane","E07000084"
-"Bath & North East Somerset","E06000022"
-"Bexley","E09000004"
-"Blaby","E07000129"
-"Blackpool","E06000009"
-"Blaenau Gwent","W06000019"
-"Broadland","E07000144"
-"Bromley","E09000006"
-"Bury","E08000002"
-"Caerphilly","W06000018"
-"Cambridge","E07000008"
-"Canterbury","E07000106"
-"Castle Point","E07000069"
-"Central Bedfordshire","E06000056"
-"Charnwood","E07000130"
-"Cheshire East","E06000049"
-"Cheshire West And Chester","E06000050"
-"Chichester","E07000225"
-"Chorley","E07000118"
-"Coventry","E08000026"
-"Crawley","E07000226"
-"Darlington UA","E06000005"
-"Doncaster","E08000017"
-"Dorset","E06000059"
-"Dover","E07000108"
-"Durham","E06000047"
-"East Riding Of Yorkshire","E06000011"
-"Eden","E07000030"
-"Epping Forest","E07000072"
-"Erewash","E07000036"
-"Flintshire","W06000005"
-"Forest Of Dean","E07000080"
-"Fylde","E07000119"
-"Gloucester","E07000081"
-"Gosport","E07000088"
-"Greenwich","E09000011"
-"Guildford","E07000209"
-"Gwynedd","W06000002"
-"Hackney","E09000012"
-"Halton UA","E06000006"
-"Haringey","E09000014"
-"Harlow","E07000073"
-"Harrow","E09000015"
-"Health Status","H00000000"
-"Herefordshire","E06000019"
-"Hounslow","E09000018"
-"Hyndburn","E07000120"
-"Ipswich","E07000202"
-"Isle Of Wight UA","E06000046"
-"Kingston upon Thames","E09000021"
-"Kirklees","E08000034"
-"Lambeth","E09000022"
-"Lancaster","E07000121"
-"Leeds","E08000035"
-"Lewisham","E09000023"
-"Lichfield","E07000194"
-"Lincoln","E07000138"
-"Maldon","E07000074"
-"Malvern Hills","E07000235"
-"Mansfield","E07000174"
-"Melton","E07000133"
-"Merthyr Tydfil","W06000024"
-"Mid Suffolk","E07000203"
-"Mid Sussex","E07000228"
-"Middlesbrough UA","E06000002"
-"Milton Keynes UA","E06000042"
-"Monmouthshire","W06000021"
-"Neath Port Talbot","W06000012"
-"Newark & Sherwood","E07000175"
-"Newcastle Upon Tyne","E08000021"
-"Newport","W06000022"
-"North East Derbyshire","E07000038"
-"North East Lincolnshire","E06000012"
-"North Kesteven","E07000139"
-"North Lincolnshire","E06000013"
-"North Norfolk","E07000147"
-"North Somerset","E06000024"
-"North Yorkshire","E06000065"
-"Norwich","E07000148"
-"Nottingham UA","E06000018"
-"Peterborough UA","E06000031"
-"Portsmouth UA","E06000044"
-"Powys","W06000023"
-"Preston","E07000123"
-"Redbridge","E09000026"
-"Reigate & Banstead","E07000211"
-"Rhondda Cynon Taf","W06000016"
-"Ribble Valley","E07000124"
-"Richmond Upon Thames","E09000027"
-"Rochdale","E08000005"
-"Rother","E07000064"
-"Rotherham","E08000018"
-"Rugby","E07000220"
-"Runnymede","E07000212"
-"Rushcliffe","E07000176"
-"Rushmoor","E07000092"
-"Salford","E08000006"
-"Sandwell","E08000028"
-"Sheffield","E08000019"
-"Shepway (Folkstone-Hythe)","E07000112"
-"Slough UA","E06000039"
-"South Cambridgeshire","E07000012"
-"South Derbyshire","E07000039"
-"South Kesteven","E07000141"
-"South Lakeland","E07000031"
-"South Norfolk","E07000149"
-"South Ribble","E07000126"
-"South Staffordshire","E07000196"
-"Southampton UA","E06000045"
-"Southwark","E09000028"
-"Stoke-On-Trent UA","E06000021"
-"Stroud","E07000082"
-"Sunderland","E08000024"
-"Surrey Heath","E07000214"
-"Test","E00000000"
-"Test Valley","E07000093"
-"Thanet","E07000114"
-"The Cotswolds","E07000079"
-"Torbay UA","E06000027"
-"Torfaen","W06000020"
-"Tower Hamlets","E09000030"
-"Trafford","E08000009"
-"Vale Of Glamorgan","W06000014"
-"Waltham Forest","E09000031"
-"Wandsworth","E09000032"
-"Warrington Ua","E06000007"
-"Warwick","E07000222"
-"Watford","E07000103"
-"West Lancashire","E07000127"
-"West Oxfordshire","E07000181"
-"Westminster","E09000033"
-"Wirral","E08000015"
-"Worcester","E07000237"
-"Wychavon","E07000238"
-"Wyre","E07000128"
+name,lad_code
+Adur,E07000223
+Amber Valley,E07000032
+Arun,E07000224
+Ashfield,E07000170
+Babergh,E07000200
+Barking & Dagenham,E09000002
+Barnet,E09000003
+Barrow-In-Furness,E07000027
+Basingstoke & Deane,E07000084
+Bath & North East Somerset,E06000022
+Bexley,E09000004
+Birmingham,E08000025
+Blaby,E07000129
+Blackpool,E06000009
+Blaenau Gwent,W06000019
+Breckland,E07000143
+Broadland,E07000144
+Bromley,E09000006
+Burnley,E07000117
+Bury,E08000002
+Caerphilly,W06000018
+Cambridge,E07000008
+Canterbury,E07000106
+Castle Point,E07000069
+Central Bedfordshire,E06000056
+Charnwood,E07000130
+Cheshire East,E06000049
+Cheshire West And Chester,E06000050
+Chichester,E07000225
+Chorley,E07000118
+Cornwall,E06000052
+Coventry,E08000026
+Crawley,E07000226
+Dacorum,E07000096
+Darlington UA,E06000005
+Doncaster,E08000017
+Dorset,E06000059
+Dover,E07000108
+Durham,E06000047
+East Cambs,E07000009
+East Devon,E07000040
+East Riding Of Yorkshire,E06000011
+East Suffolk,E07000244
+Eden,E07000030
+Enfield,E09000010
+Epping Forest,E07000072
+Erewash,E07000036
+Fenland,E07000010
+Flintshire,W06000005
+Forest Of Dean,E07000080
+Fylde,E07000119
+Gloucester,E07000081
+Gosport,E07000088
+Great Yarmouth,E07000145
+Greenwich,E09000011
+Guildford,E07000209
+Gwynedd,W06000002
+Hackney,E09000012
+Halton UA,E06000006
+Haringey,E09000014
+Harlow,E07000073
+Harrow,E09000015
+Hart,E07000089
+Havant,E07000090
+Havering,E09000016
+Health Status,H00000000
+Herefordshire,E06000019
+Hertsmere,E07000098
+Hounslow,E09000018
+Hyndburn,E07000120
+Ipswich,E07000202
+Isle Of Wight UA,E06000046
+Kingston upon Thames,E09000021
+Kirklees,E08000034
+Knowsley,E08000011
+Lambeth,E09000022
+Lancaster,E07000121
+Leeds,E08000035
+Lewisham,E09000023
+Lichfield,E07000194
+Lincoln,E07000138
+Maldon,E07000074
+Malvern Hills,E07000235
+Manchester,E08000003
+Mansfield,E07000174
+Medway,E06000035
+Melton,E07000133
+Merthyr Tydfil,W06000024
+Mid Suffolk,E07000203
+Mid Sussex,E07000228
+Middlesbrough UA,E06000002
+Milton Keynes UA,E06000042
+Monmouthshire,W06000021
+Neath Port Talbot,W06000012
+Newark & Sherwood,E07000175
+Newcastle Upon Tyne,E08000021
+Newham,E09000025
+Newport,W06000022
+North East Derbyshire,E07000038
+North East Lincolnshire,E06000012
+North Kesteven,E07000139
+North Lincolnshire,E06000013
+North Norfolk,E07000147
+North Somerset,E06000024
+North Yorkshire,E06000065
+Norwich,E07000148
+Nottingham UA,E06000018
+Oxford,E07000178
+Peterborough UA,E06000031
+Plymouth,E06000026
+Portsmouth UA,E06000044
+Powys,W06000023
+Preston,E07000123
+Redbridge,E09000026
+Reigate & Banstead,E07000211
+Rhondda Cynon Taf,W06000016
+Ribble Valley,E07000124
+Richmond Upon Thames,E09000027
+Rochdale,E08000005
+Rother,E07000064
+Rotherham,E08000018
+Rugby,E07000220
+Runnymede,E07000212
+Rushcliffe,E07000176
+Rushmoor,E07000092
+Rutland,E06000017
+Salford,E08000006
+Sandwell,E08000028
+Sheffield,E08000019
+Shepway (Folkstone-Hythe),E07000112
+Slough UA,E06000039
+Solihull,E08000029
+South Cambridgeshire,E07000012
+South Derbyshire,E07000039
+South Hams,E07000044
+South Kesteven,E07000141
+South Lakeland,E07000031
+South Norfolk,E07000149
+South Oxfordshire,E07000179
+South Ribble,E07000126
+South Staffordshire,E07000196
+Southampton UA,E06000045
+Southwark,E09000028
+Stoke-On-Trent UA,E06000021
+Stroud,E07000082
+Sunderland,E08000024
+Surrey Heath,E07000214
+Test,E00000000
+Test Valley,E07000093
+Tewkesbury,E07000083
+Thanet,E07000114
+The Cotswolds,E07000079
+Torbay UA,E06000027
+Torfaen,W06000020
+Tower Hamlets,E09000030
+Trafford,E08000009
+Vale Of Glamorgan,W06000014
+Vale Of White Horse,E07000180
+Waltham Forest,E09000031
+Wandsworth,E09000032
+Warrington Ua,E06000007
+Warwick,E07000222
+Watford,E07000103
+West Berkshire,E06000037
+West Devon,E07000047
+West Lancashire,E07000127
+West Northamptonshire,E06000062
+West Oxfordshire,E07000181
+West Suffolk,E07000245
+Westminster,E09000033
+Wirral,E08000015
+Worcester,E07000237
+Worthing,E07000229
+Wrexham,W06000006
+Wychavon,E07000238
+Wyre,E07000128
