@@ -41,3 +41,54 @@ Done! 1.00MB - output.csv
 ## Notes
 * The final size may be very slightly over the target size, as the script checks size after each row write.
 * The script overwrites any existing file with the same name as `output_file` without warning.
+
+# Onboard Councils from CSV
+
+A helper class for onboarding new councils by reading a formatted input file (CSV or XLSX) and merging the entries into the main councils.csv in alphabetical order.
+
+## What it does
+
+* Reads council name and LAD code from an input file
+* Applies the following formatting to each entry:
+  * Council names are converted to Proper Case, with 'UA' always fully capitalised, e.g., 'Portsmouth UA'
+  * Anything inside brackets '()' is removed, including the delimiters themselves
+  * Leading and trailing whitespace is stripped
+* Rows with an empty name or LAD code after cleaning are skipped
+* Merges the new rows into councils.csv, removes exact duplicates, and sorts the result A-Z by council name
+
+## Usage
+Place the input file into the same directory as onboard_councils_from_csv.py, then run:
+`python onboard_councils_from_csv.py`
+
+### Notes
+Rows where the LAD code is wrapped in brackets will be dropped after cleaning.
+
+## Setup
+Dependencies are managed with Poetry, scoped to this directory only.
+
+### Prerequisites
+* Python 3.x
+* Poetry installed - see the official installation guide
+
+### Install dependencies
+```
+cd scripts/     # or whichever directory contains pyproject.toml
+poetry install
+```
+
+This will create a `.venv` virtual environment inside the directory (as configured in `poetry.toml` and install all required packages).
+
+### Adding new dependencies
+```
+poetry run pytest
+```
+
+To run a specific test file:
+```
+poetry run pytest/test_onboard_councils.py
+```
+
+To run with verbose output:
+```
+poetry run pytest -v
+```
