@@ -39,3 +39,6 @@ env.sh
 # Node modules
 node_modules/
 
+# Python
+__pycache__/
+
