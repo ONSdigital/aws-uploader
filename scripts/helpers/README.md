@@ -57,8 +57,31 @@ A helper class for onboarding new councils by reading a formatted input file (CS
 * Merges the new rows into councils.csv, removes exact duplicates, and sorts the result A-Z by council name
 
 ## Usage
-Place the input file into the same directory as onboard_councils_from_csv.py, then run:
-`python onboard_councils_from_csv.py`
+
+Open `onboard_councils_from_csv.py` and update the variables in the `__main__` block at the bottom of the file:
+```python
+# Required: path to the input XLSX file
+input_file_path = "test_data/input (1).xlsx"
+
+# Optional: defaults to "../../councils.csv" if not set
+councils_csv = "test_data/councils (1).csv"
+
+# Optional: defaults to "../../councils.csv" if not set
+output_path = "test_data/councils (1).csv"
+```
+
+| Variable | Required | Description |
+|---|---|---|
+| `input_file_path` | Yes | Path to the input XLSX file containing new councils to onboard. |
+| `councils_csv` | No | Path to the existing councils CSV to merge into. |
+| `output_path` | No | Path to write the merged output CSV. |
+
+> ⚠️ **Warning:** If `councils_csv` and `output_path` are left as their defaults, the production councils list at `../../councils.csv` will be overwritten. It is strongly recommended to test against local copies first before removing the custom path overrides.
+
+Then run:
+```bash
+python onboard_councils_from_csv.py
+```
 
 ### Notes
 Rows where the LAD code is wrapped in brackets will be dropped after cleaning.

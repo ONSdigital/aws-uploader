@@ -1,3 +1,6 @@
+from pathlib import Path
+from unittest.mock import patch
+
 import pandas as pd
 import pytest
 
@@ -26,11 +29,58 @@ def dummy_councils_csv(tmp_path):
     return path
 
 
+def test_init_paths_populate_expected_default_paths(dummy_input):
+    # arrange & act
+    onboarder = OnboardCouncils(
+        input_file_path=dummy_input
+    )
+
+    # assert
+    assert onboarder.councils_csv == Path("../../councils.csv")
+    assert onboarder.output_path == Path("../../councils.csv")
+
+
+def test_init_paths_populate_expected_custom_paths(dummy_input):
+    # arrange & act
+    onboarder = OnboardCouncils(
+        input_file_path=dummy_input,
+        councils_csv=Path("og-test-data.csv"),
+        output_path=Path("new-test-data.csv"),
+    )
+
+    # assert
+    assert onboarder.councils_csv == Path("og-test-data.csv")
+    assert onboarder.output_path == Path("new-test-data.csv")
+
+
+@patch.object(OnboardCouncils, "_save")
+@patch.object(OnboardCouncils, "_merge", return_value=pd.DataFrame())
+@patch.object(OnboardCouncils, "_clean_input_data", return_value=pd.DataFrame({"council_name": ["Portsmouth UA"], "lad_code": ["E06000044"]}))
+@patch.object(OnboardCouncils, "_load_councils_file", return_value=pd.DataFrame({"council_name": ["Birmingham"], "lad_code": ["E08000025"]}))
+@patch.object(OnboardCouncils, "_load_input_file", return_value=pd.DataFrame({"council_name": ["Portsmouth UA"], "lad_code": ["E06000044"]}))
+def test_run_calls_merge_with_correct_parameter_order(
+        _mock_load_input,
+        mock_load_councils,
+        mock_clean,
+        mock_merge,
+        _mock_save,
+        dummy_input
+    ):
+    # arrange
+    onboarder = OnboardCouncils(
+        input_file_path=dummy_input
+    )
+    # act
+    onboarder.run()
+
+    # assert
+    mock_merge.assert_called_once_with(mock_clean.return_value, mock_load_councils.return_value)
+
+
 def test_load_input_file_reads_xlsx_to_dataframe(dummy_input):
     # arrange
     onboarder = OnboardCouncils(
         input_file_path=dummy_input,
-        councils_csv="",
     )
     # act
     result = onboarder._load_input_file()
@@ -43,7 +93,6 @@ def test_load_councils_file_reads_csv_to_dataframe(dummy_councils_csv):
     # arrange
     onboarder = OnboardCouncils(
         input_file_path="",
-        councils_csv=dummy_councils_csv,
     )
     # act
     result = onboarder._load_councils_file()
@@ -105,7 +154,6 @@ def test_clean_input_data_cleans_data_as_expected(input_text, expected, dummy_in
     # arrange
     onboarder = OnboardCouncils(
         input_file_path=dummy_input,
-        councils_csv=dummy_councils_csv
     )
     input_df = pd.DataFrame(input_text)
     expected_df = pd.DataFrame(expected)
