@@ -42,3 +42,6 @@ node_modules/
 # Python
 __pycache__/
 
+# Test data
+scripts/helpers/test_data/
+
