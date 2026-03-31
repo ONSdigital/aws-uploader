@@ -11,7 +11,7 @@ from scripts.helpers.onboard_councils_from_csv import OnboardCouncils
 def dummy_input(tmp_path):
     df = pd.DataFrame({
         "lad_code": ["E06000044", "E08000011"],
-        "council_name": ["PORTSMOUTH UA", "KNOWSLEY"],
+        "name": ["PORTSMOUTH UA", "KNOWSLEY"],
     })
     path = tmp_path / "input.xlsx"
     df.to_excel(path, index=False)
@@ -21,7 +21,7 @@ def dummy_input(tmp_path):
 @pytest.fixture
 def dummy_councils_csv(tmp_path):
     df = pd.DataFrame({
-        "council_name": ["Portsmouth UA", "Knowsley"],
+        "name": ["Portsmouth UA", "Knowsley"],
         "lad_code": ["E06000044", "E08000011"],
     })
     path = tmp_path / "councils.csv"
@@ -89,10 +89,12 @@ def test_load_input_file_reads_xlsx_to_dataframe(dummy_input):
     assert isinstance(result, pd.DataFrame)
 
 
-def test_load_councils_file_reads_csv_to_dataframe(dummy_councils_csv):
+def test_load_councils_file_reads_csv_to_dataframe(dummy_input, dummy_councils_csv):
     # arrange
     onboarder = OnboardCouncils(
-        input_file_path="",
+        input_file_path=dummy_input,
+        councils_csv=dummy_councils_csv,
+        output_path=dummy_councils_csv,
     )
     # act
     result = onboarder._load_councils_file()
@@ -134,26 +136,28 @@ def test_apply_title_casing_returns_expected_text(input_text, expected):
 
 @pytest.mark.parametrize("input_text, expected", [
     (
-            {"council_name": ["PORTSMOUTH UA", "BIRMINGHAM"], "lad_code": ["E06000044", "E08000025"]},
-            {"council_name": ["Portsmouth UA", "Birmingham"], "lad_code": ["E06000044", "E08000025"]},
+            {"name": ["PORTSMOUTH UA", "BIRMINGHAM"], "lad_code": ["E06000044", "E08000025"]},
+            {"name": ["Portsmouth UA", "Birmingham"], "lad_code": ["E06000044", "E08000025"]},
     ),
     (
-            {"council_name": ["ISLE OF WIGHT UA", "  "], "lad_code": ["E06000046", "E07000999"]},
-            {"council_name": ["Isle Of Wight UA"], "lad_code": ["E06000046"]},
+            {"name": ["ISLE OF WIGHT UA", "  "], "lad_code": ["E06000046", "E07000999"]},
+            {"name": ["Isle Of Wight UA"], "lad_code": ["E06000046"]},
     ),
     (
-            {"council_name": ["TEWKESBURY", None], "lad_code": ["E07000083", "E07000999"]},
-            {"council_name": ["Tewkesbury"], "lad_code": ["E07000083"]},
+            {"name": ["TEWKESBURY", None], "lad_code": ["E07000083", "E07000999"]},
+            {"name": ["Tewkesbury"], "lad_code": ["E07000083"]},
     ),
     (
-            {"council_name": ["VALE OF WHITE HORSE"], "lad_code": ["(E07000180)"]},
-            {"council_name": [], "lad_code": []},
+            {"name": ["VALE OF WHITE HORSE"], "lad_code": ["(E07000180)"]},
+            {"name": [], "lad_code": []},
     ),
 ])
 def test_clean_input_data_cleans_data_as_expected(input_text, expected, dummy_input, dummy_councils_csv):
     # arrange
     onboarder = OnboardCouncils(
         input_file_path=dummy_input,
+        councils_csv=dummy_councils_csv,
+        output_path=dummy_councils_csv,
     )
     input_df = pd.DataFrame(input_text)
     expected_df = pd.DataFrame(expected)
@@ -162,5 +166,5 @@ def test_clean_input_data_cleans_data_as_expected(input_text, expected, dummy_in
     result = onboarder._clean_input_data(input_df)
 
     # assert
-    assert list(result["council_name"]) == list(expected_df["council_name"])
+    assert list(result["name"]) == list(expected_df["name"])
     assert list(result["lad_code"]) == list(expected_df["lad_code"])
