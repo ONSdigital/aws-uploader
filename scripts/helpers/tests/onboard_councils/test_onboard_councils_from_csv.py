@@ -4,7 +4,7 @@ from unittest.mock import patch
 import pandas as pd
 import pytest
 
-from scripts.helpers.onboard_councils_from_csv import OnboardCouncils
+from scripts.helpers.onboard_councils.onboard_councils_from_csv import OnboardCouncils
 
 
 @pytest.fixture

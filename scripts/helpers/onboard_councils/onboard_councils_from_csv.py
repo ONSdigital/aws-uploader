@@ -82,13 +82,13 @@ class OnboardCouncils:
 
 if __name__ == "__main__":
     # Required: path to the input XLSX file
-    input_file_path = "test_data/input (1).xlsx"
+    input_file_path = "../tests/test_data/input (1).xlsx"
 
     # Optional: defaults to "../../councils.csv" if not set
     councils_csv = "test_data/councils (1).csv"
 
     # Optional: defaults to "../../councils.csv" if not set
-    output_path = "test_data/councils (1).csv"
+    output_path = "../tests/test_data/councils (1).csv"
 
     OnboardCouncils(
         input_file_path=input_file_path,

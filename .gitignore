@@ -43,5 +43,5 @@ node_modules/
 __pycache__/
 
 # Test data
-scripts/helpers/test_data/
+scripts/helpers/tests/test_data/
 
