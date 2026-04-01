@@ -1,14 +1,11 @@
 import logging
 import re
-from datetime import datetime
 
 import pandas as pd
 from pathlib import Path
 
 from scripts.helpers.onboard_councils.onboard_councils_logging import setup_logging
-from scripts.helpers.onboard_councils.onboard_councils_reporting import OnboardingReport, AddedRow, DroppedRow, \
-    DuplicateRow, CollisionRow
-
+from scripts.helpers.onboard_councils.onboard_councils_reporting import OnboardingReport, AddedRow, OnboardingReporter
 
 REQUIRED_COLUMNS = {"name", "lad_code"}
 
@@ -22,18 +19,12 @@ class OnboardCouncils:
                  ):
         self.input_file_path = Path(input_file_path)
         self.councils_csv = Path(councils_csv)
-
-        self._report = OnboardingReport(
-            run_at=datetime.now().isoformat(timespec="seconds"),
+        self._reporter = OnboardingReporter(
             input_file=str(self.input_file_path),
             councils_csv=str(self.councils_csv),
-            input_row_count=0,
-            rows_after_cleaning=0,
-            rows_added=0,
-            output_row_count=0,
         )
 
-    def run(self):
+    def run(self) -> OnboardingReport:
         logging.info("Council onboarding started")
         logging.info(f"Input file: {self.input_file_path}")
         logging.info(f"Councils csv: {self.councils_csv}")
@@ -42,37 +33,37 @@ class OnboardCouncils:
         existing_councils = self._load_councils_file()
         original_row_count = len(existing_councils)
 
-        self._report.input_row_count = len(incoming_councils)
-        logging.info(f"Input rows loaded: {self._report.input_row_count}")
+        self._reporter.input_row_count = len(incoming_councils)
+        logging.info(f"Input rows loaded: {self._reporter.input_row_count}")
 
         cleaned_incoming_councils = self._clean_input_data(incoming_councils)
         self._check_for_duplicates(cleaned_incoming_councils, stage="cleaned input")
-        self._report.rows_after_cleaning = len(cleaned_incoming_councils)
+        self._reporter.rows_after_cleaning = len(cleaned_incoming_councils)
 
         new_councils = self._remove_already_onboarded(cleaned_incoming_councils, existing_councils)
-        self._report.rows_added = len(new_councils)
+        self._reporter.rows_added = len(new_councils)
 
-        self._report.added_rows = [
+        self._reporter.report.added_rows = [
             AddedRow(council_name=r["name"], lad_code=r["lad_code"])
             for _, r in new_councils.iterrows()
         ]
 
         merged = self._merge(new_councils, existing_councils)
-        self._report.output_row_count = len(merged)
+        self._reporter.report.output_row_count = len(merged)
 
-        self._reconcile_row_counts(
-            input_count=self._report.input_row_count,
-            cleaned_count=self._report.rows_after_cleaning,
-            dropped_count=len(self._report.dropped_rows),
-            collision_count=len(self._report.collision_rows),
-            added_count=self._report.rows_added,
+        self._reporter.reconcile_row_counts(
+            input_count=self._reporter.input_row_count,
+            cleaned_count=self._reporter.rows_after_cleaning,
+            dropped_count=len(self._reporter.report.dropped_rows),
+            collision_count=len(self._reporter.report.collision_rows),
+            added_count=self._reporter.rows_added,
         )
 
         self._save(merged)
-        self._log_summary(original_row_count, merged)
+        self._reporter.log_summary(original_row_count, merged)
 
         logging.info("Council onboarding complete")
-        return self._report
+        return self._reporter.report
 
     def _load_input_file(self) -> pd.DataFrame:
         logging.info("Loading input Excel file…")
@@ -82,6 +73,7 @@ class OnboardCouncils:
         actual_cols = set(df.columns.str.strip().str.lower())
         missing = REQUIRED_COLUMNS - actual_cols
         if missing:
+            # TODO: test this error is raised
             raise ValueError(
                 f"Input file is missing required columns: {missing}. "
                 f"Columns found: {list(df.columns)}"
@@ -149,35 +141,21 @@ class OnboardCouncils:
         missing_lad = df["lad_code"].isna() | (df["lad_code"].str.strip() == "")
 
         for idx, row in df[missing_lad & ~missing_name].iterrows():
-            msg = f"Row {idx + 2}: '{row['name']}' dropped — missing LAD code"
-            logging.warning(msg)
-            self._report.dropped_rows.append(DroppedRow(
-                row_index=idx,
-                council_name=row["name"],
-                lad_code=None,
-                reason="Missing LAD code",
-            ))
+            logging.warning(f"Row {idx + 2}: '{row['name']}' dropped — missing LAD code")
+            self._reporter.record_dropped_row(idx, row["name"], None, "Missing LAD code")
 
         for idx, row in df[missing_name & ~missing_lad].iterrows():
-            msg = f"Row {idx}: LAD code '{row['lad_code']}' dropped — missing council name"
-            logging.warning(msg)
-            self._report.dropped_rows.append(DroppedRow(
-                row_index=idx,
-                council_name=None,
-                lad_code=row["lad_code"],
-                reason="Missing council name",
-            ))
+            logging.warning(f"Row {idx + 2}: LAD code '{row['lad_code']}' dropped — missing council name")
+            self._reporter.record_dropped_row(idx, None, row["lad_code"], "Missing council name")
 
         both_missing = df[missing_name & missing_lad]
         if not both_missing.empty:
-            logging.warning(f"{len(both_missing)} row/s dropped — both fields empty (Row/s: {list(both_missing.index + 2)})")
+            logging.warning(
+                f"{len(both_missing)} row/s dropped — both fields empty "
+                f"(Row/s: {list(both_missing.index + 2)})"
+            )
             for idx, row in both_missing.iterrows():
-                self._report.dropped_rows.append(DroppedRow(
-                    row_index=idx,
-                    council_name=None,
-                    lad_code=None,
-                    reason="Both fields empty",
-                ))
+                self._reporter.record_dropped_row(idx, None, None, "Both fields empty")
 
         df = df[~missing_name & ~missing_lad]
         dropped = original_count - len(df)
@@ -193,29 +171,17 @@ class OnboardCouncils:
                 f"[{stage}] Duplicate council names detected:\n{dup_names.to_string()}"
             )
             for idx, row in dup_names.iterrows():
-                self._report.duplicate_rows.append(DuplicateRow(
-                    row_index=idx,
-                    council_name=row["name"],
-                    lad_code=row["lad_code"],
-                    stage=stage,
-                ))
+                self._reporter.record_duplicate_row(idx, row["name"], row["lad_code"], stage)
 
         if not dup_lads.empty:
-            logging.warning(
-                f"[{stage}] Duplicate LAD codes detected:\n{dup_lads.to_string()}"
-            )
+            logging.warning(f"[{stage}] Duplicate LAD codes detected:\n{dup_lads.to_string()}")
             for idx, row in dup_lads.iterrows():
                 already = any(
                     d.row_index == idx and d.stage == stage
-                    for d in self._report.duplicate_rows
+                    for d in self._reporter.report.duplicate_rows
                 )
                 if not already:
-                    self._report.duplicate_rows.append(DuplicateRow(
-                        row_index=idx,
-                        council_name=row["name"],
-                        lad_code=row["lad_code"],
-                        stage=stage,
-                    ))
+                    self._reporter.record_duplicate_row(idx, row["name"], row["lad_code"], stage)
 
     def _remove_already_onboarded(
             self, new_df: pd.DataFrame, existing_df: pd.DataFrame
@@ -229,7 +195,7 @@ class OnboardCouncils:
             name_exists = row["name"].strip().lower() in existing_names
 
             if lad_exists and name_exists:
-                collision_type = "lad_code and name"
+                collision_type = "name and lad_code"
             elif lad_exists:
                 collision_type = "lad_code"
             elif name_exists:
@@ -240,83 +206,15 @@ class OnboardCouncils:
                 continue
 
             logging.warning(
-                f"ALREADY EXISTS ({collision_type}): '{row['name']}' / "
-                f"'{row['lad_code']}' — skipped"
+                f"ALREADY EXISTS ({collision_type}): '{row['name']}' / '{row['lad_code']}' — skipped"
             )
-            self._report.collision_rows.append(CollisionRow(
-                council_name=row["name"],
-                lad_code=row["lad_code"],
-                collision_type=collision_type,
-            ))
+            self._reporter.record_collision(row["name"], row["lad_code"], collision_type)
 
         return pd.DataFrame(rows_to_add, columns=new_df.columns) if rows_to_add else pd.DataFrame(
             columns=new_df.columns)
 
     def _save(self, df: pd.DataFrame) -> None:
         df.to_csv(self.councils_csv, index=False, encoding="utf-8")
-
-    def _reconcile_row_counts(
-            self,
-            input_count: int,
-            cleaned_count: int,
-            dropped_count: int,
-            collision_count: int,
-            added_count: int,
-    ) -> None:
-        expected_cleaned = input_count - dropped_count
-        if cleaned_count != expected_cleaned:
-            msg = (
-                f"Row count mismatch after cleaning: "
-                f"expected {expected_cleaned} (input {input_count} − dropped {dropped_count}), "
-                f"got {cleaned_count}"
-            )
-            logging.error(msg)
-            self._report.reconciliation_ok = False
-            self._report.reconciliation_message = msg
-            return
-
-        expected_added = cleaned_count - collision_count
-        if added_count != expected_added:
-            msg = (
-                f"Row count mismatch after collision filter: "
-                f"expected {expected_added} (cleaned {cleaned_count} − collisions {collision_count}), "
-                f"got {added_count}"
-            )
-            logging.error(msg)
-            self._report.reconciliation_ok = False
-            self._report.reconciliation_message = msg
-            return
-
-        msg = (
-            f"Reconciliation OK — "
-            f"{input_count} input rows → "
-            f"{dropped_count} dropped, "
-            f"{collision_count} collisions skipped, "
-            f"{added_count} added"
-        )
-        self._report.reconciliation_ok = True
-        self._report.reconciliation_message = msg
-
-    def _log_summary(self, original_row_count: int, merged: pd.DataFrame) -> None:
-        added = self._report.added_rows
-
-        logging.info(f"Original councils.csv row count: {original_row_count}")
-
-        if not added:
-            logging.info("No new councils added")
-        elif len(added) == 1:
-            logging.info(f"Added 1 new council: {added[0].council_name} ({added[0].lad_code})")
-        else:
-            names = ", ".join(f"{r.council_name} ({r.lad_code})" for r in added)
-            logging.info(f"Added {len(added)} new councils: {names}")
-
-        logging.info(f"New councils.csv row count: {len(merged)}")
-
-        if len(merged) < original_row_count:
-            logging.error(
-                f"Row count dropped from {original_row_count} to {len(merged)} — "
-                f"existing councils may have been lost!"
-            )
 
     @staticmethod
     def _remove_brackets(text: str) -> str:
@@ -347,14 +245,10 @@ if __name__ == "__main__":
     # Required: path to the input XLSX file
     input_file_path = "../tests/test_data/input (1).xlsx"
 
-    # Optional: defaults to "../../councils.csv" if not set
+    # Optional: defaults to "../../councils.csv" and is overwritten if not set
     councils_csv = "../tests/test_data/councils (1).csv"
-
-    # Optional: defaults to "../../councils.csv" if not set
-    output_path = "../tests/test_data/councils (1).csv"
 
     OnboardCouncils(
         input_file_path=input_file_path,
         councils_csv=councils_csv,      # Uncomment this line for custom paths
-        output_path=output_path         # Uncomment this line for custom paths
     ).run()
