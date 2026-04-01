@@ -14,17 +14,14 @@ REQUIRED_COLUMNS = {"name", "lad_code"}
 
 # TODO: Test data uploads in dev post csv formatting change
 # TODO: Make unit tests more comprehensive - for onboarding and reporting
-# TODO: I don't need an output file
 
 class OnboardCouncils:
     def __init__(self,
                  input_file_path: str | Path,
                  councils_csv: str | Path = "../../councils.csv",
-                 output_path: str | Path = "../../councils.csv"
                  ):
         self.input_file_path = Path(input_file_path)
         self.councils_csv = Path(councils_csv)
-        self.output_path = Path(output_path)
 
         self._report = OnboardingReport(
             run_at=datetime.now().isoformat(timespec="seconds"),
@@ -256,7 +253,7 @@ class OnboardCouncils:
             columns=new_df.columns)
 
     def _save(self, df: pd.DataFrame) -> None:
-        df.to_csv(self.output_path, index=False, encoding="utf-8")
+        df.to_csv(self.councils_csv, index=False, encoding="utf-8")
 
     def _reconcile_row_counts(
             self,
@@ -323,8 +320,9 @@ class OnboardCouncils:
 
     @staticmethod
     def _remove_brackets(text: str) -> str:
-        text = re.sub(r'\([^)]*\)', '', text)
-        text = re.sub(r'\{[^}]*}', '', text)
+        for pattern in (r'\([^()]*\)', r'\{[^{}]*}'):
+            while re.search(pattern, text):
+                text = re.sub(pattern, '', text)
         text = re.sub(r' +', ' ', text)
         return text.strip()
 
