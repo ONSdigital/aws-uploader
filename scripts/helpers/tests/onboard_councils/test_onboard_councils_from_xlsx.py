@@ -4,7 +4,7 @@ from unittest.mock import patch
 import pandas as pd
 import pytest
 
-from scripts.helpers.onboard_councils.onboard_councils_from_csv import OnboardCouncils
+from scripts.helpers.onboard_councils.onboard_councils_from_xlsx import OnboardCouncils
 
 
 @pytest.fixture
@@ -82,6 +82,7 @@ class TestInit:
 class TestRun:
     @patch.object(OnboardCouncils, "_save")
     @patch.object(OnboardCouncils, "_merge", return_value=pd.DataFrame())
+    @patch.object(OnboardCouncils, "_remove_already_onboarded", side_effect=lambda df, _: df)
     @patch.object(OnboardCouncils, "_clean_input_data", return_value=pd.DataFrame({"name": ["Portsmouth UA"], "lad_code": ["E06000044"]}))
     @patch.object(OnboardCouncils, "_load_councils_file", return_value=pd.DataFrame({"name": ["Birmingham"], "lad_code": ["E08000025"]}))
     @patch.object(OnboardCouncils, "_load_input_file", return_value=pd.DataFrame({"name": ["Portsmouth UA"], "lad_code": ["E06000044"]}))
@@ -90,6 +91,7 @@ class TestRun:
             _mock_load_input,
             mock_load_councils,
             mock_clean,
+            _mock_remove,
             mock_merge,
             _mock_save,
             dummy_input
@@ -107,10 +109,22 @@ class TestRun:
     @patch.object(OnboardCouncils, "_save")
     @patch.object(OnboardCouncils, "_merge",
                   return_value=pd.DataFrame({"name": ["Birmingham"], "lad_code": ["E08000025"]}))
-    @patch.object(OnboardCouncils, "_clean_input_data", return_value=pd.DataFrame())
-    @patch.object(OnboardCouncils, "_load_councils_file", return_value=pd.DataFrame())
-    @patch.object(OnboardCouncils, "_load_input_file", return_value=pd.DataFrame())
-    def test_save_receives_merge_result(self, _load_input, _load_councils, _clean, mock_merge, mock_save, dummy_input):
+    @patch.object(OnboardCouncils, "_remove_already_onboarded", side_effect=lambda df, _: df)
+    @patch.object(OnboardCouncils, "_clean_input_data",
+                  return_value=pd.DataFrame({"name": ["Portsmouth UA"], "lad_code": ["E06000044"]}))
+    @patch.object(OnboardCouncils, "_load_councils_file", return_value=pd.DataFrame({"name": [], "lad_code": []}))
+    @patch.object(OnboardCouncils, "_load_input_file",
+                  return_value=pd.DataFrame({"name": ["Portsmouth UA"], "lad_code": ["E06000044"]}))
+    def test_save_receives_merge_result(
+            self,
+            _load_input,
+            _load_councils,
+            _clean,
+            _mock_remove,
+            mock_merge,
+            mock_save,
+            dummy_input
+    ):
         # arrange
         onboarder = OnboardCouncils(
             input_file_path=dummy_input
@@ -184,6 +198,7 @@ class TestLoadInputFile:
         # act & assert
         with pytest.raises(FileNotFoundError, match="Bumbling Chumpcamper.xlsx"):
             onboarder._load_input_file()
+
 
 class TestLoadCouncilsFile:
     def test_load_councils_file_reads_csv_to_dataframe(self, onboarder):
