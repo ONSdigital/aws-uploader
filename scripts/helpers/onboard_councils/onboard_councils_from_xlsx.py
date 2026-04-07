@@ -60,7 +60,7 @@ class OnboardCouncils:
         )
 
         self._save(merged)
-        self._reporter.log_summary(original_row_count, merged)
+        self._reporter.log_summary(original_row_count, len(merged))
 
         logging.info("Council onboarding complete")
         return self._reporter.report

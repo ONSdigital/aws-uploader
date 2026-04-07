@@ -1,5 +1,4 @@
 import logging
-import pandas as pd
 from dataclasses import dataclass, field
 from datetime import datetime
 
@@ -48,6 +47,7 @@ class OnboardingReport:
     added_rows: list[AddedRow] = field(default_factory=list)
     reconciliation_ok: bool = True
     reconciliation_message: str = ""
+
 
 class OnboardingReporter:
     def __init__(self, input_file: str, councils_csv: str):
@@ -120,7 +120,7 @@ class OnboardingReporter:
         self.report.reconciliation_message = "Row counts reconciled."
         logging.info("Row counts reconciled.")
 
-    def log_summary(self, original_row_count: int, merged: pd.DataFrame) -> None:
+    def log_summary(self, original_row_count: int, new_row_count: int) -> None:
         added = self.report.added_rows
 
         logging.info(f"Original councils.csv row count: {original_row_count}")
@@ -133,10 +133,10 @@ class OnboardingReporter:
             names = ", ".join(f"{r.council_name} ({r.lad_code})" for r in added)
             logging.info(f"Added {len(added)} new councils: {names}")
 
-        logging.info(f"New councils.csv row count: {len(merged)}")
+        logging.info(f"New councils.csv row count: {new_row_count}")
 
-        if len(merged) < original_row_count:
+        if new_row_count < original_row_count:
             logging.error(
-                f"Row count dropped from {original_row_count} to {len(merged)} — "
+                f"Row count dropped from {original_row_count} to {new_row_count} — "
                 f"existing councils may have been lost!"
             )
