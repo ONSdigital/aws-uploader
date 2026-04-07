@@ -89,63 +89,56 @@ terraform plan -var-file=env/env.tfvars
 
 ### Onboarding New Councils
 
-This is a guide to creating new Council Tax upload pages. 
+New councils are onboarded by running a script that reads from an input Excel file and
+updates `councils.csv` automatically. This eliminates manual formatting, reduces the risk
+of typos, and enforces consistent casing and structure.
 
-When onboarding new councils, please *avoid retyping* council names or LAD codes.  Manual typing increases the risk of missepllings and formatting inconsistencies. Instead, copy the values directly from the reference document and use the steps below to generate the required CSV format.
+#### What you need
 
-The CSV requires the exact structure:
-```
-"<Proper Cased Council Name>","<LAD Code>"
-```
+- An Excel file (`.xlsx`) containing the councils to onboard, with two columns:
+  - `name` — the council name
+  - `lad_code` — the LAD code
 
-#### Extracting the reference data
+This input should be a direct copy, paste from the Council Tax's spread sheet.  There's no need to make any adjustments other than adding the correct headers to the Excel document.
 
-If the reference data is in a Word document:
-1. Open the Word file
-2. Highlight the council and LAD code
-3. Copy them into an Excel sheet
-4. Place vales in seperate columns:
-  * Column A: Council Name
-  * Column B: LAD Code
+#### Running the script
 
-If the reference data is in an Excel file (.xlsx):
-1. Open the spreadsheet
-2. Locate the council name and LAD code
-3. Copy the exact values into your working Excel sheet (Columns A and B)
-4. Avoid retyping unless absolutely necessary
-
-#### Standardise the council name (Proper Case)
-If the council name has inconsistent casing, use Excel's `PROPER()` function, where A1 is your council name (replace A1 if your cell differs):
-```
-=PROPER(A1)
+From the project root:
+```bash
+python scripts/helpers/onboard_councils/onboard_councils.py
 ```
 
-#### Generate the correct CSV line
-Use this Excel formula to build a correctly formatted CSV entry, where A1 is your council name and B1 is your LAD code (replace these cells if yours differ):
+By default the script reads from and writes to `councils.csv`. Custom paths can be
+configured at the bottom of the script if your input or output locations differ.
+
+#### What the script does
+
+- Validates that the input file and `councils.csv` have the correct column headers
+- Cleans council names (removes brackets, applies title casing, preserves `UA`)
+- Drops any rows missing a council name or LAD code, and logs the reason
+- Skips any councils already present in `councils.csv`, logging each one
+- Appends new councils, deduplicates, and sorts alphabetically by name
+- Produces a timestamped log file summarising the run
+
+#### Reviewing the output
+
+After running, check the log file in `./logs` for a summary. A typical successful run
+looks like:
 ```
-="""" & PROPER(A1) & """,""" & B1 & """"
+[INFO] Original councils.csv row count: 141
+[INFO] Added 2 new councils: Adur (E07000223), Worthing (E07000229)
+[INFO] New councils.csv row count: 143
 ```
 
-Copy the formula down your cells if you have multiple councils to add.
+If anything was skipped or dropped it will appear as a `[WARNING]` above the summary,
+with the council name and reason.
 
-This should produce an output like:
-```
-"Neath Port Talbot","W06000012"
-```
+#### Gotchas
 
-#### Add the output to the CSV
-Copy the generated line(s) from Excel and paste them in alphabetical order into the councils.csv file. Commit the change and the necessary pages will be added.
-
-Be sure that the csv maintains its header row and the LAD code is the right format.
-Example first two lines
-"name","lad_code"
-"Test","E00000000"
-
-#### Naming convention and gotchas
-1. Keep the 'councils.csv' documented sorted alphabetically on "name"
-2. Each word in the "name" should be capitalised i.e. Ebbw Vale not Ebbw vale or ebbw vale
-3. Ands can be "ands" as in "Cheshire West And Chester" or ampersands (&) as in "Newark & Sherwood". Pay attention to this and if in doubt check the councils website i.e. https://www.cheshirewestandchester.gov.uk/vs. https://www.newark-sherwooddc.gov.uk/
-4. UA (Unitary Authority) should be capitalised - as in "Nottingham UA"
+- `UA` (Unitary Authority) is preserved in uppercase — the script handles this automatically
+- Ampersands vs "and" vary by council — the script preserves whatever is in your input, i.e., whatever is recorded in the Council Tax team's spread sheet
+- The script matches on both name and LAD code when checking for existing councils —
+  a council will be skipped if either already exists in `councils.csv`
 
 ## Running Behaviour tests
 Behaviour tests should be run before raising a Pull Request.
