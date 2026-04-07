@@ -78,7 +78,6 @@ class TestInit:
         assert isinstance(onboarder.councils_csv, Path)
 
 
-# TODO: Fix post-logging
 class TestRun:
     @patch.object(OnboardCouncils, "_save")
     @patch.object(OnboardCouncils, "_merge", return_value=pd.DataFrame())
@@ -286,7 +285,6 @@ class TestCleanValue:
     ])
     def test_clean_lad_code_cleans_value_as_expected(self, input_lad_code, expected, onboarder):
         # arrange & act
-        # TODO: row_index is a code smell
         result = onboarder._clean_lad_code(input_lad_code, 0)
 
         # assert

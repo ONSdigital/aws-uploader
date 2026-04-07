@@ -9,9 +9,6 @@ from scripts.helpers.onboard_councils.onboard_councils_reporting import Onboardi
 
 REQUIRED_COLUMNS = {"name", "lad_code"}
 
-# TODO: Test data uploads in dev post csv formatting change
-# TODO: Make unit tests more comprehensive - for onboarding and reporting
-
 class OnboardCouncils:
     def __init__(self,
                  input_file_path: str | Path,
