@@ -242,10 +242,10 @@ if __name__ == "__main__":
     # Required: path to the input XLSX file
     input_file_path = "../tests/test_data/input (1).xlsx"
 
-    # Optional: defaults to "../../councils.csv" and is overwritten if not set
-    councils_csv = "../tests/test_data/councils (1).csv"
+    # # Optional: defaults to "../../councils.csv" and is overwritten if not set
+    # councils_csv = "../tests/test_data/councils (1).csv"
 
     OnboardCouncils(
         input_file_path=input_file_path,
-        councils_csv=councils_csv,      # Uncomment this line for custom paths
+        # councils_csv=councils_csv,      # Uncomment this line for custom paths
     ).run()
