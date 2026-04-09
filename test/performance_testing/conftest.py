@@ -1,10 +1,10 @@
 import pytest
+from config import BASE_URL, EXTRACT_FILE_SIZE, EXTRACT_FILE_UNIT_SIZE, MANI_FILE_SIZE, MANI_FILE_UNIT_SIZE
 
-EXTRACT_FILE_SIZE = 20
-EXTRACT_FILE_UNIT_SIZE = "MB"  # Options: "KB", "MB", "GB"
+@pytest.fixture(scope="session")
+def base_url():
+    return BASE_URL
 
-MANI_FILE_SIZE = 1
-MANI_FILE_UNIT_SIZE = "KB"
 
 def to_bytes(size: float, unit: str) -> int:
     units = {

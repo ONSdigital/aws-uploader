@@ -2,7 +2,7 @@ import statistics
 
 from playwright.sync_api import Page
 
-NUM_RUNS = 5
+from config import NUM_RUNS, MAX_TTFB_MS, MAX_DOM_CONTENT_LOADED_MS, MAX_FCP_MS, MAX_TTI_MS, MAX_FULL_LOAD_MS
 
 class UploaderPage:
     def __init__(self, page: Page, base_url: str, extract_file: str, mani_file: str):
@@ -182,14 +182,8 @@ def test_uploader_performance(page: Page, base_url: str, browser_name: str, extr
     processor.print(f"Averaged results ({browser_name}, {NUM_RUNS} runs)", averaged)
 
     # assert
-    max_ttfb_threshold_in_ms = 300
-    max_dom_content_loaded_threshold_in_ms = 1000
-    max_fcp_threshold_in_ms = 2000
-    max_tti_threshold_in_ms = 4000
-    max_full_load_threshold_in_ms = 4000
-
-    processor.assert_within_budget(averaged['ttfb'], max_ttfb_threshold_in_ms, "TTFB")
-    processor.assert_within_budget(averaged['dom_content_loaded'], max_dom_content_loaded_threshold_in_ms, "DOMContentLoaded")
-    processor.assert_within_budget(averaged['fcp'], max_fcp_threshold_in_ms, "FCP")
-    processor.assert_within_budget(averaged['tti'], max_tti_threshold_in_ms, "TTI")
-    processor.assert_within_budget(averaged['full_load'], max_full_load_threshold_in_ms, "Full load")
+    processor.assert_within_budget(averaged['ttfb'], MAX_TTFB_MS, "TTFB")
+    processor.assert_within_budget(averaged['dom_content_loaded'], MAX_DOM_CONTENT_LOADED_MS, "DOMContentLoaded")
+    processor.assert_within_budget(averaged['fcp'], MAX_FCP_MS, "FCP")
+    processor.assert_within_budget(averaged['tti'], MAX_TTI_MS, "TTI")
+    processor.assert_within_budget(averaged['full_load'], MAX_FULL_LOAD_MS, "Full load")
