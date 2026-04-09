@@ -3,8 +3,6 @@ import statistics
 from playwright.sync_api import Page
 
 NUM_RUNS = 5
-EXTRACT_FILE = "test_files/CTAX_EXTRACT_E00000000_20201231.csv"
-MANI_FILE = "test_files/CTAX_MANI_E00000000_20201231.csv"
 
 class UploaderPage:
     def __init__(self, page: Page, base_url: str, extract_file: str, mani_file: str):
