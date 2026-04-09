@@ -1,8 +1,9 @@
-import statistics
-
 from playwright.sync_api import Page
 
 from config import NUM_RUNS, MAX_TTFB_MS, MAX_DOM_CONTENT_LOADED_MS, MAX_FCP_MS, MAX_TTI_MS, MAX_FULL_LOAD_MS
+from performance_collector import PerformanceCollector
+from results_processor import ResultsProcessor
+
 
 class UploaderPage:
     def __init__(self, page: Page, base_url: str, extract_file: str, mani_file: str):
@@ -32,131 +33,6 @@ class UploaderPage:
         self.page.wait_for_load_state("networkidle")
 
 
-class PerformanceCollector:
-    def __init__(self, page: Page):
-        self.page = page
-
-    def collect(self) -> dict:
-        navigation = self._get_navigation_timing()
-        paint = self._get_paint_metrics()
-        resources = self._get_resource_summary()
-        lcp = self._get_lcp()
-        tti = self._get_tti(fallback_ms=navigation['dom_content_loaded'])
-
-        return {
-            **navigation,
-            **paint,
-            **resources,
-            'lcp': lcp,
-            'tti': tti,
-        }
-
-    def _get_navigation_timing(self) -> dict:
-        return self.page.evaluate("""() => {
-                    const nav = performance.getEntriesByType('navigation')[0];
-                    return {
-                        dns:                nav.domainLookupEnd - nav.domainLookupStart,
-                        connection:         nav.connectEnd - nav.connectStart,
-                        tls:                nav.connectEnd - nav.secureConnectionStart,
-                        ttfb:               nav.responseStart - nav.requestStart,
-                        response_time:      nav.responseEnd - nav.responseStart,
-                        dom_interactive:    nav.domInteractive - nav.startTime,
-                        dom_content_loaded: nav.domContentLoadedEventEnd - nav.startTime,
-                        full_load:          nav.loadEventEnd - nav.startTime,
-                    };
-                }""")
-
-    def _get_paint_metrics(self) -> dict:
-        return self.page.evaluate("""() => {
-                    const paint = performance.getEntriesByType('paint');
-                    const fcp = paint.find(e => e.name === 'first-contentful-paint');
-                    return {
-                        first_paint: paint.find(e => e.name === 'first-paint')?.startTime ?? null,
-                        fcp:         fcp ? fcp.startTime : null,
-                    };
-                }""")
-
-    def _get_resource_summary(self) -> dict:
-        return self.page.evaluate("""() => {
-                    const resources = performance.getEntriesByType('resource');
-                    return {
-                        total_resources:   resources.length,
-                        total_transfer_kb: parseFloat((
-                            resources.reduce((sum, r) => sum + (r.transferSize || 0), 0) / 1024
-                        ).toFixed(2)),
-                    };
-                }""")
-
-    def _get_lcp(self) -> float | None:
-        return self.page.evaluate("""() => new Promise(resolve => {
-            let lcp = null;
-            const observer = new PerformanceObserver(list => {
-                lcp = list.getEntries().at(-1).startTime;
-            });
-            try {
-                observer.observe({ type: 'largest-contentful-paint', buffered: true });
-            } catch (e) {}
-            setTimeout(() => { observer.disconnect(); resolve(lcp); }, 1000);
-        })""")
-
-    def _get_tti(self, fallback_ms: float) -> float | None:
-        tti = self.page.evaluate("""() => new Promise(resolve => {
-                const observer = new PerformanceObserver(list => {
-                    const last = list.getEntries().at(-1);
-                    observer.disconnect();
-                    resolve(last.startTime + last.duration);
-                });
-                try {
-                    observer.observe({ type: 'longtask', buffered: true });
-                } catch (e) { resolve(null); }
-                setTimeout(() => resolve(null), 3000);
-            })""")
-
-        if tti is None:
-            return fallback_ms
-
-        return round(tti, 2)
-
-
-class ResultsProcessor:
-    SECTIONS = {
-        "Network": ["dns", "connection", "tls", "ttfb"],
-        "Document": ["response_time", "dom_interactive", "dom_content_loaded", "full_load"],
-        "Paint / Vitals": ["first_paint", "fcp", "lcp", "tti"],
-        "Resources": ["total_resources", "total_transfer_kb"],
-    }
-
-    @staticmethod
-    def average(results: list[dict]) -> dict:
-        averaged = {}
-        decimal_places = 2
-        for key in results[0]:
-            values = [result[key] for result in results if result[key] is not None]
-            averaged[key] = round(statistics.mean(values), decimal_places) if values else None
-        print("debug")
-        return averaged
-
-    @staticmethod
-    def assert_within_budget(metric_value: float | None, budget_ms: int, label: str) -> bool:
-        assert metric_value is not None, \
-            f"{label} could not be measured — browser returned no data"
-        assert metric_value < budget_ms, \
-            f"{label} too slow: {metric_value}ms (budget: {budget_ms}ms)"
-        return True
-
-    @classmethod
-    def print(cls, label: str, metrics: dict):
-        print(f"\n{'=' * 50}")
-        print(f"  {label}")
-        print(f"{'=' * 50}")
-        for section, keys in cls.SECTIONS.items():
-            print(f"\n  {section}:")
-            for key in keys:
-                value = metrics.get(key)
-                unit = "KB" if key == "total_transfer_kb" else ("" if key == "total_resources" else "ms")
-                print(f"{key:<25} {f'{value}{unit}' if value is not None else 'N/A':>10}")
-
-
 def test_uploader_performance(page: Page, base_url: str, browser_name: str, extract_file, mani_file):
     # arrange
     uploader = UploaderPage(page, base_url, extract_file, mani_file)
@@ -178,8 +54,13 @@ def test_uploader_performance(page: Page, base_url: str, browser_name: str, extr
             page.reload()
             page.wait_for_load_state("networkidle")
 
-    averaged = processor.average(results)
+    averaged = processor.calculate_averages(results)
     processor.print(f"Averaged results ({browser_name}, {NUM_RUNS} runs)", averaged)
+
+    # # Reporting - uncomment as required
+    # report = processor.report(results=results, browser=browser_name)
+    # report.to_json(f"output/{browser_name}_results.json")
+    # report.to_csv(f"output/{browser_name}_results.csv")
 
     # assert
     processor.assert_within_budget(averaged['ttfb'], MAX_TTFB_MS, "TTFB")
