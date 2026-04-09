@@ -7,9 +7,11 @@ EXTRACT_FILE = "test_files/CTAX_EXTRACT_E00000000_20201231.csv"
 MANI_FILE = "test_files/CTAX_MANI_E00000000_20201231.csv"
 
 class UploaderPage:
-    def __init__(self, page: Page, base_url: str):
+    def __init__(self, page: Page, base_url: str, extract_file: str, mani_file: str):
         self.page = page
         self.base_url = base_url
+        self.extract_file = extract_file
+        self.mani_file = mani_file
 
     def complete_upload_journey(self):
         self._navigate()
@@ -22,10 +24,10 @@ class UploaderPage:
         self.page.wait_for_load_state("networkidle")
 
     def _upload_extract(self):
-        self.page.set_input_files("#fileOne", EXTRACT_FILE)
+        self.page.set_input_files("#fileOne", self.extract_file)
 
     def _upload_mani(self):
-        self.page.set_input_files("#fileTwo", MANI_FILE)
+        self.page.set_input_files("#fileTwo", self.mani_file)
 
     def _submit(self):
         self.page.get_by_role("button", name="Submit").click()
@@ -157,9 +159,9 @@ class ResultsProcessor:
                 print(f"{key:<25} {f'{value}{unit}' if value is not None else 'N/A':>10}")
 
 
-def test_uploader_performance(page: Page, base_url: str, browser_name: str):
+def test_uploader_performance(page: Page, base_url: str, browser_name: str, extract_file, mani_file):
     # arrange
-    uploader = UploaderPage(page, base_url)
+    uploader = UploaderPage(page, base_url, extract_file, mani_file)
     collector = PerformanceCollector(page)
     processor = ResultsProcessor()
     results = []
