@@ -1,11 +1,5 @@
 import pytest
-from config import BROWSER_CHANNEL, BASE_URL, EXTRACT_FILE_SIZE, EXTRACT_FILE_UNIT_SIZE, MANI_FILE_SIZE, MANI_FILE_UNIT_SIZE
-
-@pytest.fixture(scope="session")
-def browser_type_launch_args(browser_type_launch_args, browser_type):
-    if BROWSER_CHANNEL and browser_type.name == "chromium":
-        return {**browser_type_launch_args, "channel": BROWSER_CHANNEL}
-    return browser_type_launch_args
+from config import BASE_URL, EXTRACT_FILE_SIZE, EXTRACT_FILE_UNIT_SIZE, MANI_FILE_SIZE, MANI_FILE_UNIT_SIZE
 
 @pytest.fixture(scope="session")
 def base_url():
