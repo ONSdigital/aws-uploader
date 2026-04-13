@@ -14,3 +14,5 @@ EXTRACT_FILE_UNIT_SIZE = "MB"  # Options: "KB", "MB", "GB"
 
 MANI_FILE_SIZE         = 1
 MANI_FILE_UNIT_SIZE    = "KB"  # Options: "KB", "MB", "GB"
+
+BROWSER_CHANNEL = "msedge"

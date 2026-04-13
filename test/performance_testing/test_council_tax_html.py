@@ -1,6 +1,6 @@
 from playwright.sync_api import Page
 
-from config import NUM_RUNS, MAX_TTFB_MS, MAX_DOM_CONTENT_LOADED_MS, MAX_FCP_MS, MAX_TTI_MS, MAX_FULL_LOAD_MS
+from config import BROWSER_CHANNEL, NUM_RUNS, MAX_TTFB_MS, MAX_DOM_CONTENT_LOADED_MS, MAX_FCP_MS, MAX_TTI_MS, MAX_FULL_LOAD_MS
 from performance_collector import PerformanceCollector
 from results_processor import ResultsProcessor
 
@@ -39,10 +39,11 @@ def test_uploader_performance(page: Page, base_url: str, browser_name: str, extr
     collector = PerformanceCollector(page)
     processor = ResultsProcessor()
     results = []
+    display_name = f"{browser_name} ({BROWSER_CHANNEL})" if BROWSER_CHANNEL and browser_name == "chromium" else browser_name
 
     # act
     for run in range(1, NUM_RUNS + 1):
-        print(f"\n--- Run {run}/{NUM_RUNS} ({browser_name})---")
+        print(f"\n--- Run {run}/{NUM_RUNS} ({display_name})---")
 
         uploader.complete_upload_journey()
         metrics = collector.collect()
@@ -55,7 +56,7 @@ def test_uploader_performance(page: Page, base_url: str, browser_name: str, extr
             page.wait_for_load_state("networkidle")
 
     averaged = processor.calculate_averages(results)
-    processor.print(f"Averaged results ({browser_name}, {NUM_RUNS} runs)", averaged)
+    processor.print(f"Averaged results ({display_name}, {NUM_RUNS} runs)", averaged)
 
     # # Reporting - uncomment as required
     # report = processor.report(results=results, browser=browser_name)
