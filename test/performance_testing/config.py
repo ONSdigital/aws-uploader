@@ -1,4 +1,6 @@
-ENV     = "dev"  # Options: "dev", "preprod"
+import os
+
+ENV     = os.environ.get("ENV", "dev")
 BASE_URL = f"https://uploader.ingest-{ENV}.aws.onsdigital.uk"
 
 NUM_RUNS = 5
