@@ -41,5 +41,5 @@ node_modules/
 
 # Onboard Councils helper artefacts
 __pycache__/
-scripts/helpers/tests/test_data/
+test/scripts/helpers/onboard_councils/test_data/
 scripts/helpers/onboard_councils/logs
