@@ -1,0 +1,23 @@
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: mcr.microsoft.com/playwright/python
+    tag: v1.44.0-jammy
+
+inputs:
+  - name: repo-git
+
+run:
+  path: bash
+  args:
+    - -c
+    - |
+      cd repo-git/test/performance_testing
+      pip install -r requirements.txt --quiet
+      pytest --browser chromium --browser firefox --browser webkit
+  dir: ""
+
+params:
+  ENV: dev
