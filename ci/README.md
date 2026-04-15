@@ -1,6 +1,6 @@
 # CICD pipeline
 
-This is a example of a basic pipeline witin concourse using YAML.
+This is an example of a basic pipeline within concourse using YAML.
 
 ### Useful tutorials
 

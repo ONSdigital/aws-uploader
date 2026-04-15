@@ -174,7 +174,7 @@ Dependabot is setup to check dependency versions within terraform, this will aut
 
 ## CICD
 
-Concourse uses YAML to create the pipelines, which is works well until you start to create bigger pipelines to support bigger environments.
+Concourse uses YAML to create the pipelines, which works well until you start to create bigger pipelines to support bigger environments.
 Within the `ci` folder there are two examples `aviator` and `concourse`. Read the README in both sections to work out which is better for your usecase.
 
 ## Maintenance Mode
