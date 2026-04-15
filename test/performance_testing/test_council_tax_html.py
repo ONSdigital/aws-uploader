@@ -57,7 +57,9 @@ def test_uploader_performance(page: Page, base_url: str, browser_name: str, extr
     averaged = processor.calculate_averages(results)
     processor.print(f"Averaged results ({browser_name}, {NUM_RUNS} runs)", averaged)
 
-    # # Reporting - uncomment as required
+    # # Reporting - uncomment as required - ISC-850 raised to raise these programmatically
+    # import os
+    # os.makedirs("output", exist_ok=True)
     # report = processor.report(results=results, browser=browser_name)
     # report.to_json(f"output/{browser_name}_results.json")
     # report.to_csv(f"output/{browser_name}_results.csv")
