@@ -41,8 +41,6 @@ resources:
       access_token: ((github_pat))
       base_branch: ((git.branch))
       ignore_drafts: false
-
-
 jobs:
   # Terraform pipeline
   - name: set-pipeline-pr
@@ -208,21 +206,3 @@ jobs:
         input_mapping:
           repo-git: repo-git
         file: repo-git/ci/tasks/behaviourTests/task.yml
-
-  - name: uploader-performance-tests
-    plan:
-      - get: repo-git
-        trigger: true
-        passed: [uploader-behaviour-tests]
-
-      - task: run-uploader-performance-tests
-        input_mapping:
-          repo-git: repo-git
-        file: repo-git/ci/tasks/performanceTests/task.yml
-        params:
-          ENV: dev
-        on_failure:
-          put: pull-request
-          params:
-            path: pull-request
-            status: FAILURE
