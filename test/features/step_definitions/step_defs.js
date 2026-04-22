@@ -53,7 +53,12 @@ When(
   "I upload an incorrectly named non-zero byte manifest file {string}",
   async function (fileName) {
     const path = require("path");
-    const filePath = path.resolve("features", "test_files", fileName);
+    const filePath = path.resolve(
+"test",
+      "features",
+      "test_files",
+      fileName
+    );
     let fileInput = await this.driver.findElement(By.id("fileTwo"));
 
     await fileInput.sendKeys(filePath);
@@ -64,7 +69,12 @@ When(
   "I upload an incorrectly named non-zero byte extract file {string}",
   async function (fileName) {
     const path = require("path");
-    const filePath = path.resolve("features", "test_files", fileName);
+    const filePath = path.resolve(
+"test",
+      "features",
+      "test_files",
+      fileName
+    );
     let fileInput = await this.driver.findElement(By.id("fileOne"));
 
     await fileInput.sendKeys(filePath);
@@ -75,7 +85,12 @@ When(
   "I upload a non-zero byte manifest file {string} that does not have a .csv extension",
   async function (fileName) {
     const path = require("path");
-    const filePath = path.resolve("features", "test_files", fileName);
+    const filePath = path.resolve(
+"test",
+      "features",
+      "test_files",
+      fileName
+    );
     let fileInput = await this.driver.findElement(By.id("fileTwo"));
 
     await fileInput.sendKeys(filePath);
@@ -86,7 +101,12 @@ When(
   "I upload a non-zero byte extract file {string} that does not have a .csv extension",
   async function (fileName) {
     const path = require("path");
-    const filePath = path.resolve("features", "test_files", fileName);
+    const filePath = path.resolve(
+"test",
+      "features",
+      "test_files",
+      fileName
+    );
     let fileInput = await this.driver.findElement(By.id("fileOne"));
 
     await fileInput.sendKeys(filePath);
@@ -97,7 +117,12 @@ When(
   "I upload a correctly named non-zero byte manifest file {string} that does not match the URL LAD Code",
   async function (fileName) {
     const path = require("path");
-    const filePath = path.resolve("features", "test_files", fileName);
+    const filePath = path.resolve(
+"test",
+      "features",
+      "test_files",
+      fileName
+    );
     let fileInput = await this.driver.findElement(By.id("fileTwo"));
 
     await fileInput.sendKeys(filePath);
@@ -108,7 +133,12 @@ When(
   "I upload a correctly named zero byte manifest file {string} that matches the URL LAD code",
   async function (fileName) {
     const path = require("path");
-    const filePath = path.resolve("features", "test_files", fileName);
+    const filePath = path.resolve(
+"test",
+      "features",
+      "test_files",
+      fileName
+    );
 
     let fileInput = await this.driver.findElement(By.id("fileTwo"));
     await fileInput.sendKeys(filePath);
@@ -119,7 +149,12 @@ When(
   "I upload a correctly named non-zero byte extract file {string} that does not match the URL LAD Code",
   async function (fileName) {
     const path = require("path");
-    const filePath = path.resolve("features", "test_files", fileName);
+    const filePath = path.resolve(
+"test",
+      "features",
+      "test_files",
+      fileName
+    );
 
     let fileInput = await this.driver.findElement(By.id("fileOne"));
     await fileInput.sendKeys(filePath);
@@ -130,7 +165,12 @@ When(
   "I upload a correctly named zero byte extract file {string} that matches the URL LAD code",
   async function (fileName) {
     const path = require("path");
-    const filePath = path.resolve("features", "test_files", fileName);
+    const filePath = path.resolve(
+"test",
+      "features",
+      "test_files",
+      fileName
+    );
 
     let fileInput = await this.driver.findElement(By.id("fileOne"));
     await fileInput.sendKeys(filePath);
@@ -164,7 +204,12 @@ When(
   "I upload a large manifest file {string} over 5MB that matches the URL LAD code",
   async function (fileName) {
     const path = require("path");
-    const filePath = path.resolve("features", "test_files", fileName);
+    const filePath = path.resolve(
+"test",
+      "features",
+      "test_files",
+      fileName
+    );
     let fileInput = await this.driver.findElement(By.id("fileTwo"));
 
     await fileInput.sendKeys(filePath);
