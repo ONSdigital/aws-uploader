@@ -20,10 +20,10 @@ When(
   async function (fileName) {
     const path = require("path");
     const filePath = path.resolve(
-      "test",
-      "features",
-      "test_files",
-      fileName
+        "test",
+        "features",
+        "test_files",
+        fileName
     );
 
     let fileInput = await this.driver.findElement(By.id("fileTwo"));
@@ -37,10 +37,10 @@ When(
   async function (fileName) {
     const path = require("path");
     const filePath = path.resolve(
-      "test",
-      "features",
-      "test_files",
-      fileName
+        "test",
+        "features",
+        "test_files",
+        fileName
     );
 
     let fileInput = await this.driver.findElement(By.id("fileOne"));
@@ -54,10 +54,10 @@ When(
   async function (fileName) {
     const path = require("path");
     const filePath = path.resolve(
-"test",
-      "features",
-      "test_files",
-      fileName
+        "test",
+        "features",
+        "test_files",
+        fileName
     );
     let fileInput = await this.driver.findElement(By.id("fileTwo"));
 
@@ -70,10 +70,10 @@ When(
   async function (fileName) {
     const path = require("path");
     const filePath = path.resolve(
-"test",
-      "features",
-      "test_files",
-      fileName
+        "test",
+        "features",
+        "test_files",
+        fileName
     );
     let fileInput = await this.driver.findElement(By.id("fileOne"));
 
@@ -86,10 +86,10 @@ When(
   async function (fileName) {
     const path = require("path");
     const filePath = path.resolve(
-"test",
-      "features",
-      "test_files",
-      fileName
+        "test",
+        "features",
+        "test_files",
+        fileName
     );
     let fileInput = await this.driver.findElement(By.id("fileTwo"));
 
@@ -102,10 +102,10 @@ When(
   async function (fileName) {
     const path = require("path");
     const filePath = path.resolve(
-"test",
-      "features",
-      "test_files",
-      fileName
+        "test",
+        "features",
+        "test_files",
+        fileName
     );
     let fileInput = await this.driver.findElement(By.id("fileOne"));
 
@@ -118,10 +118,10 @@ When(
   async function (fileName) {
     const path = require("path");
     const filePath = path.resolve(
-"test",
-      "features",
-      "test_files",
-      fileName
+        "test",
+        "features",
+        "test_files",
+        fileName
     );
     let fileInput = await this.driver.findElement(By.id("fileTwo"));
 
@@ -134,10 +134,10 @@ When(
   async function (fileName) {
     const path = require("path");
     const filePath = path.resolve(
-"test",
-      "features",
-      "test_files",
-      fileName
+        "test",
+        "features",
+        "test_files",
+        fileName
     );
 
     let fileInput = await this.driver.findElement(By.id("fileTwo"));
@@ -150,10 +150,10 @@ When(
   async function (fileName) {
     const path = require("path");
     const filePath = path.resolve(
-"test",
-      "features",
-      "test_files",
-      fileName
+        "test",
+        "features",
+        "test_files",
+        fileName
     );
 
     let fileInput = await this.driver.findElement(By.id("fileOne"));
@@ -166,10 +166,10 @@ When(
   async function (fileName) {
     const path = require("path");
     const filePath = path.resolve(
-"test",
-      "features",
-      "test_files",
-      fileName
+        "test",
+        "features",
+        "test_files",
+        fileName
     );
 
     let fileInput = await this.driver.findElement(By.id("fileOne"));
@@ -188,10 +188,10 @@ When(
   async function (fileName) {
     const path = require("path");
     const filePath = path.resolve(
-      "test",
-      "features",
-      "test_files",
-      fileName
+        "test",
+        "features",
+        "test_files",
+        fileName
     );
 
     let fileInput = await this.driver.findElement(By.id("fileOne"));
@@ -205,10 +205,10 @@ When(
   async function (fileName) {
     const path = require("path");
     const filePath = path.resolve(
-"test",
-      "features",
-      "test_files",
-      fileName
+        "test",
+        "features",
+        "test_files",
+        fileName
     );
     let fileInput = await this.driver.findElement(By.id("fileTwo"));
 
