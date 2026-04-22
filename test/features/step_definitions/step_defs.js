@@ -19,7 +19,13 @@ When(
   "I upload a correctly named non-zero byte manifest file {string} that matches the URL LAD code",
   async function (fileName) {
     const path = require("path");
-    const filePath = path.resolve("features", "test_files", fileName);
+    const filePath = path.resolve(
+      "test",
+      "features",
+      "test_files",
+      fileName
+    );
+
     let fileInput = await this.driver.findElement(By.id("fileTwo"));
 
     await fileInput.sendKeys(filePath);
@@ -30,7 +36,13 @@ When(
   "I upload a correctly named non-zero byte extract file {string} that matches the URL LAD code",
   async function (fileName) {
     const path = require("path");
-    const filePath = path.resolve("features", "test_files", fileName);
+    const filePath = path.resolve(
+      "test",
+      "features",
+      "test_files",
+      fileName
+    );
+
     let fileInput = await this.driver.findElement(By.id("fileOne"));
 
     await fileInput.sendKeys(filePath);
@@ -135,7 +147,13 @@ When(
   "I upload a large extract file {string} over 5MB that matches the URL LAD code",
   async function (fileName) {
     const path = require("path");
-    const filePath = path.resolve("features", "test_files", fileName);
+    const filePath = path.resolve(
+      "test",
+      "features",
+      "test_files",
+      fileName
+    );
+
     let fileInput = await this.driver.findElement(By.id("fileOne"));
 
     await fileInput.sendKeys(filePath);
