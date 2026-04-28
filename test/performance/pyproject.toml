@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "performance"
+version = "0.1.0"
+description = "Locust performance tests"
+authors = ["Your Name <you@example.com>"]
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.12"
+locust = "^2.43.4"
+requests = "^2.33.1"
+boto3 = "^1.42.93"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
