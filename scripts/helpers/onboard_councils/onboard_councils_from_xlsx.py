@@ -139,6 +139,7 @@ class OnboardCouncils:
         if pd.isna(value):
             return None
         stripped = self._remove_brackets(str(value))
+        stripped = self._remove_commas(str(stripped))
         return stripped if stripped else None
 
     def _drop_empty_rows(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -228,6 +229,12 @@ class OnboardCouncils:
         for pattern in (r'\([^()]*\)', r'\{[^{}]*}'):
             while re.search(pattern, text):
                 text = re.sub(pattern, '', text)
+        text = re.sub(r' +', ' ', text)
+        return text.strip()
+
+    @staticmethod
+    def _remove_commas(text: str) -> str:
+        text = text.replace(',', '')
         text = re.sub(r' +', ' ', text)
         return text.strip()
 
