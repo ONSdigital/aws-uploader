@@ -5,8 +5,6 @@ import re
 
 from pathlib import Path
 
-from scripts.helpers.onboard_councils.onboard_councils_logging import setup_logging
-from scripts.helpers.onboard_councils.onboard_councils_reporting import OnboardingReport, AddedRow, OnboardingReporter
 from onboard_councils_logging import setup_logging
 from onboard_councils_reporting import OnboardingReport, AddedRow, OnboardingReporter
 
