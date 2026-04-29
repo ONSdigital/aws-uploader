@@ -52,7 +52,7 @@ By default, the tool updates the project `councils.csv` directly.
 The helper will:
 * Validate required column headers
 * Clean council names
-* Remove bracketed text where applicable
+* Remove bracketed text and commas where applicable
 * Apply standard title casing
 * Preserve `UA` in uppercase
 * Remove rows missing required values
