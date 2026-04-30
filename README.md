@@ -89,56 +89,33 @@ terraform plan -var-file=env/env.tfvars
 
 ### Onboarding New Councils
 
-New councils are onboarded by running a script that reads from an input Excel file and
-updates `councils.csv` automatically. This eliminates manual formatting, reduces the risk
-of typos, and enforces consistent casing and structure.
+New councils should be onboarded using the dedicated helper tool located in:
 
-#### What you need
+```text
+scripts/helpers/onboard_councils/
+```
 
-- An Excel file (`.xlsx`) containing the councils to onboard, with two columns:
-  - `name` — the council name
-  - `lad_code` — the LAD code
+This tool imports council data from an Excel spreadsheet and updates `councils.csv` automatically.
 
-This input should be a direct copy, paste from the Council Tax's spread sheet.  There's no need to make any adjustments other than adding the correct headers to the Excel document.
+It helps to:
+* Reduce manual editing of `councils.csv`
+* Prevent formatting inconsistencies and typos
+* Apply standardised council naming rules
+* Produce a clear audit log of changes made
 
-#### Running the script
-
-From the project root:
+### Quick Start
+Execute the following where `path/to/input` is the location of the input file
 ```bash
-python scripts/helpers/onboard_councils/onboard_councils.py
+cd scripts/helpers/onboard_councils
+poetry install
+poetry run python onboard_councils_from_xlsx.py /path/to/input 
 ```
 
-By default the script reads from and writes to `councils.csv`. Custom paths can be
-configured at the bottom of the script if your input or output locations differ.
-
-#### What the script does
-
-- Validates that the input file and `councils.csv` have the correct column headers
-- Cleans council names (removes brackets, applies title casing, preserves `UA`)
-- Drops any rows missing a council name or LAD code, and logs the reason
-- Skips any councils already present in `councils.csv`, logging each one
-- Appends new councils, deduplicates, and sorts alphabetically by name
-- Produces a timestamped log file summarising the run
-
-#### Reviewing the output
-
-After running, check the log file in `./logs` for a summary. A typical successful run
-looks like:
+### Full instructions
+For detailed setup, input file requirements, logging behaviour, and troubleshooting, see:
+```text
+scripts/helpers/onboard_councils/README.md
 ```
-[INFO] Original councils.csv row count: 141
-[INFO] Added 2 new councils: Adur (E07000223), Worthing (E07000229)
-[INFO] New councils.csv row count: 143
-```
-
-If anything was skipped or dropped it will appear as a `[WARNING]` above the summary,
-with the council name and reason.
-
-#### Gotchas
-
-- `UA` (Unitary Authority) is preserved in uppercase — the script handles this automatically
-- Ampersands vs "and" vary by council — the script preserves whatever is in your input, i.e., whatever is recorded in the Council Tax team's spread sheet
-- The script matches on both name and LAD code when checking for existing councils —
-  a council will be skipped if either already exists in `councils.csv`
 
 ## Running Behaviour tests
 Behaviour tests should be run before raising a Pull Request.
