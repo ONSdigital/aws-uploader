@@ -1,5 +1,6 @@
 name,lad_code
 Adur,E07000223
+Allerdale,E07000026
 Amber Valley,E07000032
 Arun,E07000224
 Ashfield,E07000170
@@ -14,6 +15,7 @@ Birmingham,E08000025
 Blaby,E07000129
 Blackpool,E06000009
 Blaenau Gwent,W06000019
+Boston,E07000136
 Breckland,E07000143
 Broadland,E07000144
 Bromley,E09000006
@@ -22,26 +24,33 @@ Bury,E08000002
 Caerphilly,W06000018
 Cambridge,E07000008
 Canterbury,E07000106
+Carlisle,E07000028
+Carmarthenshire,W06000010
 Castle Point,E07000069
 Central Bedfordshire,E06000056
 Charnwood,E07000130
+Chelmsford,E07000070
 Cheshire East,E06000049
 Cheshire West And Chester,E06000050
 Chichester,E07000225
 Chorley,E07000118
+Copeland,E07000029
 Cornwall,E06000052
 Coventry,E08000026
 Crawley,E07000226
 Dacorum,E07000096
 Darlington UA,E06000005
+Denbighshire,W06000004
 Doncaster,E08000017
 Dorset,E06000059
 Dover,E07000108
 Durham,E06000047
 East Cambs,E07000009
 East Devon,E07000040
+East Lindsey,E07000137
 East Riding Of Yorkshire,E06000011
 East Suffolk,E07000244
+Eastbourne,E07000061
 Eden,E07000030
 Enfield,E09000010
 Epping Forest,E07000072
@@ -50,6 +59,7 @@ Fenland,E07000010
 Flintshire,W06000005
 Forest Of Dean,E07000080
 Fylde,E07000119
+Gateshead,E08000037
 Gloucester,E07000081
 Gosport,E07000088
 Great Yarmouth,E07000145
@@ -58,10 +68,12 @@ Guildford,E07000209
 Gwynedd,W06000002
 Hackney,E09000012
 Halton UA,E06000006
+Hammersmith & Fulham,E09000013
 Haringey,E09000014
 Harlow,E07000073
 Harrow,E09000015
 Hart,E07000089
+Hartlepool UA,E06000001
 Havant,E07000090
 Havering,E09000016
 Health Status,H00000000
@@ -71,15 +83,20 @@ Hounslow,E09000018
 Hyndburn,E07000120
 Ipswich,E07000202
 Isle Of Wight UA,E06000046
+Isles Of Scilly,E06000053
+Kings Lynn & West Norfolk,E07000146
+Kingston Upon Hull City Of UA,E06000010
 Kingston upon Thames,E09000021
 Kirklees,E08000034
 Knowsley,E08000011
 Lambeth,E09000022
 Lancaster,E07000121
 Leeds,E08000035
+Lewes,E07000063
 Lewisham,E09000023
 Lichfield,E07000194
 Lincoln,E07000138
+Liverpool,E08000012
 Maldon,E07000074
 Malvern Hills,E07000235
 Manchester,E08000003
@@ -87,6 +104,7 @@ Mansfield,E07000174
 Medway,E06000035
 Melton,E07000133
 Merthyr Tydfil,W06000024
+Mid Devon,E07000042
 Mid Suffolk,E07000203
 Mid Sussex,E07000228
 Middlesbrough UA,E06000002
@@ -112,6 +130,7 @@ Plymouth,E06000026
 Portsmouth UA,E06000044
 Powys,W06000023
 Preston,E07000123
+Reading UA,E06000038
 Redbridge,E09000026
 Reigate & Banstead,E07000211
 Rhondda Cynon Taf,W06000016
@@ -134,6 +153,7 @@ Solihull,E08000029
 South Cambridgeshire,E07000012
 South Derbyshire,E07000039
 South Hams,E07000044
+South Holland,E07000140
 South Kesteven,E07000141
 South Lakeland,E07000031
 South Norfolk,E07000149
@@ -142,15 +162,20 @@ South Ribble,E07000126
 South Staffordshire,E07000196
 Southampton UA,E06000045
 Southwark,E09000028
+St Helens,E08000013
+Staffordshire Moorlands,E07000198
 Stoke-On-Trent UA,E06000021
 Stroud,E07000082
 Sunderland,E08000024
 Surrey Heath,E07000214
+Swansea,W06000011
+Teignbridge,E07000045
 Test,E00000000
 Test Valley,E07000093
 Tewkesbury,E07000083
 Thanet,E07000114
 The Cotswolds,E07000079
+Three Rivers,E07000102
 Torbay UA,E06000027
 Torfaen,W06000020
 Tower Hamlets,E09000030
@@ -169,9 +194,12 @@ West Northamptonshire,E06000062
 West Oxfordshire,E07000181
 West Suffolk,E07000245
 Westminster,E09000033
+Wiltshire,E06000054
 Wirral,E08000015
+Woking,E07000217
 Worcester,E07000237
 Worthing,E07000229
 Wrexham,W06000006
 Wychavon,E07000238
 Wyre,E07000128
+York UA,E06000014
