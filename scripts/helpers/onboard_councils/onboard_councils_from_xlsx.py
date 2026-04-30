@@ -1,21 +1,31 @@
+import argparse
 import logging
+import pandas as pd
 import re
 
-import pandas as pd
 from pathlib import Path
 
-from scripts.helpers.onboard_councils.onboard_councils_logging import setup_logging
-from scripts.helpers.onboard_councils.onboard_councils_reporting import OnboardingReport, AddedRow, OnboardingReporter
+from onboard_councils_logging import setup_logging
+from onboard_councils_reporting import OnboardingReport, AddedRow, OnboardingReporter
 
 REQUIRED_COLUMNS = {"name", "lad_code"}
+BASE_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = next(p for p in Path(__file__).resolve().parents if p.name == "aws-uploader")
+DEFAULT_COUNCILS_CSV = PROJECT_ROOT / "councils.csv"
 
 class OnboardCouncils:
-    def __init__(self,
-                 input_file_path: str | Path,
-                 councils_csv: str | Path = "../../councils.csv",
-                 ):
-        self.input_file_path = Path(input_file_path)
-        self.councils_csv = Path(councils_csv)
+    def __init__(
+            self,
+            input_file_path: str | Path,
+            councils_csv: str | Path | None = None,
+    ):
+
+        self.input_file_path = Path(input_file_path).resolve()
+        self.councils_csv = (
+            Path(councils_csv).resolve()
+            if councils_csv
+            else DEFAULT_COUNCILS_CSV
+        )
         self._reporter = OnboardingReporter(
             input_file=str(self.input_file_path),
             councils_csv=str(self.councils_csv),
@@ -129,6 +139,7 @@ class OnboardCouncils:
         if pd.isna(value):
             return None
         stripped = self._remove_brackets(str(value))
+        stripped = self._remove_commas(str(stripped))
         return stripped if stripped else None
 
     def _drop_empty_rows(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -222,6 +233,12 @@ class OnboardCouncils:
         return text.strip()
 
     @staticmethod
+    def _remove_commas(text: str) -> str:
+        text = text.replace(',', '')
+        text = re.sub(r' +', ' ', text)
+        return text.strip()
+
+    @staticmethod
     def _apply_title_casing(text: str) -> str:
         titled = text.title()                                   # "ISLE OF WIGHT UA" -> "Isle Of Wight Ua"
         titled = re.sub(r'\bUa\b', 'UA', titled)    # "Isle Of Wight Ua" -> "Isle Of Wight UA"
@@ -237,15 +254,32 @@ class OnboardCouncils:
 
 
 if __name__ == "__main__":
-    setup_logging(log_dir="./logs")
+    parser = argparse.ArgumentParser(
+        description="Onboard new councils from an Excel spreadsheet."
+    )
 
-    # Required: path to the input XLSX file
-    input_file_path = "../../../test/scripts/helpers/onboard_councils/test_data/input (1).xlsx"
+    parser.add_argument(
+        "input_file",
+        help="Path to the input Excel (.xlsx) file containing name and lad_code columns",
+    )
 
-    # # Optional: defaults to "../../councils.csv" and is overwritten if not set
-    # councils_csv = "../tests/test_data/councils (1).csv"
+    parser.add_argument(
+        "--councils-csv",
+        default=None,
+        help="Optional path to councils.csv (default: <project-root>/councils.csv)",
+    )
+
+    parser.add_argument(
+        "--log-dir",
+        default="./logs",
+        help="Optional log output directory (default: ./logs)",
+    )
+
+    args = parser.parse_args()
+
+    setup_logging(log_dir=BASE_DIR / "logs")
 
     OnboardCouncils(
-        input_file_path=input_file_path,
-        # councils_csv=councils_csv,      # Uncomment this line for custom paths
+        input_file_path=args.input_file,
+        councils_csv=args.councils_csv,
     ).run()

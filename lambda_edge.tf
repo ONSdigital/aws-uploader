@@ -50,7 +50,7 @@ resource "aws_lambda_function" "maintenance_check_edge" {
   role             = aws_iam_role.maintenance_check_edge.arn
   handler          = "maintenance-check.handler"
   source_code_hash = data.archive_file.maintenance_check.output_base64sha256
-  runtime          = "nodejs20.x"
+  runtime          = "nodejs22.x"
   timeout          = 5
   publish          = true
 }
