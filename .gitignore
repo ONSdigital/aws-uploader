@@ -45,5 +45,5 @@ test/scripts/helpers/onboard_councils/test_data/
 scripts/helpers/onboard_councils/logs
 
 # Performance testing
-test/performance/server/.env.example
+test/performance/server/.env
 
