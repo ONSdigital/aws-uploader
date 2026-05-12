@@ -1,38 +1,49 @@
 import os
+from dataclasses import dataclass
 
-ENV = os.environ.get("ENV", "dev")
-CLOUDFRONT_BASE_URL: str = os.environ.get(
-    "CLOUDFRONT_BASE_URL", f"https://uploader.ingest-{ENV}.aws.onsdigital.uk"
-)
 
-API_GATEWAY_BASE_URL: str = os.environ.get(
-    "API_GATEWAY_BASE_URL", f"https://REPLACE_ME.execute-api.eu-west-2.amazonaws.com"
-)
+@dataclass
+class Config:
+    env: str
+    cloudfront_base_url: str
+    api_gateway_base_url: str
+    test_lad_code: str
+    council_name: str
+    submission_date: str
+    homepage_path: str
+    presign_path: str
+    extract_file_size_bytes: int
+    mani_file_size_bytes: int
+    upload_timeout_s: int
+    threshold_p50_ms: float
+    threshold_p95_ms: float
+    threshold_p99_ms: float
+    threshold_5xx_rate: float
+    threshold_cold_start_rate: float
+    threshold_throughput_mbs: float
 
-TEST_LAD_CODE: str = os.environ.get("TEST_LAD_CODE", "P00000000")
-COUNCIL_NAME: str = os.environ.get("COUNCIL_NAME", "Performance-Test")
-SUBMISSION_DATE: str = os.environ.get("SUBMISSION_DATE", "20261231")
 
-HOMEPAGE_PATH: str = os.environ.get("HOMEPAGE_PATH", f"/council-tax/{TEST_LAD_CODE}-Performance-Test.html")
+    @classmethod
+    def from_env(cls) -> "Config":
+        env = os.getenv("ENV", "dev")
+        test_lad_code = os.getenv("TEST_LAD_CODE", "P00000000")
 
-PRESIGN_PATH: str = os.environ.get("PRESIGN_PATH", "/pre-signed-url")
-
-EXTRACT_FILE_SIZE_BYTES: int = int(
-    os.environ.get("EXTRACT_FILE_SIZE_BYTES", str(20 * 1024 * 1024))  # 20 MB
-)
-MANI_FILE_SIZE_BYTES: int = int(
-    os.environ.get("MANI_FILE_SIZE_BYTES", str(1 * 1024))             # 1 KB
-)
-
-UPLOAD_TIMEOUT_S: int = int(os.environ.get("UPLOAD_TIMEOUT_S", "120"))
-
-THRESHOLD_P50_MS: float = float(os.environ.get("THRESHOLD_P50_MS", "150"))
-THRESHOLD_P95_MS: float = float(os.environ.get("THRESHOLD_P95_MS", "400"))
-THRESHOLD_P99_MS: float = float(os.environ.get("THRESHOLD_P99_MS", "800"))
-THRESHOLD_5XX_RATE: float = float(os.environ.get("THRESHOLD_5XX_RATE", "0.001"))  # 0.1%
-THRESHOLD_COLD_START_RATE: float = float(
-    os.environ.get("THRESHOLD_COLD_START_RATE", "0.05")  # 5%
-)
-THRESHOLD_THROUGHPUT_MBS: float = float(
-    os.environ.get("THRESHOLD_THROUGHPUT_MBS", "10.0")   # 10 MB/s minimum
-)
+        return cls(
+            env=env,
+            cloudfront_base_url=os.getenv("CLOUDFRONT_BASE_URL", f"https://uploader.ingest-{env}.aws.onsdigital.uk"),
+            api_gateway_base_url=os.getenv("API_GATEWAY_BASE_URL", ""),
+            test_lad_code=test_lad_code,
+            council_name=os.getenv("COUNCIL_NAME", "Performance-Test"),
+            submission_date=os.getenv("SUBMISSION_DATE", "20261231"),
+            homepage_path=os.getenv("HOMEPAGE_PATH", f"/council-tax/{test_lad_code}-Performance-Test.html"),
+            presign_path=os.getenv("PRESIGN_PATH", "/pre-signed-url"),
+            extract_file_size_bytes=int(os.getenv("EXTRACT_FILE_SIZE_BYTES", str(20 * 1024 * 1024))),  # 20 MB
+            mani_file_size_bytes=int(os.getenv("MANI_FILE_SIZE_BYTES", str(1 * 1024))),  # 1 KB
+            upload_timeout_s=int(os.getenv("UPLOAD_TIMEOUT_S", "120")),
+            threshold_p50_ms = float(os.getenv("THRESHOLD_P50_MS", "150")),
+            threshold_p95_ms = float(os.getenv("THRESHOLD_P95_MS", "400")),
+            threshold_p99_ms = float(os.getenv("THRESHOLD_P99_MS", "800")),
+            threshold_5xx_rate = float(os.getenv("THRESHOLD_5XX_RATE", "0.001")),  # 0.1%
+            threshold_cold_start_rate = float(os.getenv("THRESHOLD_COLD_START_RATE", "0.05")),  # 5%
+            threshold_throughput_mbs = float(os.getenv("THRESHOLD_THROUGHPUT_MBS", "10.0")),  # 10 MB/s minimum
+        )

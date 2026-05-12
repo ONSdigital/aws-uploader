@@ -3,13 +3,15 @@ import logging
 import sys
 from pathlib import Path
 
-from env_config import THRESHOLD_P50_MS, THRESHOLD_P95_MS, THRESHOLD_P99_MS, THRESHOLD_5XX_RATE
+from env_config import Config
 
 logger = logging.getLogger("uploader-locust.thresholds")
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 
 
 def check(stats_csv_path: str) -> bool:
+    config = Config.from_env()
+
     path = Path(stats_csv_path)
     if not path.exists():
         logger.error("Stats CSV not found: %s", path)
@@ -43,15 +45,15 @@ def check(stats_csv_path: str) -> bool:
                 name[:50], p50, p95, p99, error_rate * 100,
             )
 
-            if p50 > THRESHOLD_P50_MS:
-                failures.append(f"[BREACH] {name}: p50 {p50:.0f}ms > {THRESHOLD_P50_MS}ms")
-            if p95 > THRESHOLD_P95_MS:
-                failures.append(f"[BREACH] {name}: p95 {p95:.0f}ms > {THRESHOLD_P95_MS}ms")
-            if p99 > THRESHOLD_P99_MS:
-                failures.append(f"[BREACH] {name}: p99 {p99:.0f}ms > {THRESHOLD_P99_MS}ms")
-            if error_rate > THRESHOLD_5XX_RATE:
+            if p50 > config.threshold_p50_ms:
+                failures.append(f"[BREACH] {name}: p50 {p50:.0f}ms > {config.threshold_p50_ms}ms")
+            if p95 > config.threshold_p95_ms:
+                failures.append(f"[BREACH] {name}: p95 {p95:.0f}ms > {config.threshold_p95_ms}ms")
+            if p99 > config.threshold_p99_ms:
+                failures.append(f"[BREACH] {name}: p99 {p99:.0f}ms > {config.threshold_p99_ms}ms")
+            if error_rate > config.threshold_5xx_rate:
                 failures.append(
-                    f"[BREACH] {name}: error rate {error_rate:.2%} > {THRESHOLD_5XX_RATE:.2%}"
+                    f"[BREACH] {name}: error rate {error_rate:.2%} > {config.threshold_5xx_rate:.2%}"
                 )
 
             if failures:
