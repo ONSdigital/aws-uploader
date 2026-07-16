@@ -1,5 +1,5 @@
 module "ct-uploader-alerts" {
-  source = "git::https://github.com/ONSdigital/aws-alerts?ref=1.3.13"
+  source = "git::https://github.com/ONSdigital/aws-alerts?ref=1.4.0"
 
   project_name              = "uploader"
   environment               = var.environment
