@@ -1,0 +1,50 @@
+name: self-workflow
+run-name: ${{github.workflow}} - ${{ github.actor }} pushed a change to ${{github.ref_name}}
+permissions: { contents: read }
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - "main"
+  workflow_dispatch:
+
+jobs:
+  clamav:
+    permissions:
+      contents: read
+      pull-requests: write
+    name: ClamAV
+    uses: ./.github/workflows/clamav.yml
+  checkov:
+    permissions:
+      contents: read
+    name: Checkov
+    uses: ./.github/workflows/checkov.yml
+    with:
+      config_path: "./configs/"
+  codespell:
+    permissions:
+      contents: read
+    name: Codespell
+    uses: ./.github/workflows/codespell.yml
+    with:
+      codespell_config: "./configs/.codespellrc"
+  prettier:
+    permissions:
+      contents: read
+    name: Prettier
+    uses: ./.github/workflows/prettier.yml
+  shellcheck:
+    permissions:
+      contents: read
+    name: Shellcheck
+    uses: ./.github/workflows/shellcheck.yml
+  zizmor:
+    permissions:
+      contents: read
+      actions: read
+    name: Zizmor
+    uses: ./.github/workflows/zizmor.yml

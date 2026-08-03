@@ -1,0 +1,71 @@
+name: Gitleaks Secret Scan
+permissions: { contents: read }
+
+on:
+  workflow_call:
+    inputs:
+      runs_on:
+        description: Runner label for the job
+        required: false
+        type: string
+        default: "ubuntu-latest"
+      scan_mode:
+        description: "Scan mode: 'protect' scans PR/push diff, 'detect' scans full history"
+        required: false
+        type: string
+        default: "protect"
+      config_file:
+        description: Path to a custom Gitleaks configuration file
+        required: false
+        type: string
+        default: ""
+      comment_pr:
+        description: Post a comment on the PR when the scan fails
+        required: false
+        type: boolean
+        default: true
+
+jobs:
+  gitleaks:
+    name: Gitleaks Secret Scan
+    runs-on: ${{ inputs.runs_on }}
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: ${{ case(inputs.scan_mode == 'detect', 0, 1) }}
+          persist-credentials: false
+
+      - name: Run Gitleaks
+        id: gitleaks
+        uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e # v2.3.7
+        env:
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+        with:
+          args: >-
+            ${{ inputs.scan_mode == 'detect' && '--no-git' || '' }}
+            ${{ inputs.config_file != '' && format('--config={0}', inputs.config_file) || '' }}
+
+      - name: Comment PR
+        if: inputs.comment_pr && failure() && github.event_name == 'pull_request'
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.1
+        env:
+          ACTOR: ${{ github.actor }}
+          EVENT: ${{ github.event_name }}
+        with:
+          script: |
+            const output = `#### Gitleaks Secret Scan 🔐 \`failure\`
+
+            **Gitleaks detected secrets in this repository.** Please review and remove any hardcoded secrets before merging.
+
+            > ⚠️ Secret values are not displayed in this comment for security reasons.
+
+            *Pusher: @${process.env.ACTOR}, Action: \`${process.env.EVENT}\`*`;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            });

@@ -1,0 +1,60 @@
+name: Codespell Scan
+permissions: { contents: read }
+
+on:
+  workflow_call:
+    inputs:
+      runs_on:
+        description: Runner label for the job
+        required: false
+        type: string
+        default: "ubuntu-latest"
+      python_version:
+        description: Version of python to use
+        required: false
+        type: string
+        default: "3.13"
+      codespell_version:
+        description: Version of codespell to use
+        required: false
+        type: string
+        default: ""
+      codespell_config:
+        description: Location of codespell config
+        required: false
+        type: string
+        default: ""
+
+jobs:
+  codespell:
+    name: Codespell Scan
+    runs-on: ${{ inputs.runs_on }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: ${{ inputs.python_version }}
+
+      - name: Install Codespell
+        env:
+          CODESPELL_VERSION: ${{ inputs.codespell_version }}
+        run: |
+          if [ -z "${CODESPELL_VERSION}" ]; then
+            pip install codespell
+          else
+            pip install codespell $CODESPELL_VERSION
+          fi
+
+      - name: Run Codespell
+        id: codespell
+        env:
+          CODESPELL_CONFIG: ${{ inputs.codespell_config }}
+        run: |
+          if [ -z "${CODESPELL_CONFIG}" ]; then
+            codespell
+          else
+            codespell --config $CODESPELL_CONFIG
+          fi

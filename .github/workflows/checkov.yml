@@ -1,0 +1,47 @@
+name: Checkov Scan
+permissions: { contents: read }
+
+on:
+  workflow_call:
+    inputs:
+      runs_on:
+        description: Runner label for the job
+        required: false
+        type: string
+        default: "ubuntu-latest"
+      checkov_enable_foreach_handling:
+        required: false
+        type: boolean
+        default: false
+      config_path:
+        required: true
+        type: string
+      python_version:
+        description: Version of python to use
+        required: false
+        type: string
+        default: "3.13"
+
+jobs:
+  checkov:
+    name: Checkov Scan
+    runs-on: ${{ inputs.runs_on }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: ${{ inputs.python_version }}
+
+      - name: Install Checkov
+        run: pip install checkov
+
+      - name: Run Checkov
+        id: checkov
+        env:
+          INPUTS_CONFIG_PATH: ${{ inputs.config_path }}
+        run: |
+          export CHECKOV_ENABLE_FOREACH_HANDLING=${{ inputs.checkov_enable_foreach_handling }}
+          checkov --config-file ${INPUTS_CONFIG_PATH}/checkov.yml

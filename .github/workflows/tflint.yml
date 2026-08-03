@@ -1,0 +1,121 @@
+name: TFLint
+permissions: { contents: read }
+
+on:
+  workflow_call:
+    inputs:
+      runs_on:
+        description: Runner label for the job
+        required: false
+        type: string
+        default: "ubuntu-latest"
+      working_directory:
+        description: Terraform working directory
+        required: false
+        type: string
+        default: "."
+      tflint_version:
+        description: TFLint version to install
+        required: false
+        type: string
+        default: "latest"
+      config_file:
+        description: Path to TFLint configuration file
+        required: false
+        type: string
+        default: ".tflint.hcl"
+      comment_pr:
+        description: Post a comment on the PR when linting fails
+        required: false
+        type: boolean
+        default: true
+
+jobs:
+  tflint:
+    name: TFLint
+    runs-on: ${{ inputs.runs_on }}
+    permissions:
+      contents: read
+      pull-requests: write
+    defaults:
+      run:
+        working-directory: ${{ inputs.working_directory }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: terraform-linters/setup-tflint@6e1e0642c0289bd619021bf6b34e3c08ed1e005a # v4.0.0
+        with:
+          tflint_version: ${{ inputs.tflint_version }}
+
+      - name: Resolve TFLint config path
+        id: resolve_config
+        env:
+          CONFIG_INPUT: ${{ inputs.config_file }}
+        run: |
+          set -euo pipefail
+
+          config_path="$CONFIG_INPUT"
+
+          # If the input exists from the current working directory, keep it as-is.
+          if [[ -e "$CONFIG_INPUT" ]]; then
+            if abs_path=$(realpath "$CONFIG_INPUT" 2>/dev/null); then
+              config_path=$(realpath --relative-to="$PWD" "$abs_path")
+            fi
+          # Otherwise, treat input as repository-root relative when possible.
+          elif [[ -e "$GITHUB_WORKSPACE/$CONFIG_INPUT" ]]; then
+            config_path=$(realpath --relative-to="$PWD" "$GITHUB_WORKSPACE/$CONFIG_INPUT")
+          fi
+
+          echo "config_path=$config_path" >> "$GITHUB_OUTPUT"
+
+      - name: Init TFLint
+        id: init
+        env:
+          CONFIG: ${{ steps.resolve_config.outputs.config_path }}
+        run: |
+          tflint --init --config $CONFIG
+
+      - name: Run TFLint
+        id: tflint
+        env:
+          CONFIG: ${{ steps.resolve_config.outputs.config_path }}
+        run: |
+          set +e
+          tflint_output=$(tflint --config "$CONFIG" 2>&1)
+          tflint_exit=$?
+          {
+            echo "stdout<<EOF"
+            echo "$tflint_output"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+          exit $tflint_exit
+
+      - name: Comment PR
+        if: inputs.comment_pr && failure() && github.event_name == 'pull_request'
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.1
+        env:
+          OUTCOME: ${{ steps.tflint.outcome }}
+          RESULT: ${{ steps.tflint.outputs.stdout }}
+          ACTOR: ${{ github.actor }}
+          EVENT: ${{ github.event_name }}
+        with:
+          script: |
+            const output = `#### TFLint 🧹 \`${process.env.OUTCOME}\`
+
+            <details><summary>Show Linting Errors</summary>
+
+            \`\`\`
+            ${process.env.RESULT}
+            \`\`\`
+
+            </details>
+
+            *Pusher: @${process.env.ACTOR}, Action: \`${process.env.EVENT}\`*`;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            });

@@ -1,0 +1,70 @@
+name: TruffleHog Secret Scan
+permissions: { contents: read }
+
+on:
+  workflow_call:
+    inputs:
+      runs_on:
+        description: Runner label for the job
+        required: false
+        type: string
+        default: "ubuntu-latest"
+      scan_mode:
+        description: "Scan mode: 'protect' scans PR/push diff, 'detect' scans full history"
+        required: false
+        type: string
+        default: "protect"
+      only_verified:
+        description: Report only verified (active) secrets when true, all secrets when false
+        required: false
+        type: boolean
+        default: true
+      comment_pr:
+        description: Post a comment on the PR when the scan fails
+        required: false
+        type: boolean
+        default: true
+
+jobs:
+  trufflehog:
+    name: TruffleHog Secret Scan
+    runs-on: ${{ inputs.runs_on }}
+    permissions:
+      contents: read
+      pull-requests: write
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: ${{ case(inputs.scan_mode == 'detect', 0, 1) }}
+          persist-credentials: false
+
+      - name: Run TruffleHog
+        id: trufflehog
+        uses: trufflesecurity/trufflehog@27b0417c16317ca9a472a9a8092acce143b49c55 # v3.82.13
+        with:
+          extra_args: ${{ inputs.only_verified && '--only-verified' || '' }}
+
+      - name: Comment PR
+        if: inputs.comment_pr && failure() && github.event_name == 'pull_request'
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.1
+        env:
+          ACTOR: ${{ github.actor }}
+          EVENT: ${{ github.event_name }}
+        with:
+          script: |
+            const output = `#### TruffleHog Secret Scan 🔐 \`failure\`
+
+            **TruffleHog detected secrets in this repository.** Please review and remove any hardcoded secrets before merging.
+
+            > ⚠️ Secret values are not displayed in this comment for security reasons.
+
+            *Pusher: @${process.env.ACTOR}, Action: \`${process.env.EVENT}\`*`;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            });

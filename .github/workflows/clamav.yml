@@ -1,0 +1,99 @@
+name: ClamAV
+permissions: { contents: read }
+
+on:
+  workflow_call:
+    inputs:
+      runs_on:
+        description: Runner label for the job
+        required: false
+        type: string
+        default: "ubuntu-latest"
+      comment_pr:
+        description: Post a comment on the PR when scanning fails
+        required: false
+        type: boolean
+        default: true
+
+jobs:
+  clamav:
+    name: ClamAV
+    runs-on: ${{ inputs.runs_on }}
+    permissions:
+      contents: read
+      pull-requests: write
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Resolve official ClamAV container digest
+        id: clamav_get_digest
+        run: |
+          token="$(curl -fsSL "https://auth.docker.io/token?service=registry.docker.io&scope=repository:clamav/clamav:pull" | jq -r '.token')"
+          digest="$(curl -fsSI \
+            -H "Authorization: Bearer $token" \
+            -H "Accept: application/vnd.docker.distribution.manifest.list.v2+json" \
+            https://registry-1.docker.io/v2/clamav/clamav/manifests/stable \
+            | awk -F': ' '/docker-content-digest/ {gsub("\\r","",$2); print $2}')"
+          echo "image=clamav/clamav@$digest" >> "$GITHUB_OUTPUT"
+
+      - name: Pull official ClamAV container
+        id: clamav_pull
+        env:
+          CLAMAV_IMAGE_REF: ${{ steps.clamav_get_digest.outputs.image }}
+        run: |
+          docker pull "$CLAMAV_IMAGE_REF"
+          echo "CLAMAV_IMAGE=$CLAMAV_IMAGE_REF" >> "$GITHUB_ENV"
+
+      - name: Run ClamAV scan
+        id: clamav_scan
+        run: |
+          set +e
+          scan_output=$(docker run --rm \
+            --user clamav \
+            --entrypoint clamscan \
+            --mount type=bind,source="$PWD",target=/scandir,readonly \
+            "$CLAMAV_IMAGE" \
+            --recursive --algorithmic-detection --infected --stdout \
+            --exclude=tests/bad-path/clamav/eicar\.txt \
+            /scandir 2>&1)
+          exit_code=$?
+          echo "$scan_output"
+          {
+            echo "stdout<<EOF"
+            echo "$scan_output"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+          exit $exit_code
+
+      - name: Comment PR
+        if: inputs.comment_pr && failure() && github.event_name == 'pull_request'
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.1
+        env:
+          OUTCOME: ${{ steps.clamav_scan.outcome }}
+          RESULT: ${{ steps.clamav_scan.outputs.stdout }}
+          ACTOR: ${{ github.actor }}
+          EVENT: ${{ github.event_name }}
+        with:
+          script: |
+            const output = `#### ClamAV 🧹 \`${process.env.OUTCOME}\`
+
+            <details><summary>Show Clam AV Scan Results</summary>
+
+            \`\`\`
+            ${process.env.RESULT}
+            \`\`\`
+
+            </details>
+
+            *Pusher: @${process.env.ACTOR}, Action: \`${process.env.EVENT}\`*`;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            });

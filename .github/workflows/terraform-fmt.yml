@@ -1,0 +1,83 @@
+name: Terraform Format Check
+permissions: { contents: read }
+
+on:
+  workflow_call:
+    inputs:
+      runs_on:
+        description: Runner label for the job
+        required: false
+        type: string
+        default: "ubuntu-latest"
+      working_directory:
+        description: Terraform working directory
+        required: false
+        type: string
+        default: "."
+      terraform_version:
+        description: Terraform version
+        required: false
+        type: string
+        default: "1.14.0"
+      fail_on_diff:
+        description: Fail if formatting differences are found
+        required: false
+        type: boolean
+        default: true
+      comment_pr:
+        description: Post a comment on the PR when the format check fails
+        required: false
+        type: boolean
+        default: true
+
+jobs:
+  terraform-fmt:
+    name: Terraform Format Check
+    runs-on: ${{ inputs.runs_on }}
+    permissions:
+      contents: read
+      pull-requests: write
+    defaults:
+      run:
+        working-directory: ${{ inputs.working_directory }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
+        with:
+          terraform_version: ${{ inputs.terraform_version }}
+
+      - name: Terraform Format Check
+        id: fmt
+        run: terraform fmt -check -recursive -diff
+        continue-on-error: ${{ !inputs.fail_on_diff }}
+
+      - name: Comment PR
+        if: inputs.comment_pr && failure() && github.event_name == 'pull_request'
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.1
+        env:
+          OUTCOME: ${{ steps.fmt.outcome }}
+          RESULT: ${{ steps.fmt.outputs.stdout }}
+          ACTOR: ${{ github.actor }}
+          EVENT: ${{ github.event_name }}
+        with:
+          script: |
+            const output = `#### Terraform Format Check 📖 \`${process.env.OUTCOME}\`
+
+            <details><summary>Show Format Issues</summary>
+
+            \`\`\`diff
+            ${process.env.RESULT}
+            \`\`\`
+
+            </details>
+
+            *Pusher: @${process.env.ACTOR}, Action: \`${process.env.EVENT}\`*`;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            });

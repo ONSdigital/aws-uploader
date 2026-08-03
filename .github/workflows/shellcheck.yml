@@ -1,0 +1,24 @@
+name: "ShellCheck"
+permissions: { contents: read }
+
+on:
+  workflow_call:
+    inputs:
+      runs_on:
+        description: Runner label for the job
+        required: false
+        type: string
+        default: "ubuntu-latest"
+
+jobs:
+  shellcheck:
+    name: ShellCheck
+    runs-on: ${{ inputs.runs_on }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Run ShellCheck
+        run: find . -type f -name "*.sh" -exec shellcheck {} +

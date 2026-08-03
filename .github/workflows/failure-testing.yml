@@ -1,0 +1,41 @@
+name: actions-test-fail
+run-name: ${{github.workflow}} - ${{ github.actor }} pushed a change to ${{github.ref_name}}
+permissions: { contents: read }
+
+on:
+  pull_request:
+    branches:
+      - "main"
+  workflow_dispatch:
+
+jobs:
+  checkov:
+    permissions:
+      contents: read
+      pull-requests: write
+    name: Fail Test - Checkov
+    uses: ./.github/workflows/checkov.yml
+    with:
+      config_path: "./configs-bad"
+  codespell:
+    permissions:
+      contents: read
+    name: Fail Test - Codespell
+    uses: ./.github/workflows/codespell.yml
+    with:
+      codespell_config: "./configs-bad/.codespellrc"
+  tflint:
+    permissions:
+      contents: read
+      pull-requests: write
+    name: Fail Test - TFLint
+    uses: ./.github/workflows/tflint.yml
+    with:
+      working_directory: "./tests/bad-path/tflint"
+      config_file: "./configs-bad/.tflint.hcl"
+  clamav-eicar:
+    permissions:
+      contents: read
+      pull-requests: write
+    name: Fail Test - ClamAV EICAR
+    uses: ./.github/workflows/clamav-eicar-test.yml
