@@ -302,6 +302,8 @@ The deployed production solution is monitored by [uptrends.com](https://uptrends
 
 ## Outputs
 
+Hello, World!
+
 | Name | Description |
 |------|-------------|
 | <a name="output_website_domain"></a> [website\_domain](#output\_website\_domain) | domain name for the cloudfront website |
