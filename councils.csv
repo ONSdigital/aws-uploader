@@ -19,8 +19,8 @@ Blackburn,E06000008
 Blackpool,E06000009
 Blaenau Gwent,W06000019
 Bolsover,E07000033
-Boston,E07000136
 Bolton,E08000001
+Boston,E07000136
 Bracknell Forest UA,E06000036
 Braintree,E07000067
 Breckland,E07000143
@@ -46,8 +46,8 @@ Cheshire East,E06000049
 Cheshire West And Chester,E06000050
 Chesterfield,E07000034
 Chichester,E07000225
-City Of London,E09000001
 Chorley,E07000118
+City Of London,E09000001
 Colchester,E07000071
 Conwy,W06000003
 Copeland,E07000029
@@ -129,8 +129,8 @@ Manchester,E08000003
 Mansfield,E07000174
 Medway,E06000035
 Melton,E07000133
-Merton,E09000024
 Merthyr Tydfil,W06000024
+Merton,E09000024
 Mid Devon,E07000042
 Mid Suffolk,E07000203
 Mid Sussex,E07000228
@@ -138,10 +138,10 @@ Middlesbrough UA,E06000002
 Milton Keynes UA,E06000042
 Monmouthshire,W06000021
 Neath Port Talbot,W06000012
+New Forest,E07000091
 Newark & Sherwood,E07000175
 Newcastle Upon Tyne,E08000021
 Newcastle-Under-Lyme,E07000195
-New Forest,E07000091
 Newham,E09000025
 Newport,W06000022
 North East Derbyshire,E07000038
@@ -214,10 +214,10 @@ Swansea,W06000011
 Tameside,E08000008
 Tandridge,E07000215
 Teignbridge,E07000045
+Telford & Wrekin,E06000020
 Test,E00000000
 Test Valley,E07000093
 Tewkesbury,E07000083
-Telford & Wrekin,E06000020
 Thanet,E07000114
 The Cotswolds,E07000079
 Three Rivers,E07000102
@@ -230,8 +230,8 @@ Trafford,E08000009
 Tunbridge Wells,E07000116
 Vale Of Glamorgan,W06000014
 Vale Of White Horse,E07000180
-Waltham Forest,E09000031
 Walsall,E08000030
+Waltham Forest,E09000031
 Wandsworth,E09000032
 Warrington UA,E06000007
 Warwick,E07000222
@@ -240,6 +240,7 @@ Waverley,E07000216
 West Berkshire,E06000037
 West Devon,E07000047
 West Lancashire,E07000127
+West Lindsey,E07000142
 West Northamptonshire,E06000062
 West Oxfordshire,E07000181
 West Suffolk,E07000245
@@ -249,6 +250,7 @@ Winchester,E07000094
 Windsor And Maidenhead,E06000040
 Wirral,E08000015
 Woking,E07000217
+Wokingham,E06000041
 Wolverhampton,E08000031
 Worcester,E07000237
 Worthing,E07000229
