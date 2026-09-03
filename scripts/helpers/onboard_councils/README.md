@@ -40,7 +40,7 @@ poetry run python onboard_councils_from_xlsx.py /path/to/input.xlsx
 
 Example
 ```bash
-poetry run python onboard_councils_from_xls.py ~/Downloads/new_councils.xlsx
+poetry run python onboard_councils_from_xlsx.py ~/Downloads/new_councils.xlsx
 ```
 
 ## Optional Custom Output Path
