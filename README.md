@@ -107,7 +107,7 @@ The uploader is driven by configuration. There are two distinct onboarding tasks
 | Concern | Where it lives |
 | --- | --- |
 | Service definitions (wording, boxes, validation, prefix) | `services.tf` → `local.services` |
-| Users for a service | the service's onboarding CSV (e.g. `councils.csv`, `electoral-register.csv`) |
+| Users for a service | the service's onboarding CSV under `data/` (e.g. `data/councils.csv`, `data/electoral-register.csv`) |
 | The HTML page template (shared by all services) | `scripts/template/generic-template.html` |
 | Per-user page rendering | `modules/render_service` |
 | Client-side validation/upload (shared) | `scripts/file_submission.js` (reads `window.UPLOADER_CONFIG`) |
@@ -121,7 +121,8 @@ nothing to edit in the HTML, JS, or Lambda to add a service or user.
 
 ### 1. Onboard a user to an existing service
 
-Each service has its own onboarding CSV with two columns: `name,lad_code`. Add one row per user.
+Each service has its own onboarding CSV under the `data/` folder, with two columns:
+`name,lad_code`. Add one row per user.
 
 For **Council Tax**, use the helper tool (recommended — it imports from an Excel spreadsheet and
 applies standardised naming, reducing manual edits, typos and formatting drift, and produces an
@@ -137,7 +138,7 @@ For detailed setup, input requirements, logging and troubleshooting, see
 `scripts/helpers/onboard_councils/README.md`.
 
 For **other services** (e.g. Electoral Register), add rows directly to that service's CSV, for
-example `electoral-register.csv`:
+example `data/electoral-register.csv`:
 
 ```csv
 name,lad_code
@@ -158,10 +159,11 @@ invalidated automatically.
 
 Adding a service is config-only. Follow these steps:
 
-**a. Create the onboarding CSV** at the repo root, named after the service, with `name,lad_code`:
+**a. Create the onboarding CSV** in the `data/` folder, named after the service, with
+`name,lad_code`:
 
 ```text
-<service-id>.csv
+data/<service-id>.csv
 ```
 
 **b. Add the service to `services.tf`** inside `local.services`. Copy an existing block and adjust:
@@ -169,7 +171,7 @@ Adding a service is config-only. Follow these steps:
 ```hcl
 "my-service" = {
   service_id     = "my-service"            # URL + S3 prefix; must match ^[a-z0-9-]+$ and be unique
-  onboarding_csv = "my-service.csv"
+  onboarding_csv = "data/my-service.csv"   # path relative to the repo root
 
   wording = {
     page_title       = "ONS-Uploader"
@@ -218,7 +220,7 @@ the config into the Lambda, and invalidates `/my-service/*` on CloudFront.
 | Field | Meaning |
 | --- | --- |
 | `service_id` | URL path prefix and S3 key prefix. Must match `^[a-z0-9-]+$` and be unique. |
-| `onboarding_csv` | Filename (repo root) of the `name,lad_code` CSV for this service. |
+| `onboarding_csv` | Path (relative to repo root, under `data/`) of the `name,lad_code` CSV for this service. |
 | `wording.page_title` | HTML `<title>`. |
 | `wording.heading_prefix` | Page `<h1>` is `heading_prefix` + the user's name. |
 | `wording.contact_email` | Shown in client error messages. |

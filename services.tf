@@ -20,7 +20,7 @@ locals {
     # ----------------------------------------------------------------------
     "council-tax" = {
       service_id     = "council-tax"
-      onboarding_csv = "councils.csv"
+      onboarding_csv = "data/councils.csv"
 
       wording = {
         page_title       = "ONS-Uploader"
@@ -65,7 +65,7 @@ locals {
     # ----------------------------------------------------------------------
     "electoral-register" = {
       service_id     = "electoral-register"
-      onboarding_csv = "electoral-register.csv"
+      onboarding_csv = "data/electoral-register.csv"
 
       wording = {
         page_title       = "ONS-Uploader"
