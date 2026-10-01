@@ -1,14 +1,14 @@
-aws:
-  s3_bucket: tf-state-uploader-tqsb
-  tfstate: terraform/aws-uploader.tfstate
-  tflocks: tf-state-uploader-tqsb-locks
-  access_key: ((ons-ingest-prod_access_key))
-  secret_key: ((ons-ingest-prod_secret_key))
-  backend_role: arn:aws:iam::732316826607:role/aws_shared_concourse
-git:
-  repo: aws-uploader
-  branch: prod
-terraform:
-  tfvars: env/prod.tfvars
-concourse:
-  vars: prod-vars.yml
+# aws:
+#   s3_bucket: tf-state-uploader-tqsb
+#   tfstate: terraform/aws-uploader.tfstate
+#   tflocks: tf-state-uploader-tqsb-locks
+#   access_key: ((ons-ingest-prod_access_key))
+#   secret_key: ((ons-ingest-prod_secret_key))
+#   backend_role: arn:aws:iam::732316826607:role/aws_shared_concourse
+# git:
+#   repo: aws-uploader
+#   branch: prod
+# terraform:
+#   tfvars: env/prod.tfvars
+# concourse:
+#   vars: prod-vars.yml
