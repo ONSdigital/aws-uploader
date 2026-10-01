@@ -1,8 +1,16 @@
 # AWS Uploader
 
-This solution hosts the infrastructure to build a website that allows specific users to upload EXTRACT and MANI files inside a secured S3 bucket and deploy it into
-dev, pre-prod and production environments.
-This template is designed to help you start an AWS terraform repository in the same structure across all projects.
+This solution hosts the infrastructure for a **generic, configurable file uploader**: a static
+website that lets specific users upload files into a secured S3 bucket, deployed across dev,
+pre-prod and production environments.
+
+The platform is **multi-service**. Each uploader "version" is called a **service** (for example
+`council-tax` or `electoral-register`). A service defines its own page wording, URL/S3 path
+prefix, and the number of upload boxes (1..N) with their validation rules. All services are served
+from the same domain under a per-service path (e.g. `uploader.<domain>/council-tax/...`,
+`uploader.<domain>/electoral-register/...`) and share the same CloudFront distribution, API, and
+Lambda. See [Services and onboarding](#services-and-onboarding) below for how to add a service or a
+user.
 
 The solution deploys:
 
@@ -87,35 +95,162 @@ Run terraform plan
 terraform plan -var-file=env/env.tfvars
 ```
 
-### Onboarding New Councils
+## Services and onboarding
 
-New councils should be onboarded using the dedicated helper tool located in:
+The uploader is driven by configuration. There are two distinct onboarding tasks:
 
-```text
-scripts/helpers/onboard_councils/
-```
+1. **Onboard a user** to an existing service — add a row to that service's CSV.
+2. **Add a new service** (a new uploader "version") — add a config entry and a CSV.
 
-This tool imports council data from an Excel spreadsheet and updates `councils.csv` automatically.
+### How it fits together
 
-It helps to:
-* Reduce manual editing of `councils.csv`
-* Prevent formatting inconsistencies and typos
-* Apply standardised council naming rules
-* Produce a clear audit log of changes made
+| Concern | Where it lives |
+| --- | --- |
+| Service definitions (wording, boxes, validation, prefix) | `services.tf` → `local.services` |
+| Users for a service | the service's onboarding CSV (e.g. `councils.csv`, `electoral-register.csv`) |
+| The HTML page template (shared by all services) | `scripts/template/generic-template.html` |
+| Per-user page rendering | `modules/render_service` |
+| Client-side validation/upload (shared) | `scripts/file_submission.js` (reads `window.UPLOADER_CONFIG`) |
+| Backend validation + presigned URLs (shared) | `src/PreSignedURL.mjs` (reads the `SERVICES_CONFIG` env var) |
 
-### Quick Start
-Execute the following where `path/to/input` is the location of the input file
+A single service config is the source of truth: Terraform renders each user's page from it, emits a
+`<service_id>/config.js` the browser reads, and injects the same config into the Lambda. There is
+nothing to edit in the HTML, JS, or Lambda to add a service or user.
+
+---
+
+### 1. Onboard a user to an existing service
+
+Each service has its own onboarding CSV with two columns: `name,lad_code`. Add one row per user.
+
+For **Council Tax**, use the helper tool (recommended — it imports from an Excel spreadsheet and
+applies standardised naming, reducing manual edits, typos and formatting drift, and produces an
+audit log):
+
 ```bash
 cd scripts/helpers/onboard_councils
 poetry install
-poetry run python onboard_councils_from_xlsx.py /path/to/input 
+poetry run python onboard_councils_from_xlsx.py /path/to/input
 ```
 
-### Full instructions
-For detailed setup, input file requirements, logging behaviour, and troubleshooting, see:
-```text
-scripts/helpers/onboard_councils/README.md
+For detailed setup, input requirements, logging and troubleshooting, see
+`scripts/helpers/onboard_councils/README.md`.
+
+For **other services** (e.g. Electoral Register), add rows directly to that service's CSV, for
+example `electoral-register.csv`:
+
+```csv
+name,lad_code
+Adur,E07000223
+Birmingham,E08000025
 ```
+
+> The same `name,lad_code` may appear in more than one service's CSV. Each service renders its own
+> independent page for that user under its own path.
+
+Then apply Terraform (see [Terraform](#terraform)). A new page is published at
+`uploader.<domain>/<service_id>/<lad_code>-<clean-name>.html` and the relevant CloudFront paths are
+invalidated automatically.
+
+---
+
+### 2. Add a new service
+
+Adding a service is config-only. Follow these steps:
+
+**a. Create the onboarding CSV** at the repo root, named after the service, with `name,lad_code`:
+
+```text
+<service-id>.csv
+```
+
+**b. Add the service to `services.tf`** inside `local.services`. Copy an existing block and adjust:
+
+```hcl
+"my-service" = {
+  service_id     = "my-service"            # URL + S3 prefix; must match ^[a-z0-9-]+$ and be unique
+  onboarding_csv = "my-service.csv"
+
+  wording = {
+    page_title       = "ONS-Uploader"
+    heading_prefix   = "My Service - "     # page heading = prefix + user name
+    contact_email    = "my-team@ons.gov.uk"
+    uploading_banner = "Uploading. Do not refresh or close the page."
+    submit_text      = "Submit"
+  }
+
+  # One entry per upload box. The count of boxes = the number of submissions (1, 2, 3, ...).
+  boxes = [
+    {
+      id                  = "primary"       # stable id; used for DOM ids and the upload key
+      label               = "Upload the primary file"
+      description         = "File must be named 'MYS_PRIMARY_{code}_yyyymmdd...'"  # {code} -> user's LAD code
+      required            = true
+      accepted_types      = ["text/csv"]    # MIME list; may be empty if only extensions matter
+      accepted_extensions = [".csv"]        # extension list; e.g. [".csv", ".txt"] to accept both
+      filename_prefix     = "MYS_PRIMARY_"  # filename pattern = ^<prefix><code>_<8-digit date>.<ext>$
+    },
+    {
+      id                  = "secondary"
+      label               = "Upload the secondary file"
+      description         = "File must be named 'MYS_SECONDARY_{code}_yyyymmdd...'"
+      required            = false           # optional: validated only when a file is provided
+      accepted_types      = ["text/csv", "text/plain"]
+      accepted_extensions = [".csv", ".txt"]
+      filename_prefix     = "MYS_SECONDARY_"
+    },
+  ]
+
+  # Optional cross-file rules. "matching_date_suffix" requires the yyyymmdd parts to match
+  # across the listed boxes (only enforced across boxes that actually have a file).
+  cross_file_rules = [
+    { type = "matching_date_suffix", boxes = ["primary", "secondary"] },
+  ]
+}
+```
+
+**c. Apply Terraform.** This renders a page per user, publishes `my-service/config.js`,
+`my-service/file_submission.js`, `my-service/result_message.js`, `my-service/success.html`, injects
+the config into the Lambda, and invalidates `/my-service/*` on CloudFront.
+
+#### Configuration reference
+
+| Field | Meaning |
+| --- | --- |
+| `service_id` | URL path prefix and S3 key prefix. Must match `^[a-z0-9-]+$` and be unique. |
+| `onboarding_csv` | Filename (repo root) of the `name,lad_code` CSV for this service. |
+| `wording.page_title` | HTML `<title>`. |
+| `wording.heading_prefix` | Page `<h1>` is `heading_prefix` + the user's name. |
+| `wording.contact_email` | Shown in client error messages. |
+| `wording.uploading_banner` | Text in the "uploading" banner. |
+| `wording.submit_text` | Submit button label. |
+| `boxes[]` | Ordered list of upload boxes. **The number of boxes is the number of submissions.** |
+| `boxes[].id` | Stable id (DOM ids, upload key). Unique within the service. |
+| `boxes[].label` / `description` | Field label and hint. `{code}` in the description is replaced with the user's LAD code. |
+| `boxes[].required` | `true` blocks submission if empty; `false` is optional (validated only when provided). |
+| `boxes[].accepted_types` / `accepted_extensions` | Lists of allowed MIME types / extensions. A file is accepted if it matches **any** allowed type or extension — so `[".csv", ".txt"]` allows CSV **and** TXT. |
+| `boxes[].filename_prefix` | Builds the filename regex `^<prefix><code>_<8-digit date>.<ext>$`. |
+| `cross_file_rules[]` | Optional. `matching_date_suffix` enforces equal `yyyymmdd` across the listed boxes. |
+
+Config is validated at `terraform plan`/`apply` time (`terraform_data.service_config_validation`):
+`service_id` format, at least one box, unique box ids, each box has at least one accepted
+type/extension, and `cross_file_rules` reference existing boxes. Invalid config fails the plan.
+
+---
+
+### Naming note (shared vs service-specific infrastructure)
+
+Most infrastructure is intentionally **generic and shared** by all services and does not need
+changing when you add a service: the CloudFront distribution, WAF (`uploader-waf-cloudfront`), ACM
+certificate, Route53 record, API Gateway (`UploaderAPI`), the host and ingest S3 buckets, and the
+S3 ingest lifecycle rules (one 14-day expiry rule is generated per service prefix automatically).
+
+A few names still reference "ct"/"council tax" for historical reasons and are **naming-only** (they
+do not limit the platform to Council Tax). These intentionally keep their current names because
+renaming them would require renaming external resources:
+
+- The alerting Slack secret `ct_uploader_slack` and the `ct-uploader-alerts` module in `alerts.tf` /
+  `local.tf` reference a real Secrets Manager secret. Rename only if that secret is also renamed.
 
 ## Running Behaviour tests
 Behaviour tests should be run before raising a Pull Request.
