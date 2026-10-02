@@ -1,12 +1,12 @@
 aws:
-  s3_bucket: tf-state-uploader-9w3xx5nt
-  tfstate: terraform/aws-uploader.tfstate
-  tflocks: tf-state-uploader-9w3xx5nt
+  s3_bucket: tf-state-generic-uploader-9w3xx5nt
+  tfstate: terraform/aws-generic-uploader.tfstate
+  tflocks: tf-state-generic-uploader-9w3xx5nt
   access_key: ((ons-ingest-dev_access_key))
   secret_key: ((ons-ingest-dev_secret_key))
   backend_role: arn:aws:iam::055232432732:role/aws_shared_concourse
 git:
-  repo: aws-uploader
+  repo: aws-generic-uploader-poc
   branch: main
 terraform:
   tfvars: env/dev.tfvars
