@@ -51,7 +51,7 @@ locals {
           accepted_extensions = [".csv"]
           filename_prefix     = "ER_MANI_"
         },
-                {
+        {
           id                  = "James's Magic Box"
           label               = "Upload James's magic file"
           description         = "File must be named with the format 'ER_EXTRACT_{code}_yyyymmdd' where the 8 digits are your LAD code and yyyymmdd is the data run date"
