@@ -64,6 +64,42 @@ function filenamePattern(box, code) {
   return new RegExp('^' + box.filename_prefix + code + '_\\d{8}\\.' + extGroup + '$', 'i');
 }
 
+// Human-readable list of the file types a box accepts, e.g. ".csv" or ".csv or .txt".
+// Prefers extensions (friendlier) and falls back to MIME types only if no extensions are set.
+function allowedTypesText(box) {
+  const parts =
+    (box.accepted_extensions && box.accepted_extensions.length)
+      ? box.accepted_extensions
+      : (box.accepted_types || []);
+  if (parts.length === 0) return 'the correct type';
+  if (parts.length === 1) return parts[0];
+  return parts.slice(0, -1).join(', ') + ' or ' + parts[parts.length - 1];
+}
+
+// Example of the filename the box expects, e.g. "CTAX_EXTRACT_E07000223_yyyymmdd.csv".
+function expectedFilename(box, code) {
+  const ext = (box.accepted_extensions && box.accepted_extensions[0]) || '.csv';
+  return `${box.filename_prefix}${code}_yyyymmdd${ext}`;
+}
+
+// Error message templates. Overridable per service via service.wording.errors.<key>.
+// Templates use {placeholder} substitution. Keys mirror the client (file_submission.js).
+const DEFAULT_ERRORS = {
+  missing_required: 'Missing required file: {label}',
+  empty_file: 'File is empty',
+  wrong_type: 'File is not {types}',
+  wrong_filename: 'File name must match {expected}',
+  names_dont_match: 'File names do not match',
+};
+
+function errorMessage(service, key, vars) {
+  const overrides = (service.wording && service.wording.errors) || {};
+  const template = overrides[key] || DEFAULT_ERRORS[key] || '';
+  return template.replace(/\{(\w+)\}/g, (m, name) =>
+    name in (vars || {}) ? vars[name] : m
+  );
+}
+
 function dateSuffix(name) {
   const m = name.match(/_(\d{8})\./);
   return m ? m[1] : null;
@@ -118,7 +154,7 @@ export const handler = async (event, context, callback) => {
     for (const box of service.boxes) {
       if (box.required && !providedIds.has(box.id)) {
         logger.logError(code, box.id, 0, 403, 'Required file missing');
-        return errorResponse(403, `Missing required file: ${box.label}`, { boxId: box.id });
+        return errorResponse(403, errorMessage(service, 'missing_required', { label: box.label }), { boxId: box.id });
       }
     }
 
@@ -131,15 +167,15 @@ export const handler = async (event, context, callback) => {
       const size = parseInt(f.size, 10);
       if (size === 0) {
         logger.logError(code, f.name, f.size, 204, 'File is empty');
-        return errorResponse(204, 'File is empty', { boxId: f.boxId, filename: f.name });
+        return errorResponse(204, errorMessage(service, 'empty_file', {}), { boxId: f.boxId, filename: f.name });
       }
       if (!typeAllowed(box, f)) {
         logger.logError(code, f.name, f.size, 403, 'File type not allowed');
-        return errorResponse(403, 'File is not an allowed type', { boxId: f.boxId, filename: f.name });
+        return errorResponse(403, errorMessage(service, 'wrong_type', { types: allowedTypesText(box), label: box.label }), { boxId: f.boxId, filename: f.name });
       }
       if (!filenamePattern(box, code).test(f.name)) {
         logger.logError(code, f.name, f.size, 403, 'Filename pattern mismatch');
-        return errorResponse(403, 'File name does not follow the right pattern', { boxId: f.boxId, filename: f.name });
+        return errorResponse(403, errorMessage(service, 'wrong_filename', { expected: expectedFilename(box, code), label: box.label }), { boxId: f.boxId, filename: f.name });
       }
     }
 
@@ -153,7 +189,7 @@ export const handler = async (event, context, callback) => {
           .filter(Boolean);
         if (dates.length > 1 && !dates.every((d) => d === dates[0])) {
           logger.logError(code, 'n/a', 0, 300, 'File names do not match');
-          return errorResponse(300, 'File names do not match');
+          return errorResponse(300, errorMessage(service, 'names_dont_match', {}));
         }
       }
     }

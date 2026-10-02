@@ -226,6 +226,7 @@ the config into the Lambda, and invalidates `/my-service/*` on CloudFront.
 | `wording.contact_email` | Shown in client error messages. |
 | `wording.uploading_banner` | Text in the "uploading" banner. |
 | `wording.submit_text` | Submit button label. |
+| `wording.errors` | Optional map of error-message overrides (see below). Any omitted key uses the built-in default. |
 | `boxes[]` | Ordered list of upload boxes. **The number of boxes is the number of submissions.** |
 | `boxes[].id` | Stable id (DOM ids, upload key). Unique within the service. |
 | `boxes[].label` / `description` | Field label and hint. `{code}` in the description is replaced with the user's LAD code. |
@@ -237,6 +238,43 @@ the config into the Lambda, and invalidates `/my-service/*` on CloudFront.
 Config is validated at `terraform plan`/`apply` time (`terraform_data.service_config_validation`):
 `service_id` format, at least one box, unique box ids, each box has at least one accepted
 type/extension, and `cross_file_rules` reference existing boxes. Invalid config fails the plan.
+
+#### Customising error messages
+
+Each service may override any validation message under `wording.errors`. Omitted keys fall back to
+the built-in defaults, so you only specify the ones you want to change. Messages are enforced in
+both the browser and the Lambda, so overrides apply everywhere. Templates support `{placeholder}`
+substitution.
+
+```hcl
+wording = {
+  # ...page_title, heading_prefix, etc...
+  errors = {
+    missing_required = "You need to add the {label}"
+    wrong_type       = "File is not {types}"
+    wrong_filename   = "File name must match {expected}"
+    names_dont_match = "File names do not match"
+    empty_file       = "File is empty"
+    missing_code     = "File name does not contain matching code"   # client-side only
+    upload_failed    = "Upload failed — please contact {contact}"   # client-side only
+  }
+}
+```
+
+| Key | When shown | Placeholders |
+| --- | --- | --- |
+| `missing_required` | a required box has no file | `{label}` |
+| `wrong_type` | file type/extension not allowed | `{types}`, `{label}` |
+| `missing_code` | filename does not contain the user's code (client-side) | `{label}`, `{types}` |
+| `wrong_filename` | filename does not match the expected pattern | `{expected}`, `{label}` |
+| `names_dont_match` | a `matching_date_suffix` cross-file rule fails | — |
+| `empty_file` | a file is 0 bytes | — |
+| `upload_failed` | the S3 upload itself fails (client-side) | `{contact}` |
+
+- `{label}` is the box label with a leading "Upload " removed.
+- `{types}` is a friendly list of allowed types, e.g. `.csv` or `.csv or .txt`.
+- `{expected}` is the expected filename, e.g. `CTAX_EXTRACT_E07000223_yyyymmdd.csv`.
+- `{contact}` is `wording.contact_email`.
 
 ---
 

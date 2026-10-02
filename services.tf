@@ -16,49 +16,6 @@
 locals {
   services = {
     # ----------------------------------------------------------------------
-    # Council Tax (existing behaviour, expressed as config). N = 2 boxes.
-    # ----------------------------------------------------------------------
-    "council-tax" = {
-      service_id     = "council-tax"
-      onboarding_csv = "data/councils.csv"
-
-      wording = {
-        page_title       = "ONS-Uploader"
-        heading_prefix   = "Council Tax - "
-        contact_email    = "council.tax@ons.gov.uk"
-        uploading_banner = "Uploading. Do not refresh or close the page."
-        submit_text      = "Submit"
-      }
-
-      boxes = [
-        {
-          id    = "extract"
-          label = "Upload the EXTRACT file"
-          # {code} is substituted with the user's LAD code at render time.
-          description         = "File must be named with the format 'CTAX_EXTRACT_{code}_yyyymmdd' where the 8 digits are your LAD code and yyyymmdd is the data run date"
-          required            = true
-          accepted_types      = ["text/csv"]
-          accepted_extensions = [".csv"]
-          filename_prefix     = "CTAX_EXTRACT_"
-        },
-        {
-          id                  = "mani"
-          label               = "Upload the MANI file"
-          description         = "File must be named with the format 'CTAX_MANI_{code}_yyyymmdd' where the 8 digits are your LAD code and yyyymmdd is the data run date"
-          required            = true
-          accepted_types      = ["text/csv"]
-          accepted_extensions = [".csv"]
-          filename_prefix     = "CTAX_MANI_"
-        },
-      ]
-
-      # Enforce that boxes carrying files share the same yyyymmdd date suffix.
-      cross_file_rules = [
-        { type = "matching_date_suffix", boxes = ["extract", "mani"] },
-      ]
-    }
-
-    # ----------------------------------------------------------------------
     # Electoral Register (first new service). N = 2 boxes: 1 required, 1 optional.
     # NOTE: filename convention (ER_EXTRACT_/ER_MANI_) is a placeholder; adjust
     # the prefixes / accepted_* lists here when the real convention is known.
@@ -93,6 +50,15 @@ locals {
           accepted_types      = ["text/csv"]
           accepted_extensions = [".csv"]
           filename_prefix     = "ER_MANI_"
+        },
+                {
+          id                  = "James's Magic Box"
+          label               = "Upload James's magic file"
+          description         = "File must be named with the format 'ER_EXTRACT_{code}_yyyymmdd' where the 8 digits are your LAD code and yyyymmdd is the data run date"
+          required            = true
+          accepted_types      = ["text/csv"]
+          accepted_extensions = [".csv"]
+          filename_prefix     = "ER_EXTRACT_"
         },
       ]
 

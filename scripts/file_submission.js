@@ -167,6 +167,59 @@ function dateSuffix(name) {
   return m ? m[1] : null;
 }
 
+// Human-readable list of the file types a box accepts, e.g. ".csv" or ".csv or .txt".
+// Prefers extensions (friendlier) and falls back to MIME types only if no extensions are set.
+function allowedTypesText(box) {
+  const parts =
+    box.accepted_extensions && box.accepted_extensions.length
+      ? box.accepted_extensions
+      : box.accepted_types || [];
+  if (parts.length === 0) return "the correct type";
+  if (parts.length === 1) return parts[0];
+  return parts.slice(0, -1).join(", ") + " or " + parts[parts.length - 1];
+}
+
+// Example of the filename the box expects, e.g. "CTAX_EXTRACT_E07000223_yyyymmdd.csv".
+function expectedFilename(box, code) {
+  const ext = (box.accepted_extensions && box.accepted_extensions[0]) || ".csv";
+  return box.filename_prefix + code + "_yyyymmdd" + ext;
+}
+
+// ---------------------------------------------------------------------------
+// Error message templates. Built-in defaults can be overridden per service via
+// config.wording.errors.<key>. Templates use {placeholder} substitution.
+// ---------------------------------------------------------------------------
+const DEFAULT_ERRORS = {
+  missing_required: "You need to add the {label}",
+  wrong_type: "File is not {types}",
+  missing_code: "File name does not contain matching code",
+  wrong_filename: "File name must match {expected}",
+  names_dont_match: "File names do not match",
+  upload_failed: "There has been an issue with the upload, please contact {contact}",
+};
+
+const ERROR_OVERRIDES =
+  (CONFIG.wording && CONFIG.wording.errors) || {};
+
+function errorMessage(key, vars) {
+  const template = ERROR_OVERRIDES[key] || DEFAULT_ERRORS[key] || "";
+  return template.replace(/\{(\w+)\}/g, (m, name) =>
+    name in (vars || {}) ? vars[name] : m,
+  );
+}
+
+// Common substitution variables for a given box.
+function boxVars(box, extra) {
+  return Object.assign(
+    {
+      label: (box.label || "").replace(/^Upload /, ""),
+      types: allowedTypesText(box),
+      contact: CONTACT_EMAIL,
+    },
+    extra || {},
+  );
+}
+
 // ---------------------------------------------------------------------------
 // Form submission handler
 // ---------------------------------------------------------------------------
@@ -191,7 +244,7 @@ document.getElementById("form").addEventListener("submit", function (e) {
     if (!file) {
       if (box.required) {
         markBoxError(box.id);
-        addItem("You need to add the " + box.label.replace(/^Upload /, ""), box.id + "-input");
+        addItem(errorMessage("missing_required", boxVars(box)), box.id + "-input");
         errCount++;
       }
       return; // optional + empty => skip
@@ -201,20 +254,22 @@ document.getElementById("form").addEventListener("submit", function (e) {
 
     if (!typeAllowed(box, file)) {
       markBoxError(box.id);
-      const allowed = (box.accepted_extensions || []).join(", ") || "the correct type";
-      addItem("Please upload a " + allowed + " file for " + box.label.replace(/^Upload /, ""), box.id + "-input");
+      addItem(errorMessage("wrong_type", boxVars(box)), box.id + "-input");
       errCount++;
       boxValid = false;
     }
 
     if (!file.name.includes(code)) {
       markBoxError(box.id);
-      addItem("File name does not contain matching code", box.id + "-input");
+      addItem(errorMessage("missing_code", boxVars(box)), box.id + "-input");
       errCount++;
       boxValid = false;
     } else if (!filenamePattern(box, code).test(file.name)) {
       markBoxError(box.id);
-      addItem("File name does not follow the right pattern", box.id + "-input");
+      addItem(
+        errorMessage("wrong_filename", boxVars(box, { expected: expectedFilename(box, code) })),
+        box.id + "-input",
+      );
       errCount++;
       boxValid = false;
     }
@@ -241,7 +296,7 @@ document.getElementById("form").addEventListener("submit", function (e) {
         rule.boxes.forEach((bid) => {
           if (provided[bid]) markBoxError(bid);
         });
-        addItem("File names do not match", rule.boxes[0] + "-input");
+        addItem(errorMessage("names_dont_match", {}), rule.boxes[0] + "-input");
         commonErrorStyle(1);
         return false;
       }
@@ -293,8 +348,7 @@ document.getElementById("form").addEventListener("submit", function (e) {
           showFormWithError(() => {
             Object.keys(provided).forEach((bid) => markBoxError(bid));
             addItem(
-              "There has been an issue with the upload, please contact " +
-                CONTACT_EMAIL,
+              errorMessage("upload_failed", { contact: CONTACT_EMAIL }),
               (files[0] ? files[0].boxId : "form") + "-input",
             );
             commonErrorStyle(1);
