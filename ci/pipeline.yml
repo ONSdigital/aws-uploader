@@ -197,11 +197,23 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ((aws.secret_key))
           BACKEND_ROLE_ARN: ((aws.backend_role))
 
-  - name: uploader-behaviour-tests
+  - name: integration-tests
     plan:
       - get: repo-git
         trigger: true
         passed: [terraform-apply]
+      - task: run-integration-tests
+        input_mapping:
+          repo-git: repo-git
+        file: repo-git/ci/tasks/integrationTests/task.yml
+        params:
+          TF_VARS: ((terraform.tfvars))
+
+  - name: uploader-behaviour-tests
+    plan:
+      - get: repo-git
+        trigger: true
+        passed: [integration-tests]
       - task: run-behaviour-tests
         input_mapping:
           repo-git: repo-git
