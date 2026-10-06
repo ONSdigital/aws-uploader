@@ -187,32 +187,32 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ((aws.secret_key))
           BACKEND_ROLE_ARN: ((aws.backend_role))
 
-  - name: integration-tests
+  - name: uploader-behaviour-tests
     plan:
       - get: pull-request
         trigger: true
         passed: [terraform-apply]
-      - task: run-integration-tests
+      - task: run-behaviour-tests
         input_mapping:
           repo-git: pull-request
-        file: pull-request/ci/tasks/integrationTests/task.yml
-        params:
-          TF_VARS: ((terraform.tfvars))
+        file: pull-request/ci/tasks/behaviourTests/task.yml
         on_failure:
           put: pull-request
           params:
             path: pull-request
             status: FAILURE
 
-  - name: uploader-behaviour-tests
+  - name: smoke-tests
     plan:
       - get: pull-request
         trigger: true
-        passed: [integration-tests]
-      - task: run-behaviour-tests
+        passed: [uploader-behaviour-tests]
+      - task: run-smoke-tests
         input_mapping:
           repo-git: pull-request
-        file: pull-request/ci/tasks/behaviourTests/task.yml
+        file: pull-request/ci/tasks/smokeTests/task.yml
+        params:
+          TF_VARS: ((terraform.tfvars))
         on_failure:
           put: pull-request
           params:

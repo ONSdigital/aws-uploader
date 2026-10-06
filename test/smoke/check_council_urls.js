@@ -19,7 +19,7 @@
  *
  * --base is the full uploader host for the target environment, e.g.
  * "uploader.ingest-dev.aws.onsdigital.uk". In CI it is derived from the same
- * env tfvars Terraform applies (see ci/tasks/integrationTests/task.sh), so the
+ * env tfvars Terraform applies (see ci/tasks/smokeTests/task.sh), so the
  * check always targets the environment the pipeline is deploying. When run
  * locally it defaults to dev for convenience.
  *
@@ -78,7 +78,7 @@ function findProjectRoot(startDir) {
     if (path.basename(dir) === "aws-uploader") return dir;
     dir = path.dirname(dir);
   }
-  // Fallback: assume repo root is two levels up from test/integration
+  // Fallback: assume repo root is two levels up from test/smoke
   return path.resolve(startDir, "..", "..");
 }
 

@@ -14,4 +14,4 @@ params:
   TF_VARS:
 
 run:
-  path: ./repo-git/ci/tasks/integrationTests/task.sh
+  path: ./repo-git/ci/tasks/smokeTests/task.sh

@@ -18,4 +18,4 @@ fi
 BASE_DOMAIN="uploader.${DOMAIN_NAME}"
 echo "Resolved uploader base domain from ${TF_VARS}: ${BASE_DOMAIN}"
 
-node test/integration/check_council_urls.js --base "${BASE_DOMAIN}"
+node test/smoke/check_council_urls.js --base "${BASE_DOMAIN}"

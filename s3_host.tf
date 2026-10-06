@@ -120,8 +120,15 @@ resource "aws_s3_object" "maintenance_page" {
 
 
 module "render_council" {
-  source        = "./modules/render_council"
-  for_each      = { for c in local.councils-csv : c.lad_code => c }
+  source = "./modules/render_council"
+  # Key on the rendered page filename (lad_code + cleaned name), not lad_code
+  # alone: multiple councils can share a lad_code (e.g. the four Somerset
+  # districts under E06000066) but each produces a distinct page/URL. This must
+  # mirror the clean-council-name2 logic in modules/render_council/main.tf.
+  for_each = {
+    for c in local.councils-csv :
+    "${c.lad_code}-${replace(replace(c.name, "/[^A-Za-z0-9-_ ]/", ""), " ", "-")}" => c
+  }
   lad_code      = each.value.lad_code
   council_name  = each.value.name
   bucket-id     = module.ons_upload_bucket.bucket_id
