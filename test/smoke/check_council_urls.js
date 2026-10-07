@@ -93,6 +93,8 @@ function buildUrl(base, row) {
   return `https://${base}/council-tax/${fileName}`;
 }
 
+const NEGATIVE_CHECK = { name: "foo", ladCode: "123456789" };
+
 function requestOnce(url, timeoutMs) {
   return new Promise((resolve) => {
     const req = https.request(url, { method: "GET" }, (res) => {
@@ -188,16 +190,38 @@ async function main() {
 
   console.log(`\n${passed}/${results.length} council URLs returned 200.`);
 
-  if (failures.length > 0) {
+  const negativeUrl = buildUrl(args.base, NEGATIVE_CHECK);
+  const negativeResult = await requestOnce(negativeUrl, args.timeoutMs);
+  const negativeOk = negativeResult.status !== 200;
+  console.log(
+    `\nNegative check (${NEGATIVE_CHECK.name} [${NEGATIVE_CHECK.ladCode}]): ` +
+      `${negativeUrl} -> ${negativeResult.status} ` +
+      `(expected not 200) ${negativeOk ? "PASS" : "FAIL"}`,
+  );
+
+  const hasFailures = failures.length > 0;
+
+  if (hasFailures) {
     console.error(`\n${failures.length} council URL(s) failed:`);
     for (const f of failures) {
       const detail = f.error ? ` (${f.error})` : "";
       console.error(`  - ${f.name} [${f.ladCode}] -> ${f.status}${detail}`);
     }
+  }
+
+  if (!negativeOk) {
+    console.error(
+      `\nNegative check failed: ${negativeUrl} returned 200, but a ` +
+        `non-existent council should never be reachable. The smoke test can ` +
+        `no longer prove it detects broken pages.`,
+    );
+  }
+
+  if (hasFailures || !negativeOk) {
     process.exit(1);
   }
 
-  console.log("All council URLs are up.");
+  console.log("\nAll council URLs are up and the negative check passed.");
 }
 
 main().catch((err) => {
