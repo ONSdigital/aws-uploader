@@ -206,3 +206,15 @@ jobs:
         input_mapping:
           repo-git: repo-git
         file: repo-git/ci/tasks/behaviourTests/task.yml
+
+  - name: smoke-tests
+    plan:
+      - get: repo-git
+        trigger: true
+        passed: [uploader-behaviour-tests]
+      - task: run-smoke-tests
+        input_mapping:
+          repo-git: repo-git
+        file: repo-git/ci/tasks/smokeTests/task.yml
+        params:
+          TF_VARS: ((terraform.tfvars))

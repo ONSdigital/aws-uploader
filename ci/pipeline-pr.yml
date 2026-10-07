@@ -201,3 +201,20 @@ jobs:
           params:
             path: pull-request
             status: FAILURE
+
+  - name: smoke-tests
+    plan:
+      - get: pull-request
+        trigger: true
+        passed: [uploader-behaviour-tests]
+      - task: run-smoke-tests
+        input_mapping:
+          repo-git: pull-request
+        file: pull-request/ci/tasks/smokeTests/task.yml
+        params:
+          TF_VARS: ((terraform.tfvars))
+        on_failure:
+          put: pull-request
+          params:
+            path: pull-request
+            status: FAILURE
