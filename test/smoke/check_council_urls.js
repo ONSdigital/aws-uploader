@@ -1,30 +1,4 @@
 #!/usr/bin/env node
-/**
- * Integration check: build each council's uploader page URL from councils.csv
- * and verify it returns HTTP 200.
- *
- * The URL path is "/council-tax/<lad_code>-<clean_name>.html". The clean_name
- * logic MUST mirror modules/render_council/main.tf, which produces the real S3
- * object key:
- *   clean-council-name2 = replace(replace(name, "/[^A-Za-z0-9-_ ]/", ""), " ", "-")
- *   council-filename    = "${lad_code}-${clean-council-name2}.html"
- * i.e. strip anything that is not [A-Za-z0-9-_ ], then replace spaces with "-".
- * Note this means names containing "&" (e.g. "EPSOM & EWELL") become
- * "EPSOM--EWELL" because the "&" is removed and its surrounding spaces each
- * become a dash.
- *
- * Usage:
- *   node check_council_urls.js --base <base-domain> [--csv <path>]
- *                              [--concurrency <n>] [--retries <n>]
- *
- * --base is the full uploader host for the target environment, e.g.
- * "uploader.ingest-dev.aws.onsdigital.uk". In CI it is derived from the same
- * env tfvars Terraform applies (see ci/tasks/smokeTests/task.sh), so the
- * check always targets the environment the pipeline is deploying. When run
- * locally it defaults to dev for convenience.
- *
- * Exits 0 if every URL returns 200, non-zero otherwise (listing failures).
- */
 
 "use strict";
 
@@ -78,22 +52,14 @@ function findProjectRoot(startDir) {
     if (path.basename(dir) === "aws-uploader") return dir;
     dir = path.dirname(dir);
   }
-  // Fallback: assume repo root is two levels up from test/smoke
   return path.resolve(startDir, "..", "..");
 }
 
-/**
- * Mirrors modules/render_council/main.tf clean-council-name2.
- */
+
 function cleanCouncilName(name) {
   return name.replace(/[^A-Za-z0-9\-_ ]/g, "").replace(/ /g, "-");
 }
 
-/**
- * Minimal CSV line splitter. councils.csv has no quoted fields or embedded
- * commas (the onboarding script strips commas from names), so a plain split is
- * sufficient and keeps this dependency-free.
- */
 function parseCsv(contents) {
   const lines = contents
     .split(/\r?\n/)
