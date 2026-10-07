@@ -120,8 +120,11 @@ resource "aws_s3_object" "maintenance_page" {
 
 
 module "render_council" {
-  source        = "./modules/render_council"
-  for_each      = { for c in local.councils-csv : c.lad_code => c }
+  source = "./modules/render_council"
+  for_each = {
+    for c in local.councils-csv :
+    "${c.lad_code}-${replace(replace(c.name, "/[^A-Za-z0-9-_ ]/", ""), " ", "-")}" => c
+  }
   lad_code      = each.value.lad_code
   council_name  = each.value.name
   bucket-id     = module.ons_upload_bucket.bucket_id
