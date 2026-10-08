@@ -8,6 +8,7 @@ aws:
 git:
   repo: aws-uploader
   branch: main
+  promotion_branch: preprod
 terraform:
   tfvars: env/dev.tfvars
 concourse:

@@ -1,0 +1,14 @@
+---
+platform: linux
+
+image_resource:
+  type: registry-image
+  source:
+    repository: maniator/gh
+    tag: latest
+
+inputs:
+  - name: repo-git
+
+run:
+  path: ./repo-git/ci/tasks/github-pr/task.sh
