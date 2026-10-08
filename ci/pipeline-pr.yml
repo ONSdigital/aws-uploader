@@ -218,3 +218,22 @@ jobs:
           params:
             path: pull-request
             status: FAILURE
+
+  - name: create-pr
+    plan:
+      - get: pull-request
+        trigger: true
+        passed: [smoke-tests]
+      - task: create-pr
+        input_mapping:
+          repo-git: pull-request
+        file: pull-request/ci/tasks/github-pr/task.yml
+        params:
+          BRANCH: ((git.branch))
+          PROMOTION_BRANCH: ((git.promotion_branch))
+          GITHUB_AUTH: ((github_pat))
+        on_failure:
+          put: pull-request
+          params:
+            path: pull-request
+            status: FAILURE
