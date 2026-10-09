@@ -10,22 +10,73 @@ from onboard_councils_reporting import OnboardingReport, AddedRow, OnboardingRep
 
 REQUIRED_COLUMNS = {"name", "lad_code"}
 BASE_DIR = Path(__file__).resolve().parent
-PROJECT_ROOT = next(p for p in Path(__file__).resolve().parents if p.name == "aws-uploader")
-DEFAULT_COUNCILS_CSV = PROJECT_ROOT / "data" / "councils.csv"
+
+
+def find_project_root(start: Path | None = None) -> Path:
+    """Walk up from this file to the repo root (the dir containing services.tf).
+
+    Falls back to the dir containing .git. Robust to the repo being named
+    anything (don't rely on a parent literally named "aws-uploader").
+    """
+    start = (start or Path(__file__)).resolve()
+    for parent in [start, *start.parents]:
+        if (parent / "services.tf").is_file() or (parent / ".git").exists():
+            return parent
+    raise RuntimeError(
+        "Could not locate the project root (no services.tf or .git found above "
+        f"{start})."
+    )
+
+
+PROJECT_ROOT = find_project_root()
+DEFAULT_SERVICE = "council-tax"
+
+
+def service_csv_path(service: str, project_root: Path = PROJECT_ROOT) -> Path:
+    """Resolve a service id to its onboarding CSV by reading services.tf.
+
+    services.tf is the single source of truth for each service's
+    `onboarding_csv` path. We read it from there rather than guessing
+    `data/<service>.csv`, because the filename does not always equal the
+    service id (e.g. council-tax -> data/councils.csv).
+    """
+    services_tf = project_root / "services.tf"
+    text = services_tf.read_text(encoding="utf-8")
+
+    # Match each service block's service_id and its onboarding_csv. The two
+    # fields appear together per block in services.tf.
+    pairs = dict(
+        re.findall(
+            r'service_id\s*=\s*"([^"]+)".*?onboarding_csv\s*=\s*"([^"]+)"',
+            text,
+            flags=re.DOTALL,
+        )
+    )
+    if service not in pairs:
+        known = ", ".join(sorted(pairs)) or "(none found)"
+        raise ValueError(
+            f"Service '{service}' not found in {services_tf}. "
+            f"Known services: {known}."
+        )
+    return (project_root / pairs[service]).resolve()
+
 
 class OnboardCouncils:
     def __init__(
             self,
             input_file_path: str | Path,
             councils_csv: str | Path | None = None,
+            service: str | None = None,
     ):
 
         self.input_file_path = Path(input_file_path).resolve()
-        self.councils_csv = (
-            Path(councils_csv).resolve()
-            if councils_csv
-            else DEFAULT_COUNCILS_CSV
-        )
+        # Output CSV precedence: an explicit councils_csv path wins; otherwise
+        # resolve from the service id (defaulting to council-tax for backward
+        # compatibility).
+        if councils_csv:
+            self.councils_csv = Path(councils_csv).resolve()
+        else:
+            self.councils_csv = service_csv_path(service or DEFAULT_SERVICE)
         self._reporter = OnboardingReporter(
             input_file=str(self.input_file_path),
             councils_csv=str(self.councils_csv),
@@ -255,7 +306,8 @@ class OnboardCouncils:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="Onboard new councils from an Excel spreadsheet."
+        description="Onboard new users (name + lad_code) from an Excel "
+        "spreadsheet into a service's onboarding CSV."
     )
 
     parser.add_argument(
@@ -264,9 +316,22 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
+        "--service",
+        default=DEFAULT_SERVICE,
+        help=(
+            "Service id to onboard into; resolves the output CSV to "
+            f"<project-root>/data/<service>.csv (default: {DEFAULT_SERVICE}). "
+            "Must match a service_id in services.tf."
+        ),
+    )
+
+    parser.add_argument(
         "--councils-csv",
         default=None,
-        help="Optional path to councils.csv (default: <project-root>/data/councils.csv)",
+        help=(
+            "Optional explicit path to the output CSV. Overrides --service when "
+            "set (default: derived from --service)."
+        ),
     )
 
     parser.add_argument(
@@ -282,4 +347,5 @@ if __name__ == "__main__":
     OnboardCouncils(
         input_file_path=args.input_file,
         councils_csv=args.councils_csv,
+        service=args.service,
     ).run()
