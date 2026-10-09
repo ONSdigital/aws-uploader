@@ -38,15 +38,35 @@ Execute the following where /path/to/input.xlsx is the above mentioned Excel fil
 poetry run python onboard_councils_from_xlsx.py /path/to/input.xlsx
 ```
 
-Example
+Example (defaults to the Council Tax service)
 ```bash
 poetry run python onboard_councils_from_xlsx.py ~/Downloads/new_councils.xlsx
 ```
 
-## Optional Custom Output Path
-If required, the default output `councils.csv` path can be adjusted in the script configuration.
+## Choosing a Service
+The tool onboards into a specific service's CSV. Pass `--service <id>` and it looks up that
+service's `onboarding_csv` path in `services.tf` (the single source of truth) and writes there.
+If omitted, it defaults to `council-tax`.
 
-By default, the tool updates the project `councils.csv` directly.
+```bash
+# Onboard into the Electoral Register service (data/electoral-register.csv)
+poetry run python onboard_councils_from_xlsx.py ~/Downloads/new_er.xlsx --service electoral-register
+
+# Default: Council Tax (data/councils.csv)
+poetry run python onboard_councils_from_xlsx.py ~/Downloads/new_councils.xlsx
+```
+
+> The `<id>` must match a `service_id` defined in `services.tf`. The output filename comes from
+> that service's `onboarding_csv` value — note it is not always `data/<id>.csv` (for example,
+> `council-tax` writes to `data/councils.csv`).
+
+## Optional Custom Output Path
+To write to an explicit path (ignoring the service convention), pass `--councils-csv`. It overrides
+`--service` when both are given.
+
+```bash
+poetry run python onboard_councils_from_xlsx.py ~/Downloads/input.xlsx --councils-csv /tmp/out.csv
+```
 
 ## What the Tool Does
 The helper will:

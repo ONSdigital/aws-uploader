@@ -139,3 +139,36 @@ the default when a service doesn't specify otherwise.
 **Constraint:** the existing `council-tax` and `electoral-register` URLs must not change — the
 default (no `url_schema`) path must reproduce `<lad_code>-<clean-name>.html` exactly. Add a test
 that diffs the generated council-tax URL set before/after, as was done for the original migration.
+
+### Revisit per-field error reporting (one problem vs. all problems per file)
+
+**Observation.** A single file is currently reported with **at most one problem**, showing the
+first failing check. Example: uploading `ER_MANI_E07000171_20261009.json` to the Adur extract box
+(wrong type `.json`, wrong prefix `ER_MANI_` vs `ER_EXTRACT_`, and wrong LAD code) surfaces only
+"File is not .csv" and "There is 1 problem with your answer", even though the file is wrong in
+several ways.
+
+**Why it behaves this way (intentional, not a bug).** In `scripts/file_submission.js` the per-box
+checks are chained with `else if`, so the first failure short-circuits the rest:
+```js
+if (!typeAllowed(box, file)) { /* wrong_type */ }
+else if (!file.name.includes(code)) { /* missing_code */ }
+else if (!filenamePattern(box, code).test(file.name)) { /* wrong_filename */ }
+```
+This was a deliberate change (see the council-tax ".csv extension" behaviour tests, which expect
+exactly 1 problem) to avoid double-reporting, since the filename-pattern check is largely a
+superset of the type/code checks (the pattern encodes prefix + code + date + extension) — listing
+them all would describe the same underlying issue multiple times.
+
+**Options to weigh when revisiting:**
+1. **Leave as-is** — one problem per field, type checked first. Simplest, least noisy.
+2. **Reorder checks** so `wrong_filename` is reported first. That single message
+   ("File name must match ER_EXTRACT_E07000171_yyyymmdd.csv") captures the expected prefix, code,
+   date and extension in one line — arguably the most useful single message.
+3. **Report multiple independent problems per field** (the "2 problems" idea). Requires defining
+   which checks are genuinely independent vs. consequential so the same fault isn't counted twice
+   (e.g. wrong extension also makes the filename pattern fail).
+
+**Impact if changed:** affects all services, and the existing behaviour tests assert the current
+"1 problem" counts and specific messages (`features/uploader.feature` + the message steps in
+`features/step_definitions/step_defs.js`) — update them to match whichever option is chosen.

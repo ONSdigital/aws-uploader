@@ -109,36 +109,6 @@ locals {
         { type = "matching_date_suffix", boxes = ["extract", "mani"] },
       ]
     }
-
-    # ----------------------------------------------------------------------
-    # James Mega Service. N = 1 box (single required submission).
-    # ----------------------------------------------------------------------
-    "james-mega-service" = {
-      service_id     = "james-mega-service"
-      onboarding_csv = "data/james-mega-service.csv"
-
-      wording = {
-        page_title       = "ONS-Uploader"
-        heading_prefix   = "James Mega Service - "
-        contact_email    = "elections@ons.gov.uk"
-        uploading_banner = "Uploading. Do not refresh or close the page."
-        submit_text      = "Submit"
-      }
-
-      boxes = [
-        {
-          id                  = "mega"
-          label               = "Upload the Mega file"
-          description         = "File must be named with the format 'JMS_MEGA_{code}_yyyymmdd' where the 8 digits are your LAD code and yyyymmdd is the data run date"
-          required            = true
-          accepted_types      = ["text/csv"]
-          accepted_extensions = [".txt", ".csv"]
-          filename_prefix     = "JMS_MEGA_"
-        },
-      ]
-
-      cross_file_rules = []
-    }
   }
 
   # Flattened (service_id, user) pairs across every service's onboarding CSV.

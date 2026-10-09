@@ -4,7 +4,11 @@ from unittest.mock import patch
 import pandas as pd
 import pytest
 
-from scripts.helpers.onboard_councils.onboard_councils_from_xlsx import OnboardCouncils
+from scripts.helpers.onboard_councils.onboard_councils_from_xlsx import (
+    OnboardCouncils,
+    service_csv_path,
+    PROJECT_ROOT,
+)
 
 
 @pytest.fixture
@@ -38,14 +42,52 @@ def onboarder(dummy_input, dummy_councils_csv):
 
 
 class TestInit:
-    def test_init_paths_populate_expected_default_paths(self, dummy_input, dummy_councils_csv):
+    def test_init_default_service_resolves_to_council_tax_csv(self, dummy_input):
         # arrange & act
         onboarder = OnboardCouncils(
             input_file_path=dummy_input,
         )
 
+        # assert: default service is council-tax, whose onboarding_csv in
+        # services.tf is data/councils.csv (NB: not data/council-tax.csv).
+        assert onboarder.councils_csv == PROJECT_ROOT / "data" / "councils.csv"
+
+    def test_init_service_argument_resolves_to_that_services_csv(self, dummy_input):
+        # arrange & act
+        onboarder = OnboardCouncils(
+            input_file_path=dummy_input,
+            service="electoral-register",
+        )
+
         # assert
-        assert onboarder.councils_csv == Path("../../councils.csv")
+        assert (
+            onboarder.councils_csv
+            == PROJECT_ROOT / "data" / "electoral-register.csv"
+        )
+
+    def test_explicit_councils_csv_overrides_service(self, dummy_input):
+        # arrange & act
+        onboarder = OnboardCouncils(
+            input_file_path=dummy_input,
+            councils_csv="custom/path.csv",
+            service="electoral-register",
+        )
+
+        # assert: explicit path wins over the service-derived default
+        assert onboarder.councils_csv == Path("custom/path.csv").resolve()
+
+    def test_service_csv_path_reads_onboarding_csv_from_services_tf(self):
+        # arrange & act: resolves against the real services.tf in the repo
+        result = service_csv_path("council-tax")
+
+        # assert: council-tax maps to data/councils.csv (the exception where the
+        # filename does not equal the service id)
+        assert result == (PROJECT_ROOT / "data" / "councils.csv").resolve()
+
+    def test_service_csv_path_raises_for_unknown_service(self):
+        # arrange & act & assert
+        with pytest.raises(ValueError, match="not-a-real-service"):
+            service_csv_path("not-a-real-service")
 
     def test_init_paths_populate_expected_custom_paths(self, dummy_input):
         # arrange & act
