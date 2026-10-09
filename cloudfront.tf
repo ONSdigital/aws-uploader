@@ -87,10 +87,15 @@ EOF
     website_home_page = aws_s3_object.home_page.source_hash
     },
     # Per-service shared assets.
-    { for sid, o in aws_s3_object.service_config : "config_${sid}" => o.etag },
+    # NB: config.js and file_submission.js are content/templatefile objects with
+    # no source_hash, so their S3 etag is only known after apply. Using etag here
+    # makes triggers_replace an unknown-until-apply value and causes an
+    # "inconsistent final plan" error. Hash the content locally instead, which is
+    # stable between plan and apply.
+    { for sid, o in aws_s3_object.service_config : "config_${sid}" => md5(o.content) },
     { for sid, o in aws_s3_object.service_success_page : "success_${sid}" => o.source_hash },
     { for sid, o in aws_s3_object.service_result_message : "result_${sid}" => o.source_hash },
-    { for sid, o in aws_s3_object.service_file_submission : "fsub_${sid}" => o.etag },
+    { for sid, o in aws_s3_object.service_file_submission : "fsub_${sid}" => md5(o.content) },
     # Per-(service,user) rendered pages.
     { for k in keys(module.render_service) : k => module.render_service[k].hash }
   )
