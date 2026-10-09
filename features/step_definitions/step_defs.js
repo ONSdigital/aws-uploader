@@ -14,6 +14,19 @@ Given("I have navigated to the uploader page", async function () {
   await this.driver.get(URL);
 });
 
+// Navigate to a specific service's uploader page. The page for the "Test"
+// onboarding row (lad_code E00000000) exists for every service, so we use it
+// as a stable target.
+Given(
+  "I have navigated to the {string} uploader page",
+  async function (serviceId) {
+    const URL = `https://uploader.ingest-dev.aws.onsdigital.uk/${serviceId}/E00000000-Test.html`;
+
+    this.driver = await createDriver();
+    await this.driver.get(URL);
+  },
+);
+
 //WHEN //
 When(
   "I upload a correctly named non-zero byte manifest file {string} that matches the URL LAD code",
@@ -130,6 +143,18 @@ When('I click "Submit"', async function () {
 
   await submitButton.click();
 });
+
+// Generic, service-neutral upload step: send a fixture file to a named upload
+// box. The box is identified by its box id (e.g. "extract", "mani"), which maps
+// to the "<id>-input" field rendered by modules/render_service.
+When(
+  "I upload the file {string} to the {string} box",
+  async function (fileName, boxId) {
+    const filePath = path.resolve("features", "test_files", fileName);
+    const fileInput = await this.driver.findElement(By.id(`${boxId}-input`));
+    await fileInput.sendKeys(filePath);
+  },
+);
 
 When(
   "I upload a large extract file {string} over 5MB that matches the URL LAD code",
