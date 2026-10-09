@@ -101,3 +101,44 @@ Feature: Upload files via the uploader page
     And I click "Submit"
     Then I should see a "Success" message
     And the files should have been uploaded using multipart upload
+
+  # ---------------------------------------------------------------------------
+  # Electoral Register service.
+  # Two boxes: "extract" (Electoral Register file, REQUIRED) and "mani"
+  # (Marked Register file, OPTIONAL, accepts .csv or .txt).
+  # ---------------------------------------------------------------------------
+
+  Scenario: Electoral Register - success with only the required Electoral Register file
+    Given I have navigated to the "electoral-register" uploader page
+    When I upload the file "ER_EXTRACT_E00000000_20250131.csv" to the "extract" box
+    And I click "Submit"
+    Then I should see a "Success" message
+
+  Scenario: Electoral Register - success with both files uploaded
+    Given I have navigated to the "electoral-register" uploader page
+    When I upload the file "ER_EXTRACT_E00000000_20250131.csv" to the "extract" box
+    And I upload the file "ER_MANI_E00000000_20250131.csv" to the "mani" box
+    And I click "Submit"
+    Then I should see a "Success" message
+
+  Scenario: Electoral Register - success with a .txt Marked Register file
+    Given I have navigated to the "electoral-register" uploader page
+    When I upload the file "ER_EXTRACT_E00000000_20250131.csv" to the "extract" box
+    And I upload the file "ER_MANI_E00000000_20250131.txt" to the "mani" box
+    And I click "Submit"
+    Then I should see a "Success" message
+
+  Scenario: Electoral Register - error when only the Marked Register file is uploaded
+    Given I have navigated to the "electoral-register" uploader page
+    When I upload the file "ER_MANI_E00000000_20250131.csv" to the "mani" box
+    And I click "Submit"
+    Then I should see a "You need to add the Electoral Register file" message
+    And I should see a "There is 1 problem with your answer" message once
+
+  Scenario: Electoral Register - error when the Marked Register file is not an accepted type
+    Given I have navigated to the "electoral-register" uploader page
+    When I upload the file "ER_EXTRACT_E00000000_20250131.csv" to the "extract" box
+    And I upload the file "ER_MANI_E00000000_20250131.pdf" to the "mani" box
+    And I click "Submit"
+    Then I should see a "File is not .csv or .txt" message
+    And I should see a "There is 1 problem with your answer" message once
