@@ -212,7 +212,7 @@ function errorMessage(key, vars) {
 function boxVars(box, extra) {
   return Object.assign(
     {
-      label: (box.label || "").replace(/^Upload /, ""),
+      label: (box.label || "").replace(/^Upload /, "").replace(/^the /i, ""),
       types: allowedTypesText(box),
       contact: CONTACT_EMAIL,
     },
@@ -252,14 +252,16 @@ document.getElementById("form").addEventListener("submit", function (e) {
 
     let boxValid = true;
 
+    // Report at most one problem per field: check the file type first, and only
+    // fall through to the name/pattern checks if the type was acceptable. A file
+    // with no .csv extension already fails the type check, so we must not also
+    // raise a separate "wrong filename" error for the same field.
     if (!typeAllowed(box, file)) {
       markBoxError(box.id);
       addItem(errorMessage("wrong_type", boxVars(box)), box.id + "-input");
       errCount++;
       boxValid = false;
-    }
-
-    if (!file.name.includes(code)) {
+    } else if (!file.name.includes(code)) {
       markBoxError(box.id);
       addItem(errorMessage("missing_code", boxVars(box)), box.id + "-input");
       errCount++;
