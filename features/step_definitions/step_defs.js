@@ -14,13 +14,26 @@ Given("I have navigated to the uploader page", async function () {
   await this.driver.get(URL);
 });
 
+// Navigate to a specific service's uploader page. The page for the "Test"
+// onboarding row (lad_code E00000000) exists for every service, so we use it
+// as a stable target.
+Given(
+  "I have navigated to the {string} uploader page",
+  async function (serviceId) {
+    const URL = `https://uploader.ingest-dev.aws.onsdigital.uk/${serviceId}/E00000000-Test.html`;
+
+    this.driver = await createDriver();
+    await this.driver.get(URL);
+  },
+);
+
 //WHEN //
 When(
   "I upload a correctly named non-zero byte manifest file {string} that matches the URL LAD code",
   async function (fileName) {
     const path = require("path");
     const filePath = path.resolve("features", "test_files", fileName);
-    let fileInput = await this.driver.findElement(By.id("fileTwo"));
+    let fileInput = await this.driver.findElement(By.id("mani-input"));
 
     await fileInput.sendKeys(filePath);
   },
@@ -31,7 +44,7 @@ When(
   async function (fileName) {
     const path = require("path");
     const filePath = path.resolve("features", "test_files", fileName);
-    let fileInput = await this.driver.findElement(By.id("fileOne"));
+    let fileInput = await this.driver.findElement(By.id("extract-input"));
 
     await fileInput.sendKeys(filePath);
   },
@@ -42,7 +55,7 @@ When(
   async function (fileName) {
     const path = require("path");
     const filePath = path.resolve("features", "test_files", fileName);
-    let fileInput = await this.driver.findElement(By.id("fileTwo"));
+    let fileInput = await this.driver.findElement(By.id("mani-input"));
 
     await fileInput.sendKeys(filePath);
   },
@@ -53,7 +66,7 @@ When(
   async function (fileName) {
     const path = require("path");
     const filePath = path.resolve("features", "test_files", fileName);
-    let fileInput = await this.driver.findElement(By.id("fileOne"));
+    let fileInput = await this.driver.findElement(By.id("extract-input"));
 
     await fileInput.sendKeys(filePath);
   },
@@ -64,7 +77,7 @@ When(
   async function (fileName) {
     const path = require("path");
     const filePath = path.resolve("features", "test_files", fileName);
-    let fileInput = await this.driver.findElement(By.id("fileTwo"));
+    let fileInput = await this.driver.findElement(By.id("mani-input"));
 
     await fileInput.sendKeys(filePath);
   },
@@ -75,7 +88,7 @@ When(
   async function (fileName) {
     const path = require("path");
     const filePath = path.resolve("features", "test_files", fileName);
-    let fileInput = await this.driver.findElement(By.id("fileOne"));
+    let fileInput = await this.driver.findElement(By.id("extract-input"));
 
     await fileInput.sendKeys(filePath);
   },
@@ -86,7 +99,7 @@ When(
   async function (fileName) {
     const path = require("path");
     const filePath = path.resolve("features", "test_files", fileName);
-    let fileInput = await this.driver.findElement(By.id("fileTwo"));
+    let fileInput = await this.driver.findElement(By.id("mani-input"));
 
     await fileInput.sendKeys(filePath);
   },
@@ -98,7 +111,7 @@ When(
     const path = require("path");
     const filePath = path.resolve("features", "test_files", fileName);
 
-    let fileInput = await this.driver.findElement(By.id("fileTwo"));
+    let fileInput = await this.driver.findElement(By.id("mani-input"));
     await fileInput.sendKeys(filePath);
   },
 );
@@ -109,7 +122,7 @@ When(
     const path = require("path");
     const filePath = path.resolve("features", "test_files", fileName);
 
-    let fileInput = await this.driver.findElement(By.id("fileOne"));
+    let fileInput = await this.driver.findElement(By.id("extract-input"));
     await fileInput.sendKeys(filePath);
   },
 );
@@ -120,7 +133,7 @@ When(
     const path = require("path");
     const filePath = path.resolve("features", "test_files", fileName);
 
-    let fileInput = await this.driver.findElement(By.id("fileOne"));
+    let fileInput = await this.driver.findElement(By.id("extract-input"));
     await fileInput.sendKeys(filePath);
   },
 );
@@ -131,12 +144,24 @@ When('I click "Submit"', async function () {
   await submitButton.click();
 });
 
+// Generic, service-neutral upload step: send a fixture file to a named upload
+// box. The box is identified by its box id (e.g. "extract", "mani"), which maps
+// to the "<id>-input" field rendered by modules/render_service.
+When(
+  "I upload the file {string} to the {string} box",
+  async function (fileName, boxId) {
+    const filePath = path.resolve("features", "test_files", fileName);
+    const fileInput = await this.driver.findElement(By.id(`${boxId}-input`));
+    await fileInput.sendKeys(filePath);
+  },
+);
+
 When(
   "I upload a large extract file {string} over 5MB that matches the URL LAD code",
   async function (fileName) {
     const path = require("path");
     const filePath = path.resolve("features", "test_files", fileName);
-    let fileInput = await this.driver.findElement(By.id("fileOne"));
+    let fileInput = await this.driver.findElement(By.id("extract-input"));
 
     await fileInput.sendKeys(filePath);
   },
@@ -147,7 +172,7 @@ When(
   async function (fileName) {
     const path = require("path");
     const filePath = path.resolve("features", "test_files", fileName);
-    let fileInput = await this.driver.findElement(By.id("fileTwo"));
+    let fileInput = await this.driver.findElement(By.id("mani-input"));
 
     await fileInput.sendKeys(filePath);
   },
@@ -155,13 +180,13 @@ When(
 
 // THEN //
 Then("I should see the extract file input field", async function () {
-  let extractFileInput = await this.driver.findElement(By.id("fileOne"));
+  let extractFileInput = await this.driver.findElement(By.id("extract-input"));
   assert.ok(extractFileInput.isDisplayed());
 });
 
 Then("I should see the mani file input field", async function () {
-  let extractFileInput = await this.driver.findElement(By.id("fileOne"));
-  assert.ok(extractFileInput.isDisplayed());
+  let maniFileInput = await this.driver.findElement(By.id("mani-input"));
+  assert.ok(maniFileInput.isDisplayed());
 });
 
 Then("I should see the submit button", async function () {
@@ -218,19 +243,16 @@ Then(
 Then(
   "I should see a “Mani File name does not follow the right pattern” message",
   async function () {
+    const expected = "File name must match CTAX_MANI_E00000000_yyyymmdd.csv";
     await this.driver.wait(
-      until.elementLocated(
-        By.xpath(
-          '//*[contains(text(), "Mani File name does not follow the right pattern")]',
-        ),
-      ),
+      until.elementLocated(By.xpath(`//*[contains(text(), "${expected}")]`)),
       20000,
     );
     let pageText = await this.driver.findElement(By.tagName("body")).getText();
 
     assert.ok(
-      pageText.includes("Mani File name does not follow the right pattern"),
-      'The text "Mani File name does not follow the right pattern" message was not found on the page',
+      pageText.includes(expected),
+      `The text "${expected}" message was not found on the page`,
     );
   },
 );
@@ -238,19 +260,16 @@ Then(
 Then(
   "I should see a “Extract File name does not follow the right pattern” message",
   async function () {
+    const expected = "File name must match CTAX_EXTRACT_E00000000_yyyymmdd.csv";
     await this.driver.wait(
-      until.elementLocated(
-        By.xpath(
-          '//*[contains(text(), "Extract File name does not follow the right pattern")]',
-        ),
-      ),
+      until.elementLocated(By.xpath(`//*[contains(text(), "${expected}")]`)),
       20000,
     );
     let pageText = await this.driver.findElement(By.tagName("body")).getText();
 
     assert.ok(
-      pageText.includes("Extract File name does not follow the right pattern"),
-      'The text "Extract File name does not follow the right pattern" message was not found on the page',
+      pageText.includes(expected),
+      `The text "${expected}" message was not found on the page`,
     );
   },
 );
@@ -258,19 +277,16 @@ Then(
 Then(
   "I should see a “File name does not contain matching LAD code” message",
   async function () {
+    const expected = "File name does not contain matching code";
     await this.driver.wait(
-      until.elementLocated(
-        By.xpath(
-          '//*[contains(text(), "File name does not contain matching LAD code")]',
-        ),
-      ),
+      until.elementLocated(By.xpath(`//*[contains(text(), "${expected}")]`)),
       20000,
     );
     let pageText = await this.driver.findElement(By.tagName("body")).getText();
 
     assert.ok(
-      pageText.includes("File name does not contain matching LAD code"),
-      'The text "File name does not contain matching LAD code" message was not found on the page',
+      pageText.includes(expected),
+      `The text "${expected}" message was not found on the page`,
     );
   },
 );

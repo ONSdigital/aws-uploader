@@ -18,8 +18,8 @@ Feature: Upload files via the uploader page
   Scenario: Fail to upload files due to both files missing
     Given I have navigated to the uploader page
     And I click "Submit"
-    Then I should see a "You need to add an Extract file" message
-    And I should see a "You need to add a Mani file" message
+    Then I should see a "You need to add the EXTRACT file" message
+    And I should see a "You need to add the MANI file" message
     And I should see a "There are 2 problems with your answer" message once
 
   Scenario: Fail to upload files due to missing manifest file
@@ -27,7 +27,7 @@ Feature: Upload files via the uploader page
     When I upload a correctly named non-zero byte extract file "CTAX_EXTRACT_E00000000_20250131.csv" that matches the URL LAD code
     And I click "Submit"
     Then I should NOT see a "You need to upload both files" message
-    And I should see a "You need to add a Mani file" message
+    And I should see a "You need to add the MANI file" message
     And I should see a "There is 1 problem with your answer" message once
 
   Scenario: Fail to upload files due to missing extract file
@@ -35,7 +35,7 @@ Feature: Upload files via the uploader page
     When I upload a correctly named non-zero byte manifest file "CTAX_MANI_E00000000_20250131.csv" that matches the URL LAD code
     And I click "Submit"
     Then I should NOT see a "You need to upload both files" message
-    And I should see a "You need to add an Extract file" message
+    And I should see a "You need to add the EXTRACT file" message
     And I should see a "There is 1 problem with your answer" message once
 
   Scenario: Upload fails due to manifest file not following naming convention
@@ -59,7 +59,7 @@ Feature: Upload files via the uploader page
     When I upload a correctly named non-zero byte extract file "CTAX_EXTRACT_E00000000_20250131.csv" that matches the URL LAD code
     And I upload a non-zero byte manifest file "CTAX_MANI_E00000000_20250131" that does not have a .csv extension
     And I click "Submit"
-    Then I should see a “Mani File name does not follow the right pattern” message
+    Then I should see a "File is not .csv" message
     And I should see a "There is 1 problem with your answer" message once
 
   Scenario: Upload fails due to extract file not having .csv file extension
@@ -67,7 +67,7 @@ Feature: Upload files via the uploader page
     When I upload a correctly named non-zero byte manifest file "CTAX_MANI_E00000000_20250131.csv" that matches the URL LAD code
     And I upload a non-zero byte extract file "CTAX_EXTRACT_E00000000_20250131" that does not have a .csv extension
     And I click "Submit"
-    Then I should see a “Extract File name does not follow the right pattern” message
+    Then I should see a "File is not .csv" message
     And I should see a "There is 1 problem with your answer" message once
 
   Scenario: Upload fails due to manifest file not matching URL LAD Code
@@ -101,3 +101,44 @@ Feature: Upload files via the uploader page
     And I click "Submit"
     Then I should see a "Success" message
     And the files should have been uploaded using multipart upload
+
+  # ---------------------------------------------------------------------------
+  # Electoral Register service.
+  # Two boxes: "extract" (Electoral Register file, REQUIRED) and "mani"
+  # (Marked Register file, OPTIONAL, accepts .csv or .txt).
+  # ---------------------------------------------------------------------------
+
+  Scenario: Electoral Register - success with only the required Electoral Register file
+    Given I have navigated to the "electoral-register" uploader page
+    When I upload the file "ER_EXTRACT_E00000000_20250131.csv" to the "extract" box
+    And I click "Submit"
+    Then I should see a "Success" message
+
+  Scenario: Electoral Register - success with both files uploaded
+    Given I have navigated to the "electoral-register" uploader page
+    When I upload the file "ER_EXTRACT_E00000000_20250131.csv" to the "extract" box
+    And I upload the file "ER_MANI_E00000000_20250131.csv" to the "mani" box
+    And I click "Submit"
+    Then I should see a "Success" message
+
+  Scenario: Electoral Register - success with a .txt Marked Register file
+    Given I have navigated to the "electoral-register" uploader page
+    When I upload the file "ER_EXTRACT_E00000000_20250131.csv" to the "extract" box
+    And I upload the file "ER_MANI_E00000000_20250131.txt" to the "mani" box
+    And I click "Submit"
+    Then I should see a "Success" message
+
+  Scenario: Electoral Register - error when only the Marked Register file is uploaded
+    Given I have navigated to the "electoral-register" uploader page
+    When I upload the file "ER_MANI_E00000000_20250131.csv" to the "mani" box
+    And I click "Submit"
+    Then I should see a "You need to add the Electoral Register file" message
+    And I should see a "There is 1 problem with your answer" message once
+
+  Scenario: Electoral Register - error when the Marked Register file is not an accepted type
+    Given I have navigated to the "electoral-register" uploader page
+    When I upload the file "ER_EXTRACT_E00000000_20250131.csv" to the "extract" box
+    And I upload the file "ER_MANI_E00000000_20250131.pdf" to the "mani" box
+    And I click "Submit"
+    Then I should see a "File is not .csv or .txt" message
+    And I should see a "There is 1 problem with your answer" message once
