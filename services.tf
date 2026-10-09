@@ -47,7 +47,7 @@ locals {
           label               = "Upload the EXTRACT file"
           description         = "File must be named with the format 'CTAX_EXTRACT_{code}_yyyymmdd' where the 8 digits are your LAD code and yyyymmdd is the data run date"
           required            = true
-          accepted_types      = ["text/csv"]
+          accepted_types      = ["csv"]
           accepted_extensions = [".csv"]
           filename_prefix     = "CTAX_EXTRACT_"
         },
@@ -56,7 +56,7 @@ locals {
           label               = "Upload the MANI file"
           description         = "File must be named with the format 'CTAX_MANI_{code}_yyyymmdd' where the 8 digits are your LAD code and yyyymmdd is the data run date"
           required            = true
-          accepted_types      = ["text/csv"]
+          accepted_types      = ["csv"]
           accepted_extensions = [".csv"]
           filename_prefix     = "CTAX_MANI_"
         },
@@ -90,27 +90,18 @@ locals {
           label               = "Upload the Electoral Register file"
           description         = "File must be named with the format 'ER_EXTRACT_{code}_yyyymmdd' where the 8 digits are your LAD code and yyyymmdd is the data run date"
           required            = true
-          accepted_types      = ["text/csv"]
+          accepted_types      = ["csv"]
           accepted_extensions = [".csv"]
           filename_prefix     = "ER_EXTRACT_"
         },
         {
           id                  = "mani"
-          label               = "Upload the Marked Register file (optional)"
+          label               = "Upload the Marked Register file"
           description         = "File must be named with the format 'ER_MANI_{code}_yyyymmdd' where the 8 digits are your LAD code and yyyymmdd is the data run date"
           required            = false
           accepted_types      = ["text/csv"]
-          accepted_extensions = [".csv"]
+          accepted_extensions = [".csv", ".txt"]
           filename_prefix     = "ER_MANI_"
-        },
-        {
-          id                  = "James's Magic Box"
-          label               = "Upload James's magic file"
-          description         = "File must be named with the format 'ER_EXTRACT_{code}_yyyymmdd' where the 8 digits are your LAD code and yyyymmdd is the data run date"
-          required            = true
-          accepted_types      = ["text/csv"]
-          accepted_extensions = [".csv"]
-          filename_prefix     = "ER_EXTRACT_"
         },
       ]
 
@@ -141,7 +132,7 @@ locals {
           description         = "File must be named with the format 'JMS_MEGA_{code}_yyyymmdd' where the 8 digits are your LAD code and yyyymmdd is the data run date"
           required            = true
           accepted_types      = ["text/csv"]
-          accepted_extensions = [".txt, .csv"]
+          accepted_extensions = [".txt", ".csv"]
           filename_prefix     = "JMS_MEGA_"
         },
       ]
