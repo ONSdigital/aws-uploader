@@ -18,8 +18,8 @@ Feature: Upload files via the uploader page
   Scenario: Fail to upload files due to both files missing
     Given I have navigated to the uploader page
     And I click "Submit"
-    Then I should see a "You need to add an Extract file" message
-    And I should see a "You need to add a Mani file" message
+    Then I should see a "You need to add the EXTRACT file" message
+    And I should see a "You need to add the MANI file" message
     And I should see a "There are 2 problems with your answer" message once
 
   Scenario: Fail to upload files due to missing manifest file
@@ -27,7 +27,7 @@ Feature: Upload files via the uploader page
     When I upload a correctly named non-zero byte extract file "CTAX_EXTRACT_E00000000_20250131.csv" that matches the URL LAD code
     And I click "Submit"
     Then I should NOT see a "You need to upload both files" message
-    And I should see a "You need to add a Mani file" message
+    And I should see a "You need to add the MANI file" message
     And I should see a "There is 1 problem with your answer" message once
 
   Scenario: Fail to upload files due to missing extract file
@@ -35,7 +35,7 @@ Feature: Upload files via the uploader page
     When I upload a correctly named non-zero byte manifest file "CTAX_MANI_E00000000_20250131.csv" that matches the URL LAD code
     And I click "Submit"
     Then I should NOT see a "You need to upload both files" message
-    And I should see a "You need to add an Extract file" message
+    And I should see a "You need to add the EXTRACT file" message
     And I should see a "There is 1 problem with your answer" message once
 
   Scenario: Upload fails due to manifest file not following naming convention
