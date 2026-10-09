@@ -76,19 +76,23 @@ resource "aws_cloudfront_distribution" "uploader" {
 
 resource "terraform_data" "invalidate_cf_caches" {
   provisioner "local-exec" {
+    # Invalidate the root plus every service path prefix (/<service_id>/*).
     command = <<EOF
 $(aws sts assume-role --role-arn arn:aws:iam::${var.target_account_id}:role/aws_shared_concourse --role-session-name terraform-invalidate-cloudfront-cache --query 'Credentials.[`export#AWS_ACCESS_KEY_ID=`,AccessKeyId,`#AWS_SECRET_ACCESS_KEY=`,SecretAccessKey,`#AWS_SESSION_TOKEN=`,SessionToken]' --output text | sed $'s/\t//g' | sed 's/#/ /g')
-aws cloudfront create-invalidation --distribution-id ${aws_cloudfront_distribution.uploader.id} --paths '/council-tax/*'
+aws cloudfront create-invalidation --distribution-id ${aws_cloudfront_distribution.uploader.id} --paths ${join(" ", [for sid in keys(local.services) : "'/${sid}/*'"])}
 EOF
   }
 
   triggers_replace = merge({
-    website_home_page             = aws_s3_object.home_page.source_hash
-    website_council_home_page     = aws_s3_object.council_home_page.source_hash
-    website_success_page          = aws_s3_object.success_page.source_hash
-    website_result_message_script = aws_s3_object.result_message.source_hash
+    website_home_page = aws_s3_object.home_page.source_hash
     },
-    { for lad in keys(module.render_council) : lad => module.render_council[lad].hash }
+    # Per-service shared assets.
+    { for sid, o in aws_s3_object.service_config : "config_${sid}" => o.etag },
+    { for sid, o in aws_s3_object.service_success_page : "success_${sid}" => o.source_hash },
+    { for sid, o in aws_s3_object.service_result_message : "result_${sid}" => o.source_hash },
+    { for sid, o in aws_s3_object.service_file_submission : "fsub_${sid}" => o.etag },
+    # Per-(service,user) rendered pages.
+    { for k in keys(module.render_service) : k => module.render_service[k].hash }
   )
 
 }

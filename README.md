@@ -1,8 +1,16 @@
 # AWS Uploader
 
-This solution hosts the infrastructure to build a website that allows specific users to upload EXTRACT and MANI files inside a secured S3 bucket and deploy it into
-dev, pre-prod and production environments.
-This template is designed to help you start an AWS terraform repository in the same structure across all projects.
+This solution hosts the infrastructure for a **generic, configurable file uploader**: a static
+website that lets specific users upload files into a secured S3 bucket, deployed across dev,
+pre-prod and production environments.
+
+The platform is **multi-service**. Each uploader "version" is called a **service** (for example
+`council-tax` or `electoral-register`). A service defines its own page wording, URL/S3 path
+prefix, and the number of upload boxes (1..N) with their validation rules. All services are served
+from the same domain under a per-service path (e.g. `uploader.<domain>/council-tax/...`,
+`uploader.<domain>/electoral-register/...`) and share the same CloudFront distribution, API, and
+Lambda. See [Services and onboarding](#services-and-onboarding) below for how to add a service or a
+user.
 
 The solution deploys:
 
@@ -87,35 +95,14 @@ Run terraform plan
 terraform plan -var-file=env/env.tfvars
 ```
 
-### Onboarding New Councils
+## Services and onboarding
 
-New councils should be onboarded using the dedicated helper tool located in:
+The uploader is driven by configuration in `services.tf`. Onboarding a user (adding a CSV row) and
+adding a new service (a new config entry) are both config-only tasks.
 
-```text
-scripts/helpers/onboard_councils/
-```
-
-This tool imports council data from an Excel spreadsheet and updates `councils.csv` automatically.
-
-It helps to:
-* Reduce manual editing of `councils.csv`
-* Prevent formatting inconsistencies and typos
-* Apply standardised council naming rules
-* Produce a clear audit log of changes made
-
-### Quick Start
-Execute the following where `path/to/input` is the location of the input file
-```bash
-cd scripts/helpers/onboard_councils
-poetry install
-poetry run python onboard_councils_from_xlsx.py /path/to/input 
-```
-
-### Full instructions
-For detailed setup, input file requirements, logging behaviour, and troubleshooting, see:
-```text
-scripts/helpers/onboard_councils/README.md
-```
+Full instructions — the config reference for every field, onboarding steps, error-message
+overrides, local preview, and the shared/service-specific naming notes — live in
+[`services_readme.md`](services_readme.md), next to `services.tf`.
 
 ## Running Behaviour tests
 Behaviour tests should be run before raising a Pull Request.

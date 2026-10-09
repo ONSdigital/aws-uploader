@@ -11,7 +11,7 @@ from onboard_councils_reporting import OnboardingReport, AddedRow, OnboardingRep
 REQUIRED_COLUMNS = {"name", "lad_code"}
 BASE_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = next(p for p in Path(__file__).resolve().parents if p.name == "aws-uploader")
-DEFAULT_COUNCILS_CSV = PROJECT_ROOT / "councils.csv"
+DEFAULT_COUNCILS_CSV = PROJECT_ROOT / "data" / "councils.csv"
 
 class OnboardCouncils:
     def __init__(
@@ -266,7 +266,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--councils-csv",
         default=None,
-        help="Optional path to councils.csv (default: <project-root>/councils.csv)",
+        help="Optional path to councils.csv (default: <project-root>/data/councils.csv)",
     )
 
     parser.add_argument(

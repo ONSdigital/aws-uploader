@@ -58,6 +58,8 @@ resource "aws_lambda_function" "PreSignedURL" {
     variables = {
       BUCKET_NAME     = module.ons_upload_ingest_bucket.bucket_id
       API_GATEWAY_URL = aws_apigatewayv2_stage.api.invoke_url
+      # All service configs, keyed by service_id (see services.tf).
+      SERVICES_CONFIG = jsonencode(local.services)
     }
   }
 }
