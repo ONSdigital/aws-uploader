@@ -90,7 +90,7 @@ locals {
           label               = "Upload the Electoral Register file"
           description         = "File must be named with the format 'ER_EXTRACT_{code}_yyyymmdd' where the 8 digits are your LAD code and yyyymmdd is the data run date"
           required            = true
-          accepted_types      = ["csv"]
+          accepted_types      = ["text/csv"]
           accepted_extensions = [".csv"]
           filename_prefix     = "ER_EXTRACT_"
         },

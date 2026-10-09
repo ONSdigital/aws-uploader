@@ -163,6 +163,39 @@ go — one box = one file picker on the page. Order here is the order they appea
 
 \* Not individually required, but each box must have at least one accepted type or extension (enforced at plan time).
 
+#### Common MIME types for `accepted_types`
+
+`accepted_types` holds **MIME types** — the standard `type/subtype` label the browser attaches to a
+file when a user selects it (exposed as `file.type` in the client). A file is accepted if its MIME
+type matches an entry here **or** its extension matches `accepted_extensions`, so for everyday CSV
+uploads you can rely on the extension and keep `accepted_types = ["text/csv"]` for completeness.
+
+The table below lists the MIME types most likely to be useful for uploader services, with the
+extension(s) you would normally pair them with. Use the exact MIME string (not just `csv`), and
+remember browsers can report an empty string or a generic type for some files — which is why
+`accepted_extensions` is the more reliable check and both lists are OR'd together.
+
+| File kind | MIME type (`accepted_types`) | Typical extension(s) (`accepted_extensions`) |
+| --- | --- | --- |
+| CSV | `text/csv` | `.csv` |
+| Plain text | `text/plain` | `.txt` |
+| Tab-separated values | `text/tab-separated-values` | `.tsv` |
+| JSON | `application/json` | `.json` |
+| XML | `application/xml` (or `text/xml`) | `.xml` |
+| Excel (modern, .xlsx) | `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet` | `.xlsx` |
+| Excel (legacy, .xls) | `application/vnd.ms-excel` | `.xls` |
+| PDF | `application/pdf` | `.pdf` |
+| ZIP archive | `application/zip` | `.zip` |
+| Gzip archive | `application/gzip` | `.gz` |
+
+> Notes:
+> - Match MIME types and extensions as a pair — e.g. a box that accepts CSV **or** TXT uses
+>   `accepted_types = ["text/csv", "text/plain"]` and `accepted_extensions = [".csv", ".txt"]`.
+> - Older browsers sometimes report `.csv` files as `application/vnd.ms-excel`; keeping `.csv` in
+>   `accepted_extensions` ensures those still pass.
+> - This is a convenience list, not an allow-list enforced by the config — `accepted_types` accepts
+>   any valid MIME string, so other types can be added as needed.
+
 #### `cross_file_rules[]` block (relationships between boxes)
 
 | Field | Required | What it does |
