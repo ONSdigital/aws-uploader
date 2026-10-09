@@ -70,3 +70,72 @@ Nothing below is committed — all current changes are in the working tree.
   module (`local.tf` / `alerts.tf`) reference a real Secrets Manager secret; rename only if that
   secret is also renamed.
 - **Nothing committed yet** — review the working tree before committing.
+
+### Support services whose pages key off an arbitrary set of CSV columns (not fixed name + lad_code)
+
+**Motivation.** Today every service assumes a fixed two-column onboarding CSV (`name`, `lad_code`)
+and builds the page filename as `<lad_code>-<clean-name>.html`. The two-column case is just one
+instance of a more general need: a service should be able to derive its URLs from **any number of
+columns** — one, two, or more — in any order. Examples:
+- `foo` keys off a **single** column (just an id, or just a name) → page `<clean-id>.html`.
+- a service keys off **three** columns → page `<a>-<b>-<c>.html`.
+- the existing services keep the current two-column `<lad_code>-<clean-name>.html` form.
+
+So the goal is a **configurable, N-column identity**, with today's `name`+`lad_code` layout being
+the default when a service doesn't specify otherwise.
+
+**Where the two-column assumption is currently hardcoded:**
+- `services.tf` → `local.service_user_pairs`: iterates `csvdecode(...)` and reads `user.lad_code`
+  and `user.name`, builds the state key `"${svc_id}/${user.lad_code}-${clean(user.name)}"`, and
+  passes `council_name` / `lad_code` into the module.
+- `modules/render_service/`: `variables.tf` requires both `council_name` and `lad_code`;
+  `main.tf` builds `page-filename = "${lad_code}-${clean-council-name}.html"` and the heading
+  from `council_name`.
+- `scripts/file_submission.js`: `extractCodeFromURL()` / `extractCouncilNameFromURL()` split the
+  page filename on the first `-` to recover `code` and `name`. The `code` is used for the
+  per-file filename validation (`{code}` in the pattern) and sent to the Lambda.
+- `src/PreSignedURL.mjs`: expects `councilName` + the derived code when building the ingest key.
+- `test/smoke/check_council_urls.js`: `parseCsv` requires `name` + `lad_code` headers and
+  `buildUrl` assumes `<lad_code>-<clean-name>.html`.
+
+**Design sketch (keep Council Tax / Electoral Register byte-for-byte unchanged):**
+- Add an optional per-service **URL/identity schema** to the config in `services.tf` that describes
+  the CSV columns and how to build the page identity from them. The schema must support an
+  arbitrary number of columns, e.g.:
+  ```hcl
+  url_schema = {
+    columns  = ["lad_code", "name"]          # the CSV columns this service onboards (ordered)
+    filename = "{lad_code}-{clean(name)}"     # template referencing those columns by name;
+                                              # clean(...) applies the existing name-cleaning regex
+    heading  = "{name}"                       # which column(s) feed the page <h1>
+    code     = "lad_code"                     # which column (if any) is the per-file validation code
+  }
+  ```
+  When `url_schema` is omitted, default to the current behaviour exactly:
+  `columns = ["name","lad_code"]`, `filename = "{lad_code}-{clean(name)}"`, `heading = "{name}"`,
+  `code = "lad_code"`. A single-column service sets `columns = ["id"]`, `filename = "{clean(id)}"`;
+  a three-column service lists all three and templates them.
+- Generalise `local.service_user_pairs` to build the state key and filename from the schema +
+  whatever columns each `csvdecode` row has, instead of the hardcoded `name`/`lad_code` fields.
+  Pass a generic `row` map (column name → value) into the module rather than named
+  `council_name` / `lad_code` vars.
+- Generalise `modules/render_service` to accept the schema + the row map and compute
+  `page-filename` and the heading from the templates (keep the clean-name regex available as the
+  `clean(...)` helper). Replace the `council_name`/`lad_code` vars with a map + schema.
+- Validate the schema at plan time (extend `terraform_data.service_config_validation`): every
+  `{column}` referenced in `filename`/`heading`/`code` must exist in `columns`, `columns` must be
+  non-empty, and the CSV header must contain exactly those columns.
+- Decide the per-file **validation code** story generally: `code` names a column (default
+  `lad_code`), or a service sets `code = null` to opt out of the code-in-filename rule entirely.
+  `{code}` in box filename patterns then resolves to that column's value (or the rule is skipped).
+- Update `scripts/file_submission.js` URL parsing to be schema-driven: don't assume the first
+  `-`-delimited token is the code. The page needs to know its own schema — simplest is to include
+  the row's column values in the per-service `config.js` or encode them so `config.js` can map the
+  filename back to columns. Mirror the same in `src/PreSignedURL.mjs`.
+- Update `test/smoke/check_council_urls.js` to read whatever columns each service's schema needs
+  (it already discovers services from `services.tf`; extend it to honour `url_schema` when building
+  URLs rather than assuming `name`/`lad_code`).
+
+**Constraint:** the existing `council-tax` and `electoral-register` URLs must not change — the
+default (no `url_schema`) path must reproduce `<lad_code>-<clean-name>.html` exactly. Add a test
+that diffs the generated council-tax URL set before/after, as was done for the original migration.
