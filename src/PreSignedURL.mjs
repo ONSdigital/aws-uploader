@@ -2,20 +2,20 @@ import querystring from 'querystring';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 class uploaderLogger {
-  logError(LADCode, fileName, fileSize, statusCode, errorMessage) {
-    console.error(`Status: ${statusCode}, LADCode: ${LADCode}, File: ${fileName}, File size: ${fileSize} MB, Message: ${errorMessage}`);
+  logError(code, fileName, fileSize, statusCode, errorMessage) {
+    console.error(`Status: ${statusCode}, Code: ${code}, File: ${fileName}, File size: ${fileSize} MB, Message: ${errorMessage}`);
   }
 
-  logInternalError(LADCode, fileName, statusCode, errorMessage) {
-    console.error(`Status: ${statusCode}, LADCode: ${LADCode}, File: ${fileName}, Message: ${errorMessage}`);
+  logInternalError(code, fileName, statusCode, errorMessage) {
+    console.error(`Status: ${statusCode}, Code: ${code}, File: ${fileName}, Message: ${errorMessage}`);
   }
 
   logInfo(infoMessage) {
     console.log(`Info: ${infoMessage}`);
   }
 
-  logSuccess(LADCode, fileName, URL, statusCode, CouncilName) {
-    console.log(`Success: CouncilName: ${CouncilName}, Status: ${statusCode}, LADCode: ${LADCode}, fileName: ${fileName}, URL: ${URL}`);
+  logSuccess(code, fileName, URL, statusCode, councilName, serviceId) {
+    console.log(`Success: Service: ${serviceId}, Council: ${councilName}, Status: ${statusCode}, Code: ${code}, fileName: ${fileName}, URL: ${URL}`);
   }
 }
 
@@ -30,6 +30,11 @@ const logger = new uploaderLogger()
 
 const MULTIPART_THRESHOLD = 5 * 1024 * 1024; // 5MB threshold for multipart
 
+// Service configurations are injected at deploy time as a JSON object keyed by
+// service_id (see services.tf -> local.services_json). This is the single
+// source of truth shared with the browser (config.js) and Terraform rendering.
+const SERVICES = JSON.parse(process.env.SERVICES_CONFIG || "{}");
+
 function convertExtensionToLowerCase(filename) {
   const fileParts = filename.split('.');
   const fileExtension = fileParts.pop();
@@ -37,174 +42,192 @@ function convertExtensionToLowerCase(filename) {
   return fileNameWithoutExtension + '.' + fileExtension.toLowerCase();
 }
 
+function fileExtension(name) {
+  const idx = name.lastIndexOf('.');
+  return idx === -1 ? '' : name.slice(idx).toLowerCase();
+}
+
+// Accept if the file's extension OR MIME type matches one of the box's allowed values.
+function typeAllowed(box, file) {
+  const exts = (box.accepted_extensions || []).map((e) => e.toLowerCase());
+  const types = box.accepted_types || [];
+  const extOk = exts.length === 0 || exts.includes(fileExtension(file.name));
+  const typeOk = types.length === 0 || types.includes(file.type);
+  return extOk || typeOk;
+}
+
+function filenamePattern(box, code) {
+  const exts = (box.accepted_extensions || ['.csv']).map((e) =>
+    e.replace(/^\./, '').replace(/[.*+?^$()[\]{}|\\]/g, '\\$&')
+  );
+  const extGroup = exts.length ? `(${exts.join('|')})` : 'csv';
+  return new RegExp('^' + box.filename_prefix + code + '_\\d{8}\\.' + extGroup + '$', 'i');
+}
+
+// Human-readable list of the file types a box accepts, e.g. ".csv" or ".csv or .txt".
+// Prefers extensions (friendlier) and falls back to MIME types only if no extensions are set.
+function allowedTypesText(box) {
+  const parts =
+    (box.accepted_extensions && box.accepted_extensions.length)
+      ? box.accepted_extensions
+      : (box.accepted_types || []);
+  if (parts.length === 0) return 'the correct type';
+  if (parts.length === 1) return parts[0];
+  return parts.slice(0, -1).join(', ') + ' or ' + parts[parts.length - 1];
+}
+
+// Example of the filename the box expects, e.g. "CTAX_EXTRACT_E07000223_yyyymmdd.csv".
+function expectedFilename(box, code) {
+  const ext = (box.accepted_extensions && box.accepted_extensions[0]) || '.csv';
+  return `${box.filename_prefix}${code}_yyyymmdd${ext}`;
+}
+
+// Error message templates. Overridable per service via service.wording.errors.<key>.
+// Templates use {placeholder} substitution. Keys mirror the client (file_submission.js).
+const DEFAULT_ERRORS = {
+  missing_required: 'Missing required file: {label}',
+  empty_file: 'File is empty',
+  wrong_type: 'File is not {types}',
+  wrong_filename: 'File name must match {expected}',
+  names_dont_match: 'File names do not match',
+};
+
+function errorMessage(service, key, vars) {
+  const overrides = (service.wording && service.wording.errors) || {};
+  const template = overrides[key] || DEFAULT_ERRORS[key] || '';
+  return template.replace(/\{(\w+)\}/g, (m, name) =>
+    name in (vars || {}) ? vars[name] : m
+  );
+}
+
+function dateSuffix(name) {
+  const m = name.match(/_(\d{8})\./);
+  return m ? m[1] : null;
+}
+
+// Derive the user's code from any provided filename: <prefix><code>_<date>.<ext>
+function codeFromFiles(service, files) {
+  for (const f of files) {
+    const box = service.boxes.find((b) => b.id === f.boxId);
+    if (!box) continue;
+    const m = f.name.match(new RegExp('^' + box.filename_prefix + '([^_]+)_'));
+    if (m) return m[1];
+  }
+  return 'unknown';
+}
+
+function errorResponse(statusCode, message, extra = {}) {
+  return {
+    statusCode,
+    isBase64Encoded: false,
+    headers: { 'Access-Control-Allow-Origin': '*' },
+    body: JSON.stringify({ message, ...extra }),
+  };
+}
+
 export const handler = async (event, context, callback) => {
+  let serviceId;
   try {
-    logger.logInfo("Starting verification checks")
+    logger.logInfo("Starting verification checks");
 
-    //-- Starting verification checks --
-
-    //create variables to complete file verificatin checks
-    let trimmedFileOneNameToCheckIfFilesMatch = event.queryStringParameters.fileOneName.slice(0, 5) + event.queryStringParameters.fileOneName.slice(12, 31); //trim file one name to just the parts which should exactly match file two
-    let trimmedFileTwoNameToCheckIfFilesMatch = event.queryStringParameters.fileTwoName.slice(0, 5) + event.queryStringParameters.fileTwoName.slice(9, 28); //trim file two name to just the parts which should match file one name
-    logger.logInfo("Getting ladcode")
-    let LADCode = event.queryStringParameters.fileOneName.slice(13, 22);
-    logger.logInfo(LADCode)
-    // let CouncilName = document.getElementById('council-name').innerHTML;
-    let CouncilName = decodeURIComponent(event.queryStringParameters.councilName); //here
-    logger.logInfo(CouncilName)
-
-    const currentDate = new Date();
-    const formatedDate = currentDate.toISOString().replace(/[^0-9]/g, '').slice(0, -3)
-    //Series of checks on file data before pre-signed URLs are created. Checks size of each file isnt 0, checks file type of each file is csv, check if file names match.
-    //Need to add file name format verification.
-
-    if (event.queryStringParameters.fileOneSize === "0") {
-      const result = await isFileEmpty(event.queryStringParameters.fileOneName);
-      const resultBody = JSON.parse(result.body);
-      logger.logError(event.queryStringParameters.fileOneName.slice(13, 22), event.queryStringParameters.fileOneName, event.queryStringParameters.fileOneSize, result.statusCode, resultBody.message);
-      return result;
-    } else if (event.queryStringParameters.fileTwoSize === "0") {
-      const result = await isFileEmpty(event.queryStringParameters.fileTwoName);
-      const resultBody = JSON.parse(result.body);
-      logger.logError(event.queryStringParameters.fileOneName.slice(13, 22), event.queryStringParameters.fileTwoName, event.queryStringParameters.fileTwoSize, result.statusCode, resultBody.message);
-      return result;
-    } else if (event.queryStringParameters.fileOneType !== "text/csv") {
-      const result = await fileNotCSV(event.queryStringParameters.fileOneName);
-      const resultBody = JSON.parse(result.body);
-      logger.logError(event.queryStringParameters.fileOneName.slice(13, 22), event.queryStringParameters.fileOneName, event.queryStringParameters.fileOneSize, result.statusCode, resultBody.message);
-      return result;
-    } else if (event.queryStringParameters.fileTwoType !== "text/csv") {
-      const result = await maniFileNotCSV(event.queryStringParameters.fileTwoName);
-      const resultBody = JSON.parse(result.body);
-      logger.logError(event.queryStringParameters.fileTwoName.slice(13, 22), event.queryStringParameters.fileTwoName, event.queryStringParameters.fileTwoSize, result.statusCode, resultBody.message);
-      return result;
-    } else if (trimmedFileOneNameToCheckIfFilesMatch != trimmedFileTwoNameToCheckIfFilesMatch) {
-      const result = await fileNamesDontMatch(event);
-      const resultBody = JSON.parse(result.body);
-      logger.logError(event.queryStringParameters.fileOneName.slice(13, 22), event.queryStringParameters.fileOneName, event.queryStringParameters.fileOneSize, result.statusCode, resultBody.message);
-      return result;
-    } else {
-      const result = await getUploadURL(event, formatedDate, CouncilName);
-      const resultBody = JSON.parse(result.body);
-      logger.logSuccess(LADCode, event.queryStringParameters.fileOneName, 'multipart/single', result.statusCode, CouncilName);
-      logger.logSuccess(LADCode, event.queryStringParameters.fileTwoName, 'multipart/single', result.statusCode, CouncilName);
-      return result;
+    const qs = event.queryStringParameters || {};
+    serviceId = qs.serviceId;
+    const service = SERVICES[serviceId];
+    if (!service) {
+      logger.logError(serviceId, 'n/a', 0, 400, 'Unknown serviceId');
+      return errorResponse(400, 'Unknown service');
     }
+
+    const councilNameRaw = decodeURIComponent(qs.councilName || '');
+    let files;
+    try {
+      files = JSON.parse(qs.files || '[]');
+    } catch (e) {
+      return errorResponse(400, 'Invalid files parameter');
+    }
+
+    const boxesById = Object.fromEntries(service.boxes.map((b) => [b.id, b]));
+    const code = codeFromFiles(service, files);
+
+    // --- Required-box presence check ---
+    const providedIds = new Set(files.map((f) => f.boxId));
+    for (const box of service.boxes) {
+      if (box.required && !providedIds.has(box.id)) {
+        logger.logError(code, box.id, 0, 403, 'Required file missing');
+        return errorResponse(403, errorMessage(service, 'missing_required', { label: box.label }), { boxId: box.id });
+      }
+    }
+
+    // --- Per-file validation (size, type, filename pattern) ---
+    for (const f of files) {
+      const box = boxesById[f.boxId];
+      if (!box) {
+        return errorResponse(400, `Unknown upload box: ${f.boxId}`, { boxId: f.boxId });
+      }
+      const size = parseInt(f.size, 10);
+      if (size === 0) {
+        logger.logError(code, f.name, f.size, 204, 'File is empty');
+        return errorResponse(204, errorMessage(service, 'empty_file', {}), { boxId: f.boxId, filename: f.name });
+      }
+      if (!typeAllowed(box, f)) {
+        logger.logError(code, f.name, f.size, 403, 'File type not allowed');
+        return errorResponse(403, errorMessage(service, 'wrong_type', { types: allowedTypesText(box), label: box.label }), { boxId: f.boxId, filename: f.name });
+      }
+      if (!filenamePattern(box, code).test(f.name)) {
+        logger.logError(code, f.name, f.size, 403, 'Filename pattern mismatch');
+        return errorResponse(403, errorMessage(service, 'wrong_filename', { expected: expectedFilename(box, code), label: box.label }), { boxId: f.boxId, filename: f.name });
+      }
+    }
+
+    // --- Cross-file rules (only across boxes that were provided) ---
+    for (const rule of (service.cross_file_rules || [])) {
+      if (rule.type === 'matching_date_suffix') {
+        const dates = rule.boxes
+          .map((bid) => files.find((f) => f.boxId === bid))
+          .filter(Boolean)
+          .map((f) => dateSuffix(f.name))
+          .filter(Boolean);
+        if (dates.length > 1 && !dates.every((d) => d === dates[0])) {
+          logger.logError(code, 'n/a', 0, 300, 'File names do not match');
+          return errorResponse(300, errorMessage(service, 'names_dont_match', {}));
+        }
+      }
+    }
+
+    // --- All checks pass: generate presigned URLs per provided file ---
+    const currentDate = new Date();
+    const formatedDate = currentDate.toISOString().replace(/[^0-9]/g, '').slice(0, -3);
+    const councilName = cleanCouncilName(councilNameRaw);
+
+    const uploads = {};
+    for (const f of files) {
+      const fileNameLowerCase = convertExtensionToLowerCase(f.name);
+      const size = parseInt(f.size, 10);
+      uploads[f.boxId] = await createUploadData(serviceId, fileNameLowerCase, size, formatedDate, councilName);
+      logger.logSuccess(code, fileNameLowerCase, 'multipart/single', 200, councilName, serviceId);
+    }
+
+    return {
+      statusCode: 200,
+      isBase64Encoded: false,
+      headers: { 'Access-Control-Allow-Origin': '*' },
+      body: JSON.stringify({ message: 'Success', uploads }),
+    };
   } catch (error) {
-    let LADCode = event.queryStringParameters.fileOneName.slice(13, 22);
-    let CouncilName = event.queryStringParameters.councilName;
-    logger.logInternalError(LADCode, "foo", "500", error.message, CouncilName);
+    logger.logInternalError(serviceId, 'n/a', '500', error.message);
     return {
       statusCode: 500,
       body: JSON.stringify({
-        message: "Internal Server Error",
-        error: error.message
-      })
+        message: 'Internal Server Error',
+        error: error.message,
+      }),
     };
   }
-}
+};
 
-//sends reponse if a file is not csv which alerts user
-const fileNotCSV = async (filename) => {
-  return new Promise((resolve, reject) => {
-    resolve({
-      "statusCode": 403,
-      "isBase64Encoded": false,
-      "headers": {
-        'Access-Control-Allow-Origin': '*'
-      },
-      "body": JSON.stringify({
-        "message": "File is not .csv",
-        "filename": filename
-      })
-    })
-  })
-}
+const createUploadData = async (serviceId, fileName, fileSize, formatedDate, councilName) => {
+  const key = `${serviceId}/${councilName}/${formatedDate}/${fileName}`;
 
-const maniFileNotCSV = async (filename) => {
-  return new Promise((resolve, reject) => {
-    resolve({
-      "statusCode": 403,
-      "isBase64Encoded": false,
-      "headers": {
-        'Access-Control-Allow-Origin': '*'
-      },
-      "body": JSON.stringify({
-        "message": "maniFile is not .csv",
-        "filename": filename
-      })
-    })
-  })
-}
-
-
-//sends response if file is empty and alerts user
-const isFileEmpty = async (filename) => {
-  return new Promise((resolve, reject) => {
-    resolve({
-      "statusCode": 204,
-      "isBase64Encoded": false,
-      "headers": {
-        'Access-Control-Allow-Origin': '*'
-      },
-      "body": JSON.stringify({
-        "message": `File is empty`,
-        "filename": filename
-      })
-    })
-  })
-}
-
-//sends response if a file names dont match
-const fileNamesDontMatch = async (event) => {
-
-  return new Promise((resolve, reject) => {
-
-    resolve({
-      "statusCode": 300,
-      "isBase64Encoded": false,
-      "headers": {
-        'Access-Control-Allow-Origin': '*'
-      },
-      "body": JSON.stringify({
-        "message": "File names do not match"
-      })
-    })
-  })
-}
-
-//if all checks pass, then the pre-signed url for each file is created and returned to user which triggers automatic upload of each file to s3 bucket
-const getUploadURL = async (event, formatedDate, councilName) => {
-
-  councilName = cleanCouncilName(councilName)
-  let fileOneNameLowerCase = convertExtensionToLowerCase(event.queryStringParameters.fileOneName)
-  let fileTwoNameLowerCase = convertExtensionToLowerCase(event.queryStringParameters.fileTwoName)
-
-  const fileOneSize = parseInt(event.queryStringParameters.fileOneSize);
-  const fileTwoSize = parseInt(event.queryStringParameters.fileTwoSize);
-
-  const fileOneUpload = await createUploadData(fileOneNameLowerCase, fileOneSize, formatedDate, councilName);
-  const fileTwoUpload = await createUploadData(fileTwoNameLowerCase, fileTwoSize, formatedDate, councilName);
-
-  return new Promise((resolve, reject) => {
-    resolve({
-      "statusCode": 200,
-      "isBase64Encoded": false,
-      "headers": {
-        'Access-Control-Allow-Origin': '*',
-      },
-      "body": JSON.stringify({
-        "fileOneUpload": fileOneUpload,
-        "fileTwoUpload": fileTwoUpload,
-        "message": "Success",
-      })
-    })
-  })
-}
-
-const createUploadData = async (fileName, fileSize, formatedDate, councilName) => {
-  const key = `council-tax/${councilName}/${formatedDate}/${fileName}`;
-  
   if (fileSize > MULTIPART_THRESHOLD) {
     return await createMultipartUpload(key, fileSize);
   } else {
@@ -222,14 +245,14 @@ const createMultipartUpload = async (key, fileSize) => {
     Bucket: process.env.BUCKET_NAME,
     Key: key
   });
-  
+
   const createResult = await s3.send(createParams);
   const uploadId = createResult.UploadId;
-  
+
   const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB
   const numParts = Math.ceil(fileSize / CHUNK_SIZE);
   const parts = [];
-  
+
   for (let i = 1; i <= numParts; i++) {
     const uploadPartParams = new UploadPartCommand({
       Bucket: process.env.BUCKET_NAME,
@@ -237,11 +260,11 @@ const createMultipartUpload = async (key, fileSize) => {
       PartNumber: i,
       UploadId: uploadId
     });
-    
+
     const uploadURL = await getSignedUrl(s3, uploadPartParams, { expiresIn: 1800 });
     parts.push({ PartNumber: i, uploadURL });
   }
-  
+
   return {
     multipart: true,
     uploadId,
