@@ -1018,12 +1018,28 @@
     "reflect-metadata" "0.2.2"
     "uuid" "10.0.0"
 
+"@cucumber/pretty-formatter@4.1.0":
+  "integrity" "sha512-cbdb494+X3nHxvP34sbyia7CeVIkqs0K3+LWpsF8szCSUVYOxhmbP66H/Yd7f6yr2BhKLmkDokyEX24VAyOstA=="
+  "resolved" "https://registry.npmjs.org/@cucumber/pretty-formatter/-/pretty-formatter-4.1.0.tgz"
+  "version" "4.1.0"
+  dependencies:
+    "@cucumber/query" "16.1.1"
+    "luxon" "^3.7.2"
+
 "@cucumber/query@^13.0.2":
   "integrity" "sha512-S3g4u+2u/vo444bR1xL0+oVZmF8zb9QZ3MoiNF4GjBt6gG7Kf4S3NyJKjGUAQfESTb8oumOR1YMKHbv79FzA5w=="
   "resolved" "https://registry.npmjs.org/@cucumber/query/-/query-13.2.0.tgz"
   "version" "13.2.0"
   dependencies:
     "@teppeis/multimaps" "3.0.0"
+
+"@cucumber/query@16.1.1":
+  "integrity" "sha512-SBaP4Lc7xv55jY78Q8raoxvbBIPGhQKrui/Tq+l6jYBl1alV0TG1sW8TRtk9W7RQl27nVJo9DyyvASp374L9Tg=="
+  "resolved" "https://registry.npmjs.org/@cucumber/query/-/query-16.1.1.tgz"
+  "version" "16.1.1"
+  dependencies:
+    "@teppeis/multimaps" "3.0.0"
+    "lodash.sortby" "^4.7.0"
 
 "@cucumber/tag-expressions@6.1.2":
   "integrity" "sha512-xa3pER+ntZhGCxRXSguDTKEHTZpUUsp+RzTRNnit+vi5cqnk6abLdSLg5i3HZXU3c74nQ8afQC6IT507EN74oQ=="
@@ -3131,6 +3147,11 @@
   "resolved" "https://registry.npmjs.org/lodash.mergewith/-/lodash.mergewith-4.6.2.tgz"
   "version" "4.6.2"
 
+"lodash.sortby@^4.7.0":
+  "integrity" "sha512-HDWXG8isMntAyRF5vZ7xKuEvOhT4AhlRt/3czTSjvGUxjYCBVRQY48ViDHyfYz9VIoBkW4TMGQNapx+l3RUwdA=="
+  "resolved" "https://registry.npmjs.org/lodash.sortby/-/lodash.sortby-4.7.0.tgz"
+  "version" "4.7.0"
+
 "lower-case@^2.0.2":
   "integrity" "sha512-7fm3l3NAF9WfN6W3JOmf5drwpVqX78JtoGJ3A6W0a6ZnldM41w2fV5D490psKFTpMds8TJse/eHLFFsNHHjHgg=="
   "resolved" "https://registry.npmjs.org/lower-case/-/lower-case-2.0.2.tgz"
@@ -3159,6 +3180,11 @@
   "integrity" "sha512-tJLxrKJhO2ukZ5z0gyjY1zPh3Rh88Ej9P7jNrZiHMUXHae1yvI2imgOZtL1TO8TW6biMMKfTtAOoEJANgtWBMQ=="
   "resolved" "https://registry.npmjs.org/luxon/-/luxon-3.6.1.tgz"
   "version" "3.6.1"
+
+"luxon@^3.7.2":
+  "integrity" "sha512-vtEhXh/gNjI9Yg1u4jX/0YVPMvxzHuGgCm6tC5kZyb08yjGWGnqAjGJvcXbqQR2P3MyMEFnRbpcdFS6PBcLqew=="
+  "resolved" "https://registry.npmjs.org/luxon/-/luxon-3.7.2.tgz"
+  "version" "3.7.2"
 
 "make-dir@^4.0.0":
   "integrity" "sha512-hXdUTZYIVOt1Ex//jAQi+wTZZpUpwBj/0QsOzqegb3rGMMeJiSEu5xLHnYfBrRV4RH2+OCSOO95Is/7x1WJ4bw=="

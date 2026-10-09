@@ -10,9 +10,12 @@ cd repo-git
 # `set -e` aborts on a non-zero exit.
 # ---------------------------------------------------------------------------
 echo "=== Installing test dependencies (output suppressed) ==="
-sudo apt-get update -qq >/dev/null
-sudo apt-get install -y -qq npm >/dev/null
-npm install --silent >/dev/null
+# Redirect both stdout and stderr: apt emits routine "Target Packages ...
+# configured multiple times" warnings on stderr. `set -e` still aborts the task
+# on a real non-zero exit, so genuine failures are not hidden.
+sudo apt-get update -qq >/dev/null 2>&1
+sudo apt-get install -y -qq npm >/dev/null 2>&1
+npm install --silent >/dev/null 2>&1
 
 # ---------------------------------------------------------------------------
 # Run the behaviour tests. The banner makes the result easy to locate in the
