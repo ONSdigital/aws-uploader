@@ -1,0 +1,54 @@
+# ---------------------------------------------------------------------------
+# Council Tax (the original, live service). N = 2 boxes, both required.
+#
+# This reproduces the behaviour of the legacy single-purpose aws-uploader
+# deployment exactly so that the already-disseminated page URLs
+# (/council-tax/<lad_code>-<clean-name>.html) and the upload validation
+# rules are preserved:
+#   - service_id "council-tax"            -> same URL/S3 path prefix
+#   - users.csv (this folder)             -> same per-council pages
+#   - CTAX_EXTRACT_/CTAX_MANI_ prefixes   -> same filename validation
+#   - matching_date_suffix (extract,mani) -> same cross-file date check
+# Do not rename service_id or change the clean-name derivation: either
+# would change the live URLs.
+#
+# This file lives at services/<service_id>/service.yaml; the folder name
+# must match service_id and becomes the service's map key in local.services.
+# ---------------------------------------------------------------------------
+service_id: mega-service
+onboarding_csv: services/service-tax/users.csv
+
+wording:
+  page_title: ONS-Uploader
+  heading_prefix: "Mega Service - "
+  contact_email: james.williams@ons.gov.uk
+  uploading_banner: Uploading. Do not refresh or close the page.
+  submit_text: Submit
+
+# One entry per upload box. The count of boxes = the number of submissions.
+boxes:
+  - id: extract
+    label: Upload the Awesome file
+    description: "File must be named with the format 'I_AM_AWESOME_{code}_yyyymmdd' where the 8 digits are your LAD code and yyyymmdd is the data run date"
+    required: true
+    accepted_types: ["csv"]
+    accepted_extensions: [".csv"]
+    filename_prefix: I_AM_AWESOME_
+    - id: extract
+    label: Upload the Other Awesome file
+    description: "File must be named with the format 'I_AM_ALSO_AN_AWESOME_{code}_yyyymmdd' where the 8 digits are your LAD code and yyyymmdd is the data run date"
+    required: true
+    accepted_types: ["csv"]
+    accepted_extensions: [".csv"]
+    filename_prefix: I_AM_ALSO_AN_AWESOME_  
+  - id: mani
+    label: Maybe upload the mani file
+    description: "File must be named with the format 'AWESOME_MANI_{code}_yyyymmdd' where the 8 digits are your LAD code and yyyymmdd is the data run date"
+    required: true
+    accepted_types: ["csv"]
+    accepted_extensions: [".csv"]
+    filename_prefix: AWESOME_MANI_
+
+cross_file_rules:
+  - type: matching_date_suffix
+    boxes: ["extract", "mani"]
