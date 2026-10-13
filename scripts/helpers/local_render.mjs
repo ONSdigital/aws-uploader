@@ -12,8 +12,9 @@
  *   - templatefile() : ${page_title}/${heading}/${submit_text}/
  *                      ${uploading_banner}/${upload_boxes_html} substitution
  *
- * Service configs are read straight from services.tf (single source of truth),
- * so there is nothing to keep in sync. Pass --service <id> to pick one.
+ * Service configs are read straight from the services/ folder (one YAML file
+ * per service — the same files Terraform's local.services loads), so there is
+ * nothing to keep in sync. Pass --service <id> to pick one.
  *
  * Usage:
  *   node scripts/helpers/local_render.mjs --list
@@ -22,151 +23,53 @@
  *   node scripts/helpers/local_render.mjs --config my-service.json   # override: render from a JSON file
  */
 
-import { readFileSync, writeFileSync, watch } from "node:fs";
+import { readFileSync, writeFileSync, watch, readdirSync, existsSync } from "node:fs";
 import { createServer } from "node:http";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve, join } from "node:path";
+import { parse as parseYaml } from "yaml";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 // repo root is two levels up from scripts/helpers/
 const REPO_ROOT = resolve(__dirname, "..", "..");
 const TEMPLATE_PATH = join(REPO_ROOT, "scripts", "template", "generic-template.html");
-const SERVICES_TF = join(REPO_ROOT, "services.tf");
+const SERVICES_DIR = join(REPO_ROOT, "services");
 
 // ---------------------------------------------------------------------------
-// services.tf parser
+// services/ loader
 //
-// services.tf is HCL, not JSON. Rather than take a Terraform dependency we
-// parse the regular structure of the `local.services` map directly. This
-// handles the fields the renderer needs: service_id, wording.*, and each
-// box's id/label/description/required/accepted_types/accepted_extensions.
-// It is intentionally narrow — if services.tf grows a radically different
-// shape, prefer `terraform` + `-json` output or pass --config.
+// Service definitions live as one folder per service under services/
+// (services/<service_id>/service.yaml) — the same files Terraform's
+// local.services loads via fileset + yamldecode in services.tf. We just
+// yamldecode each service.yaml, so the renderer stays byte-for-byte in sync
+// with Terraform with no HCL parsing. Pass --config to render from a
+// standalone JSON/YAML file instead.
 // ---------------------------------------------------------------------------
 
-/** Extract the body between the matching braces that follow `startIndex`. */
-function extractBraceBlock(text, startIndex) {
-  const open = text.indexOf("{", startIndex);
-  if (open === -1) return null;
-  let depth = 0;
-  for (let i = open; i < text.length; i++) {
-    const c = text[i];
-    if (c === "{") depth++;
-    else if (c === "}") {
-      depth--;
-      if (depth === 0) return { body: text.slice(open + 1, i), end: i };
-    }
+/** Load all services from the services/ folder into { id: serviceConfig }. */
+function loadServices() {
+  const ids = readdirSync(SERVICES_DIR, { withFileTypes: true })
+    .filter((d) => d.isDirectory() && existsSync(join(SERVICES_DIR, d.name, "service.yaml")))
+    .map((d) => d.name);
+  if (ids.length === 0) {
+    throw new Error(`No <service>/service.yaml files found in ${SERVICES_DIR}`);
   }
-  return null;
-}
-
-/** Parse a `key = "value"` string assignment out of an HCL block body. */
-function parseStringField(body, key) {
-  const m = body.match(new RegExp(`${key}\\s*=\\s*"((?:[^"\\\\]|\\\\.)*)"`));
-  return m ? m[1].replace(/\\"/g, '"') : undefined;
-}
-
-/** Parse a `key = true|false` boolean assignment. */
-function parseBoolField(body, key) {
-  const m = body.match(new RegExp(`${key}\\s*=\\s*(true|false)`));
-  return m ? m[1] === "true" : undefined;
-}
-
-/** Parse a `key = ["a", "b"]` string-list assignment. */
-function parseStringListField(body, key) {
-  const m = body.match(new RegExp(`${key}\\s*=\\s*\\[([^\\]]*)\\]`));
-  if (!m) return [];
-  const inner = m[1].trim();
-  if (!inner) return [];
-  return [...inner.matchAll(/"((?:[^"\\]|\\.)*)"/g)].map((x) => x[1].replace(/\\"/g, '"'));
-}
-
-/** Parse the wording { ... } sub-block. */
-function parseWording(serviceBody) {
-  const idx = serviceBody.search(/\bwording\s*=/);
-  if (idx === -1) return {};
-  const blk = extractBraceBlock(serviceBody, idx);
-  if (!blk) return {};
-  const b = blk.body;
-  return {
-    page_title: parseStringField(b, "page_title"),
-    heading_prefix: parseStringField(b, "heading_prefix"),
-    contact_email: parseStringField(b, "contact_email"),
-    uploading_banner: parseStringField(b, "uploading_banner"),
-    submit_text: parseStringField(b, "submit_text"),
-  };
-}
-
-/** Parse the boxes = [ { ... }, { ... } ] list. */
-function parseBoxes(serviceBody) {
-  const idx = serviceBody.search(/\bboxes\s*=\s*\[/);
-  if (idx === -1) return [];
-  // Find the matching ] for the boxes list.
-  const open = serviceBody.indexOf("[", idx);
-  let depth = 0;
-  let end = -1;
-  for (let i = open; i < serviceBody.length; i++) {
-    const c = serviceBody[i];
-    if (c === "[") depth++;
-    else if (c === "]") {
-      depth--;
-      if (depth === 0) {
-        end = i;
-        break;
-      }
-    }
-  }
-  if (end === -1) return [];
-  const listBody = serviceBody.slice(open + 1, end);
-
-  // Walk each top-level { ... } object inside the list.
-  const boxes = [];
-  let i = 0;
-  while (i < listBody.length) {
-    const braceStart = listBody.indexOf("{", i);
-    if (braceStart === -1) break;
-    const blk = extractBraceBlock(listBody, braceStart);
-    if (!blk) break;
-    const b = blk.body;
-    boxes.push({
-      id: parseStringField(b, "id"),
-      label: parseStringField(b, "label"),
-      description: parseStringField(b, "description"),
-      required: parseBoolField(b, "required") ?? false,
-      accepted_types: parseStringListField(b, "accepted_types"),
-      accepted_extensions: parseStringListField(b, "accepted_extensions"),
-    });
-    i = blk.end + 1;
-  }
-  return boxes;
-}
-
-/** Parse all services from services.tf into { id: serviceConfig }. */
-function parseServicesTf() {
-  const text = readFileSync(SERVICES_TF, "utf8");
-  // Narrow to the `services = { ... }` map body.
-  const svcIdx = text.search(/\bservices\s*=\s*\{/);
-  if (svcIdx === -1) throw new Error("Could not find `services = {` in services.tf");
-  const svcBlock = extractBraceBlock(text, svcIdx);
-  if (!svcBlock) throw new Error("Could not parse the services map in services.tf");
-  const body = svcBlock.body;
-
-  // Each entry looks like:  "service-id" = { ... }
   const services = {};
-  const entryRe = /"([a-z0-9-]+)"\s*=\s*\{/g;
-  let m;
-  while ((m = entryRe.exec(body)) !== null) {
-    const id = m[1];
-    const blk = extractBraceBlock(body, m.index);
-    if (!blk) continue;
-    const serviceBody = blk.body;
+  for (const id of ids) {
+    const svc = parseYaml(readFileSync(join(SERVICES_DIR, id, "service.yaml"), "utf8")) || {};
+    // Normalise the fields the renderer uses, defaulting the optional ones.
     services[id] = {
-      service_id: parseStringField(serviceBody, "service_id") || id,
-      wording: parseWording(serviceBody),
-      boxes: parseBoxes(serviceBody),
+      service_id: svc.service_id || id,
+      wording: svc.wording || {},
+      boxes: (svc.boxes || []).map((b) => ({
+        id: b.id,
+        label: b.label,
+        description: b.description,
+        required: b.required ?? false,
+        accepted_types: b.accepted_types || [],
+        accepted_extensions: b.accepted_extensions || [],
+      })),
     };
-    // Resume scanning after this entry so nested braces aren't re-matched.
-    entryRe.lastIndex = blk.end;
   }
   return services;
 }
@@ -200,13 +103,13 @@ function parseArgs(argv) {
         [
           "Usage: node scripts/helpers/local_render.mjs [options]",
           "",
-          "  --service ID      Render a service defined in services.tf (default: first service)",
-          "  --list            List the service ids defined in services.tf and exit",
+          "  --service ID      Render a service defined in services/<id>.yaml (default: first service)",
+          "  --list            List the service ids defined in services/ and exit",
           "  --council NAME    Council name in the page heading (default: Example Council)",
           "  --lad CODE        LAD code injected into descriptions (default: 12345678)",
-          "  --config FILE     Render from a JSON config file instead of services.tf",
+          "  --config FILE     Render from a JSON config file instead of services/",
           "  --out FILE        Output HTML path (default: scripts/preview-<id>-<lad>-<council>.html)",
-          "  --watch, -w       Watch services.tf and the template for changes; serve on localhost",
+          "  --watch, -w       Watch services/ and the template for changes; serve on localhost",
           "  --port PORT       Port for the watch dev server (default: 3000)",
         ].join("\n"),
       );
@@ -274,11 +177,11 @@ if (args.config) {
   // Explicit JSON override.
   service = JSON.parse(readFileSync(resolve(process.cwd(), args.config), "utf8"));
 } else {
-  const services = parseServicesTf();
+  const services = loadServices();
   const ids = Object.keys(services);
 
   if (args.list) {
-    console.log("Services defined in services.tf:");
+    console.log("Services defined in services/:");
     for (const id of ids) {
       const n = services[id].boxes.length;
       console.log(`  - ${id}  (${n} box${n === 1 ? "" : "es"})`);
@@ -287,13 +190,13 @@ if (args.config) {
   }
 
   if (ids.length === 0) {
-    console.error("No services found in services.tf");
+    console.error("No services found in services/");
     process.exit(1);
   }
 
   const chosen = args.service || ids[0];
   if (!services[chosen]) {
-    console.error(`Service "${chosen}" not found in services.tf.`);
+    console.error(`Service "${chosen}" not found in services/.`);
     console.error(`Available: ${ids.join(", ")}`);
     process.exit(1);
   }
@@ -323,9 +226,9 @@ const RELOAD_SNIPPET = `
 </script>`;
 
 function doRender() {
-  // Re-parse services.tf each time in case it changed.
+  // Re-load the service YAML each time in case it changed.
   if (!args.config) {
-    const svcs = parseServicesTf();
+    const svcs = loadServices();
     service = svcs[args.service || Object.keys(svcs)[0]];
   }
   return render(service, { council: args.council, lad: args.lad });
@@ -359,12 +262,16 @@ if (!args.watch) {
     }
   }
 
-  // Watch services.tf and the template for changes.
-  const filesToWatch = [SERVICES_TF, TEMPLATE_PATH];
+  // Watch the services/ folder (recursively, to catch per-service
+  // subfolders) and the template for changes.
+  watch(SERVICES_DIR, { persistent: true, recursive: true }, (eventType) => {
+    if (eventType === "change" || eventType === "rename") rerender();
+  });
+  const filesToWatch = [TEMPLATE_PATH];
   if (args.config) filesToWatch.push(resolve(process.cwd(), args.config));
   for (const f of filesToWatch) {
     watch(f, { persistent: true }, (eventType) => {
-      if (eventType === "change") rerender();
+      if (eventType === "change" || eventType === "rename") rerender();
     });
   }
 
@@ -383,9 +290,9 @@ if (!args.watch) {
   });
 
   server.listen(args.port, () => {
-    console.log(`Watching services.tf + template for changes...`);
+    console.log(`Watching services/ + template for changes...`);
     console.log(`Serving ${service.service_id} at http://localhost:${args.port}`);
-    console.log(`Edit services.tf or the template and the browser will reload automatically.`);
+    console.log(`Edit the service YAML or the template and the browser will reload automatically.`);
     console.log(`Press Ctrl+C to stop.`);
   });
 }

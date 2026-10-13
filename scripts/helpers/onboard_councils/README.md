@@ -1,7 +1,7 @@
 # Council Onboarding Helper
 
 ## Purpose
-This helper tool bulk-onboards new councils from an Excel spreadsheet and updates the project-level `councils.csv` file automatically.
+This helper tool bulk-onboards new councils from an Excel spreadsheet and updates a service's `users.csv` onboarding file automatically.
 
 It replaces manual CSV editing with a safer, repeatable process.
 
@@ -45,20 +45,19 @@ poetry run python onboard_councils_from_xlsx.py ~/Downloads/new_councils.xlsx
 
 ## Choosing a Service
 The tool onboards into a specific service's CSV. Pass `--service <id>` and it looks up that
-service's `onboarding_csv` path in `services.tf` (the single source of truth) and writes there.
-If omitted, it defaults to `council-tax`.
+service's `onboarding_csv` path in `services/<id>/service.yaml` (the single source of truth) and
+writes there. If omitted, it defaults to `council-tax`.
 
 ```bash
-# Onboard into the Electoral Register service (data/electoral-register.csv)
+# Onboard into the Electoral Register service (services/electoral-register/users.csv)
 poetry run python onboard_councils_from_xlsx.py ~/Downloads/new_er.xlsx --service electoral-register
 
-# Default: Council Tax (data/councils.csv)
+# Default: Council Tax (services/council-tax/users.csv)
 poetry run python onboard_councils_from_xlsx.py ~/Downloads/new_councils.xlsx
 ```
 
-> The `<id>` must match a `service_id` defined in `services.tf`. The output filename comes from
-> that service's `onboarding_csv` value — note it is not always `data/<id>.csv` (for example,
-> `council-tax` writes to `data/councils.csv`).
+> The `<id>` must match a service folder under `services/`. The output path comes from that
+> service's `onboarding_csv` value — by convention `services/<id>/users.csv`.
 
 ## Optional Custom Output Path
 To write to an explicit path (ignoring the service convention), pass `--councils-csv`. It overrides

@@ -1,0 +1,37 @@
+# ---------------------------------------------------------------------------
+# Electoral Register (first new service). N = 2 boxes: 1 required, 1 optional.
+# NOTE: filename convention (ER_EXTRACT_/ER_MANI_) is a placeholder; adjust
+# the prefixes / accepted_* lists here when the real convention is known.
+#
+# This file lives at services/<service_id>/service.yaml; the folder name
+# must match service_id and becomes the service's map key in local.services.
+# ---------------------------------------------------------------------------
+service_id: electoral-register
+onboarding_csv: services/electoral-register/users.csv
+
+wording:
+  page_title: ONS-Uploader
+  heading_prefix: "Electoral Register - "
+  contact_email: elections@ons.gov.uk
+  uploading_banner: Uploading. Do not refresh or close the page.
+  submit_text: Submit
+
+boxes:
+  - id: extract
+    label: Upload the Electoral Register file
+    description: "File must be named with the format 'ER_EXTRACT_{code}_yyyymmdd' where the 8 digits are your LAD code and yyyymmdd is the data run date"
+    required: true
+    accepted_types: ["text/csv"]
+    accepted_extensions: [".csv"]
+    filename_prefix: ER_EXTRACT_
+  - id: mani
+    label: Upload the Marked Register file
+    description: "File must be named with the format 'ER_MANI_{code}_yyyymmdd' where the 8 digits are your LAD code and yyyymmdd is the data run date"
+    required: false
+    accepted_types: ["text/csv"]
+    accepted_extensions: [".csv", ".txt"]
+    filename_prefix: ER_MANI_
+
+cross_file_rules:
+  - type: matching_date_suffix
+    boxes: ["extract", "mani"]

@@ -13,17 +13,17 @@ BASE_DIR = Path(__file__).resolve().parent
 
 
 def find_project_root(start: Path | None = None) -> Path:
-    """Walk up from this file to the repo root (the dir containing services.tf).
+    """Walk up from this file to the repo root (the dir containing services/).
 
     Falls back to the dir containing .git. Robust to the repo being named
     anything (don't rely on a parent literally named "aws-uploader").
     """
     start = (start or Path(__file__)).resolve()
     for parent in [start, *start.parents]:
-        if (parent / "services.tf").is_file() or (parent / ".git").exists():
+        if (parent / "services").is_dir() or (parent / ".git").exists():
             return parent
     raise RuntimeError(
-        "Could not locate the project root (no services.tf or .git found above "
+        "Could not locate the project root (no services/ or .git found above "
         f"{start})."
     )
 
@@ -32,33 +32,44 @@ PROJECT_ROOT = find_project_root()
 DEFAULT_SERVICE = "council-tax"
 
 
-def service_csv_path(service: str, project_root: Path = PROJECT_ROOT) -> Path:
-    """Resolve a service id to its onboarding CSV by reading services.tf.
+def _parse_onboarding_csv(service_yaml: Path) -> str | None:
+    """Pull the `onboarding_csv` value out of a service.yaml.
 
-    services.tf is the single source of truth for each service's
-    `onboarding_csv` path. We read it from there rather than guessing
-    `data/<service>.csv`, because the filename does not always equal the
-    service id (e.g. council-tax -> data/councils.csv).
+    We read just this one scalar field with a narrow regex rather than take a
+    YAML dependency — the field is a simple `onboarding_csv: <path>` line.
+    Returns None if the field is absent.
     """
-    services_tf = project_root / "services.tf"
-    text = services_tf.read_text(encoding="utf-8")
+    text = service_yaml.read_text(encoding="utf-8")
+    m = re.search(r'^\s*onboarding_csv\s*:\s*["\']?([^"\'\n#]+?)["\']?\s*(?:#.*)?$',
+                  text, flags=re.MULTILINE)
+    return m.group(1).strip() if m else None
 
-    # Match each service block's service_id and its onboarding_csv. The two
-    # fields appear together per block in services.tf.
-    pairs = dict(
-        re.findall(
-            r'service_id\s*=\s*"([^"]+)".*?onboarding_csv\s*=\s*"([^"]+)"',
-            text,
-            flags=re.DOTALL,
-        )
-    )
-    if service not in pairs:
-        known = ", ".join(sorted(pairs)) or "(none found)"
+
+def service_csv_path(service: str, project_root: Path = PROJECT_ROOT) -> Path:
+    """Resolve a service id to its onboarding CSV.
+
+    Each service lives in its own folder: services/<service>/service.yaml with
+    its users list alongside it. service.yaml is the single source of truth for
+    the `onboarding_csv` path; we read it from there (falling back to the
+    conventional services/<service>/users.csv) rather than guessing, because
+    the path can be customised per service.
+    """
+    services_dir = project_root / "services"
+    service_yaml = services_dir / service / "service.yaml"
+    if not service_yaml.is_file():
+        known = ", ".join(
+            sorted(
+                p.name
+                for p in services_dir.iterdir()
+                if (p / "service.yaml").is_file()
+            )
+        ) or "(none found)"
         raise ValueError(
-            f"Service '{service}' not found in {services_tf}. "
+            f"Service '{service}' not found (no {service_yaml}). "
             f"Known services: {known}."
         )
-    return (project_root / pairs[service]).resolve()
+    csv_rel = _parse_onboarding_csv(service_yaml) or f"services/{service}/users.csv"
+    return (project_root / csv_rel).resolve()
 
 
 class OnboardCouncils:
@@ -319,9 +330,9 @@ if __name__ == "__main__":
         "--service",
         default=DEFAULT_SERVICE,
         help=(
-            "Service id to onboard into; resolves the output CSV to "
-            f"<project-root>/data/<service>.csv (default: {DEFAULT_SERVICE}). "
-            "Must match a service_id in services.tf."
+            "Service id to onboard into; resolves the output CSV from "
+            f"services/<service>/service.yaml (default: {DEFAULT_SERVICE}). "
+            "Must match a service folder under services/."
         ),
     )
 

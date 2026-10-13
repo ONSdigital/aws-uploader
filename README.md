@@ -97,12 +97,14 @@ terraform plan -var-file=env/env.tfvars
 
 ## Services and onboarding
 
-The uploader is driven by configuration in `services.tf`. Onboarding a user (adding a CSV row) and
-adding a new service (a new config entry) are both config-only tasks.
+The uploader is driven by configuration under `services/` — one folder per service, each holding a
+`service.yaml` (the service definition) and a `users.csv` (its onboarding list). `services.tf`
+loads these into `local.services`. Onboarding a user (adding a CSV row) and adding a new service
+(adding a `services/<id>/` folder) are both config-only tasks.
 
 Full instructions — the config reference for every field, onboarding steps, error-message
 overrides, local preview, and the shared/service-specific naming notes — live in
-[`services_readme.md`](services_readme.md), next to `services.tf`.
+[`services/README.md`](services/README.md).
 
 ## Running Behaviour tests
 Behaviour tests should be run before raising a Pull Request.

@@ -49,8 +49,11 @@ class TestInit:
         )
 
         # assert: default service is council-tax, whose onboarding_csv in
-        # services.tf is data/councils.csv (NB: not data/council-tax.csv).
-        assert onboarder.councils_csv == PROJECT_ROOT / "data" / "councils.csv"
+        # services/council-tax/service.yaml is services/council-tax/users.csv.
+        assert (
+            onboarder.councils_csv
+            == PROJECT_ROOT / "services" / "council-tax" / "users.csv"
+        )
 
     def test_init_service_argument_resolves_to_that_services_csv(self, dummy_input):
         # arrange & act
@@ -62,7 +65,7 @@ class TestInit:
         # assert
         assert (
             onboarder.councils_csv
-            == PROJECT_ROOT / "data" / "electoral-register.csv"
+            == PROJECT_ROOT / "services" / "electoral-register" / "users.csv"
         )
 
     def test_explicit_councils_csv_overrides_service(self, dummy_input):
@@ -76,13 +79,14 @@ class TestInit:
         # assert: explicit path wins over the service-derived default
         assert onboarder.councils_csv == Path("custom/path.csv").resolve()
 
-    def test_service_csv_path_reads_onboarding_csv_from_services_tf(self):
-        # arrange & act: resolves against the real services.tf in the repo
+    def test_service_csv_path_reads_onboarding_csv_from_service_yaml(self):
+        # arrange & act: resolves against the real services/ folder in the repo
         result = service_csv_path("council-tax")
 
-        # assert: council-tax maps to data/councils.csv (the exception where the
-        # filename does not equal the service id)
-        assert result == (PROJECT_ROOT / "data" / "councils.csv").resolve()
+        # assert: council-tax maps to its co-located users.csv
+        assert result == (
+            PROJECT_ROOT / "services" / "council-tax" / "users.csv"
+        ).resolve()
 
     def test_service_csv_path_raises_for_unknown_service(self):
         # arrange & act & assert

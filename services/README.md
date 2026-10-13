@@ -1,19 +1,33 @@
 # Services and onboarding
 
 This document covers how to onboard users and add new services to the generic uploader. It lives
-next to `services.tf` because that file is the source of truth for every service definition.
+in the `services/` folder, which is the source of truth for every service definition.
+
+Each service lives in its own folder under `services/`:
+
+```text
+services/
+  <service-id>/
+    service.yaml   # the service definition (wording, boxes, validation rules)
+    users.csv      # the onboarding list for this service (name,lad_code)
+```
+
+`services.tf` loads every `services/*/service.yaml` into `local.services` (via `fileset` +
+`yamldecode`); the folder name becomes the service id. Everything downstream reads from
+`local.services`, so there is nothing to edit in Terraform to add a service — just drop in a new
+folder.
 
 The uploader is driven by configuration. There are two distinct onboarding tasks:
 
-1. **Onboard a user** to an existing service — add a row to that service's CSV.
-2. **Add a new service** (a new uploader "version") — add a config entry and a CSV.
+1. **Onboard a user** to an existing service — add a row to that service's `users.csv`.
+2. **Add a new service** (a new uploader "version") — add a new `services/<id>/` folder.
 
 ## How it fits together
 
 | Concern | Where it lives |
 | --- | --- |
-| Service definitions (wording, boxes, validation, prefix) | `services.tf` → `local.services` |
-| Users for a service | the service's onboarding CSV under `data/` (e.g. `data/councils.csv`, `data/electoral-register.csv`) |
+| Service definitions (wording, boxes, validation, prefix) | `services/<id>/service.yaml` (loaded into `services.tf` → `local.services`) |
+| Users for a service | that service's `services/<id>/users.csv` (two columns: `name,lad_code`) |
 | The HTML page template (shared by all services) | `scripts/template/generic-template.html` |
 | Per-user page rendering | `modules/render_service` |
 | Client-side validation/upload (shared) | `scripts/file_submission.js` (reads `window.UPLOADER_CONFIG`) |
@@ -27,7 +41,7 @@ nothing to edit in the HTML, JS, or Lambda to add a service or user.
 
 ## 1. Onboard a user to an existing service
 
-Each service has its own onboarding CSV under the `data/` folder, with two columns:
+Each service has its own onboarding CSV at `services/<service-id>/users.csv`, with two columns:
 `name,lad_code`. Add one row per user.
 
 For **Council Tax**, use the helper tool (recommended — it imports from an Excel spreadsheet and
@@ -44,7 +58,7 @@ For detailed setup, input requirements, logging and troubleshooting, see
 `scripts/helpers/onboard_councils/README.md`.
 
 For **other services** (e.g. Electoral Register), add rows directly to that service's CSV, for
-example `data/electoral-register.csv`:
+example `services/electoral-register/users.csv`:
 
 ```csv
 name,lad_code
@@ -63,61 +77,60 @@ CloudFront paths are invalidated automatically.
 
 ## 2. Add a new service
 
-Adding a service is config-only. Follow these steps:
+Adding a service is config-only: create one folder with two files. No Terraform, HTML, JS, or
+Lambda edits are needed. Follow these steps:
 
-**a. Create the onboarding CSV** in the `data/` folder, named after the service, with
-`name,lad_code`:
+**a. Create the service folder** `services/<service-id>/`. The folder name is the service id; it
+becomes the URL/S3 prefix and must match `^[a-z0-9-]+$` and be unique.
 
-```text
-data/<service-id>.csv
+**b. Create the onboarding CSV** at `services/<service-id>/users.csv`, with `name,lad_code`:
+
+```csv
+name,lad_code
+Adur,E07000223
+Birmingham,E08000025
 ```
 
-**b. Add the service to `services.tf`** inside `local.services`. Copy an existing block and adjust:
+**c. Create the service definition** at `services/<service-id>/service.yaml`. Copy an existing
+service's `service.yaml` and adjust:
 
-```hcl
-"my-service" = {
-  service_id     = "my-service"            # URL + S3 prefix; must match ^[a-z0-9-]+$ and be unique
-  onboarding_csv = "data/my-service.csv"   # path relative to the repo root
+```yaml
+service_id: my-service                       # must equal the folder name; URL + S3 prefix
+onboarding_csv: services/my-service/users.csv # path relative to the repo root
 
-  wording = {
-    page_title       = "ONS-Uploader"
-    heading_prefix   = "My Service - "     # page heading = prefix + user name
-    contact_email    = "my-team@ons.gov.uk"
-    uploading_banner = "Uploading. Do not refresh or close the page."
-    submit_text      = "Submit"
-  }
+wording:
+  page_title: ONS-Uploader
+  heading_prefix: "My Service - "            # page heading = prefix + user name
+  contact_email: my-team@ons.gov.uk
+  uploading_banner: Uploading. Do not refresh or close the page.
+  submit_text: Submit
 
-  # One entry per upload box. The count of boxes = the number of submissions (1, 2, 3, ...).
-  boxes = [
-    {
-      id                  = "primary"       # stable id; used for DOM ids and the upload key
-      label               = "Upload the primary file"
-      description         = "File must be named 'MYS_PRIMARY_{code}_yyyymmdd...'"  # {code} -> user's LAD code
-      required            = true
-      accepted_types      = ["text/csv"]    # MIME list; may be empty if only extensions matter
-      accepted_extensions = [".csv"]        # extension list; e.g. [".csv", ".txt"] to accept both
-      filename_prefix     = "MYS_PRIMARY_"  # filename pattern = ^<prefix><code>_<8-digit date>.<ext>$
-    },
-    {
-      id                  = "secondary"
-      label               = "Upload the secondary file"
-      description         = "File must be named 'MYS_SECONDARY_{code}_yyyymmdd...'"
-      required            = false           # optional: validated only when a file is provided
-      accepted_types      = ["text/csv", "text/plain"]
-      accepted_extensions = [".csv", ".txt"]
-      filename_prefix     = "MYS_SECONDARY_"
-    },
-  ]
+# One entry per upload box. The count of boxes = the number of submissions (1, 2, 3, ...).
+boxes:
+  - id: primary                              # stable id; used for DOM ids and the upload key
+    label: Upload the primary file
+    description: "File must be named 'MYS_PRIMARY_{code}_yyyymmdd...'"  # {code} -> user's LAD code
+    required: true
+    accepted_types: ["text/csv"]             # MIME list; may be empty if only extensions matter
+    accepted_extensions: [".csv"]            # extension list; e.g. [".csv", ".txt"] to accept both
+    filename_prefix: MYS_PRIMARY_            # pattern = ^<prefix><code>_<8-digit date>.<ext>$
+  - id: secondary
+    label: Upload the secondary file
+    description: "File must be named 'MYS_SECONDARY_{code}_yyyymmdd...'"
+    required: false                          # optional: validated only when a file is provided
+    accepted_types: ["text/csv", "text/plain"]
+    accepted_extensions: [".csv", ".txt"]
+    filename_prefix: MYS_SECONDARY_
 
-  # Optional cross-file rules. "matching_date_suffix" requires the yyyymmdd parts to match
-  # across the listed boxes (only enforced across boxes that actually have a file).
-  cross_file_rules = [
-    { type = "matching_date_suffix", boxes = ["primary", "secondary"] },
-  ]
-}
+# Optional. "matching_date_suffix" requires the yyyymmdd parts to match across the
+# listed boxes (only enforced across boxes that actually have a file). Omit the whole
+# block if you don't need any cross-file rules.
+cross_file_rules:
+  - type: matching_date_suffix
+    boxes: ["primary", "secondary"]
 ```
 
-**c. Apply Terraform.** This renders a page per user, publishes `my-service/config.js`,
+**d. Apply Terraform.** This renders a page per user, publishes `my-service/config.js`,
 `my-service/file_submission.js`, `my-service/result_message.js`, `my-service/success.html`, injects
 the config into the Lambda, and invalidates `/my-service/*` on CloudFront.
 
@@ -131,7 +144,7 @@ runtime) expects it; optional fields fall back to a sensible default when omitte
 | Field | Required | Type | What it does |
 | --- | --- | --- | --- |
 | `service_id` | yes | string | The service's unique identifier. It becomes the **URL path prefix** (`/<service_id>/...`) and the **S3 key prefix** where that service's rendered pages and assets live. Must match `^[a-z0-9-]+$` (lowercase letters, digits, hyphens) and be unique across all services. Changing it after launch changes every user's URL, so treat it as permanent. |
-| `onboarding_csv` | yes | string | Path (relative to the repo root, conventionally under `data/`) to this service's onboarding CSV. The CSV has two columns, `name,lad_code`: one row per organisation that should get a page. Terraform reads it with `csvdecode` and renders **one static page per row**. |
+| `onboarding_csv` | yes | string | Path (relative to the repo root, conventionally `services/<service-id>/users.csv`) to this service's onboarding CSV. The CSV has two columns, `name,lad_code`: one row per organisation that should get a page. Terraform reads it with `csvdecode` and renders **one static page per row**. |
 
 #### `wording` block (page text)
 
@@ -200,7 +213,7 @@ remember browsers can report an empty string or a generic type for some files �
 
 | Field | Required | What it does |
 | --- | --- | --- |
-| `cross_file_rules[]` | no | Optional list of rules that relate multiple boxes. Currently the supported `type` is `matching_date_suffix`, which requires the `yyyymmdd` date part of the filenames to be equal across the listed `boxes`. It's only enforced across boxes that actually have a file, so it works with optional boxes. Each rule is `{ type = "matching_date_suffix", boxes = ["id1", "id2"] }`, and every id must reference a real box. |
+| `cross_file_rules[]` | no | Optional list of rules that relate multiple boxes. Currently the supported `type` is `matching_date_suffix`, which requires the `yyyymmdd` date part of the filenames to be equal across the listed `boxes`. It's only enforced across boxes that actually have a file, so it works with optional boxes. Each rule is `{ type: matching_date_suffix, boxes: ["id1", "id2"] }`, and every id must reference a real box. Omit the whole block if unused. |
 
 Config is validated at `terraform plan`/`apply` time (`terraform_data.service_config_validation`):
 `service_id` format, at least one box, unique box ids, each box has at least one accepted
@@ -211,21 +224,19 @@ type/extension, and `cross_file_rules` reference existing boxes. Invalid config 
 Each service may override any validation message under `wording.errors`. Omitted keys fall back to
 the built-in defaults, so you only specify the ones you want to change. Messages are enforced in
 both the browser and the Lambda, so overrides apply everywhere. Templates support `{placeholder}`
-substitution.
+substitution. Add the `errors` map under `wording` in the service's `service.yaml`:
 
-```hcl
-wording = {
+```yaml
+wording:
   # ...page_title, heading_prefix, etc...
-  errors = {
-    missing_required = "You need to add the {label}"
-    wrong_type       = "File is not {types}"
-    wrong_filename   = "File name must match {expected}"
-    names_dont_match = "File names do not match"
-    empty_file       = "File is empty"
-    missing_code     = "File name does not contain matching code"   # client-side only
-    upload_failed    = "Upload failed — please contact {contact}"   # client-side only
-  }
-}
+  errors:
+    missing_required: "You need to add the {label}"
+    wrong_type: "File is not {types}"
+    wrong_filename: "File name must match {expected}"
+    names_dont_match: "File names do not match"
+    empty_file: "File is empty"
+    missing_code: "File name does not contain matching code"   # client-side only
+    upload_failed: "Upload failed — please contact {contact}"  # client-side only
 ```
 
 | Key | When shown | Placeholders |
@@ -253,12 +264,12 @@ wording from a service's config and a dynamically-built set of upload boxes, and
 finished HTML to S3. CloudFront then serves those static files.
 
 To see what a page looks like **without deploying to AWS**, use the local renderer. It reads the
-service definitions straight from `services.tf` (single source of truth) and mirrors the Terraform
-render logic (box fragments, `{code}` substitution, and the `${...}` template tokens), writing an
-HTML file you can open in a browser:
+service definitions straight from the `services/*/service.yaml` files (the same source of truth
+Terraform loads) and mirrors the Terraform render logic (box fragments, `{code}` substitution, and
+the `${...}` template tokens), writing an HTML file you can open in a browser:
 
 ```bash
-# List the services defined in services.tf
+# List the services defined in services/
 node scripts/helpers/local_render.mjs --list
 
 # Render a specific service by id
@@ -270,36 +281,36 @@ open "scripts/preview-james-mega-service-12345678-Test-Council.html"
 
 Options:
 
-- `--service ID` — the service id to render, as defined in `services.tf` (default: the first
+- `--service ID` — the service id to render (the folder name under `services/`; default: the first
   service). Use `--list` to see the available ids.
-- `--list` — print the service ids defined in `services.tf` (with box counts) and exit.
+- `--list` — print the service ids defined in `services/` (with box counts) and exit.
 - `--council NAME` — council name shown in the page heading (default: `Example Council`).
 - `--lad CODE` — LAD code injected into the filename descriptions (default: `12345678`).
-- `--config file.json` — render from a JSON config file instead of `services.tf`. The JSON must have
+- `--config file.json` — render from a JSON config file instead of `services/`. The JSON must have
   the same shape as a service entry (`service_id`, `wording`, `boxes`).
 - `--out file.html` — write to a specific output path.
 
-Because the renderer parses `services.tf` directly, there is nothing to keep in sync — adding or
-editing a service there is immediately reflected in the preview.
+Because the renderer reads the same `service.yaml` files Terraform does, there is nothing to keep in
+sync — adding or editing a service is immediately reflected in the preview.
 
 ### Live preview (auto-reload)
 
-For a real-time preview, run with `--watch`. The renderer starts a small local server, watches
-`services.tf` and the HTML template, and auto-reloads the browser whenever either changes — so you
-can edit a service's wording or boxes and see the result instantly:
+For a real-time preview, run with `--watch`. The renderer starts a small local server, watches the
+`services/` folder and the HTML template, and auto-reloads the browser whenever either changes — so
+you can edit a service's wording or boxes and see the result instantly:
 
 ```bash
 node scripts/helpers/local_render.mjs --service james-mega-service --watch
 # then open http://localhost:3000
 ```
 
-- `--watch`, `-w` — watch `services.tf` and the template, serve on localhost, and auto-reload the
+- `--watch`, `-w` — watch `services/` and the template, serve on localhost, and auto-reload the
   browser on changes.
 - `--port PORT` — change the dev server port (default: `3000`).
 
-Leave it running while you edit `services.tf`; each save re-renders and the open tab reloads itself.
-Press `Ctrl+C` to stop. (The auto-reload uses a tiny long-poll snippet injected into the served
-page — no extra dependencies or build step.)
+Leave it running while you edit a service's `service.yaml`; each save re-renders and the open tab
+reloads itself. Press `Ctrl+C` to stop. (The auto-reload uses a tiny long-poll snippet injected into
+the served page — no extra dependencies or build step.)
 
 > Note: the page pulls CSS/JS from the ONS Design System CDN, so an internet connection is needed
 > for it to render with full styling. The preview is static — the upload button and presigned-URL
