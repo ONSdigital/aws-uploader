@@ -3,10 +3,12 @@
 
 // Smoke test for the generic (multi-service) uploader.
 //
-// For every service defined in services.tf (local.services), this derives the
-// published page URL for each row of that service's onboarding CSV and checks
-// it returns 200. It then runs one negative check per service (a non-existent
-// LAD code must NOT return 200), so a mis-pointed origin can't pass silently.
+// For every service defined under services/ (one services/<id>/service.yaml
+// per service, the same source of truth Terraform's local.services loads),
+// this derives the published page URL for each row of that service's
+// onboarding CSV and checks it returns 200. It then runs one negative check
+// per service (a non-existent LAD code must NOT return 200), so a mis-pointed
+// origin can't pass silently.
 //
 // Dependency-free (Node built-ins only) so it runs on the plain node:18 image
 // used by the Concourse smokeTests task.
@@ -31,7 +33,7 @@ const DEFAULTS = {
 function parseArgs(argv) {
   const args = { ...DEFAULTS };
   args.projectRoot = findProjectRoot(__dirname);
-  args.servicesFile = path.join(args.projectRoot, "services.tf");
+  args.servicesDir = path.join(args.projectRoot, "services");
   for (let i = 2; i < argv.length; i += 1) {
     const key = argv[i];
     const value = argv[i + 1];
@@ -41,7 +43,7 @@ function parseArgs(argv) {
         i += 1;
         break;
       case "--services":
-        args.servicesFile = value;
+        args.servicesDir = value;
         i += 1;
         break;
       case "--concurrency":
@@ -74,28 +76,46 @@ function cleanCouncilName(name) {
   return name.replace(/[^A-Za-z0-9\-_ ]/g, "").replace(/ /g, "-");
 }
 
-// Discover services from services.tf by pulling each (service_id,
-// onboarding_csv) pair out of local.services. We parse the two fields rather
-// than evaluate HCL; keep services.tf's "service_id"/"onboarding_csv" lines in
-// the standard form and this stays in step with the deployed config.
-function parseServices(servicesFileContents) {
-  const idRe = /service_id\s*=\s*"([^"]+)"/g;
-  const csvRe = /onboarding_csv\s*=\s*"([^"]+)"/g;
-  const ids = [];
-  const csvs = [];
-  let m;
-  while ((m = idRe.exec(servicesFileContents)) !== null) ids.push(m[1]);
-  while ((m = csvRe.exec(servicesFileContents)) !== null) csvs.push(m[1]);
-  if (ids.length === 0) {
-    throw new Error("No service_id entries found in services.tf");
+// Pull a single scalar field (e.g. onboarding_csv) out of a service.yaml.
+// Dependency-free: the field is a simple `key: value` line, optionally quoted
+// and optionally followed by a comment, so a narrow regex is enough and we
+// avoid adding a YAML parser to the plain node:18 smoke image.
+function parseYamlScalar(yamlContents, key) {
+  const re = new RegExp(
+    `^\\s*${key}\\s*:\\s*["']?([^"'\\n#]+?)["']?\\s*(?:#.*)?$`,
+    "m",
+  );
+  const m = yamlContents.match(re);
+  return m ? m[1].trim() : undefined;
+}
+
+// Discover services by scanning services/<id>/service.yaml. The folder name is
+// the service id (matching Terraform's local.services keying), and each
+// service's onboarding CSV comes from its service.yaml `onboarding_csv` field
+// (falling back to the conventional services/<id>/users.csv).
+function discoverServices(servicesDir) {
+  let entries;
+  try {
+    entries = fs.readdirSync(servicesDir, { withFileTypes: true });
+  } catch (err) {
+    throw new Error(`Could not read services directory ${servicesDir}: ${err.message}`);
   }
-  if (ids.length !== csvs.length) {
-    throw new Error(
-      `services.tf parse mismatch: ${ids.length} service_id entries but ` +
-        `${csvs.length} onboarding_csv entries. Each service must declare both.`,
-    );
+  const services = [];
+  for (const entry of entries) {
+    if (!entry.isDirectory()) continue;
+    const serviceYaml = path.join(servicesDir, entry.name, "service.yaml");
+    if (!fs.existsSync(serviceYaml)) continue;
+    const yamlContents = fs.readFileSync(serviceYaml, "utf8");
+    const serviceId = parseYamlScalar(yamlContents, "service_id") || entry.name;
+    const csv =
+      parseYamlScalar(yamlContents, "onboarding_csv") ||
+      `services/${entry.name}/users.csv`;
+    services.push({ serviceId, csv });
   }
-  return ids.map((serviceId, i) => ({ serviceId, csv: csvs[i] }));
+  if (services.length === 0) {
+    throw new Error(`No <service>/service.yaml files found under ${servicesDir}`);
+  }
+  return services;
 }
 
 function parseCsv(contents) {
@@ -186,8 +206,7 @@ async function runPool(items, concurrency, worker) {
 }
 
 function loadServiceRows(args) {
-  const servicesContents = fs.readFileSync(args.servicesFile, "utf8");
-  const services = parseServices(servicesContents);
+  const services = discoverServices(args.servicesDir);
   const out = [];
   for (const svc of services) {
     const csvPath = path.isAbsolute(svc.csv)
