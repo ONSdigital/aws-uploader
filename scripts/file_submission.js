@@ -24,6 +24,14 @@ const CROSS_FILE_RULES = Array.isArray(CONFIG.cross_file_rules)
 const CONTACT_EMAIL =
   (CONFIG.wording && CONFIG.wording.contact_email) || "the service team";
 
+// Per-page identity injected by the rendered page (see generic-template.html /
+// modules/render_service). config.js is shared by every page of a service, so
+// the page-specific LAD code and council name are set per page here, under
+// CONFIG.page. The client prefers these over parsing the URL, which is what
+// lets a service use any page_filename_template -- or a single service-root
+// page with no code in the URL -- without the client knowing the URL layout.
+const PAGE = CONFIG.page || {};
+
 // ---------------------------------------------------------------------------
 // DOM id helpers (must match modules/render_service box fragment markup)
 // ---------------------------------------------------------------------------
@@ -47,7 +55,13 @@ function showFormWithError(applyErrors) {
 }
 
 function extractCodeFromURL() {
-  // Page filename is "<lad_code>-<clean name>.html"; the code is before the first "-".
+  // Prefer the code injected into the page (CONFIG.page.code). Fall back to the
+  // legacy convention where the page filename is "<lad_code>-<clean name>.html"
+  // and the code is the part before the first "-", so older rendered pages that
+  // predate the injected identity still work.
+  if (PAGE.code !== undefined && PAGE.code !== null && PAGE.code !== "") {
+    return PAGE.code;
+  }
   const currentUrl = window.location.href;
   const urlParts = currentUrl.split("/");
   const lastPart = urlParts[urlParts.length - 1];
@@ -55,6 +69,11 @@ function extractCodeFromURL() {
 }
 
 function extractCouncilNameFromURL() {
+  // Prefer the council name injected into the page (CONFIG.page.council_name).
+  // Fall back to parsing it out of the legacy "<lad_code>-<name>.html" filename.
+  if (PAGE.council_name !== undefined && PAGE.council_name !== null) {
+    return PAGE.council_name;
+  }
   const currentUrl = window.location.href;
   const urlParts = currentUrl.split("/");
   const lastPart = urlParts[urlParts.length - 1];
@@ -71,8 +90,7 @@ function commonErrorStyle(errorCount) {
     errorsTitle.innerHTML =
       '<h2 class="ons-panel__title ons-u-fs-r--b">There is 1 problem with your answer</h2>';
   } else {
-    errorsTitle.innerHTML =
-      `<h2 class="ons-panel__title ons-u-fs-r--b">There are $${errorCount} problems with your answer</h2>`;
+    errorsTitle.innerHTML = `<h2 class="ons-panel__title ons-u-fs-r--b">There are $${errorCount} problems with your answer</h2>`;
   }
 
   errorsList.hidden = false;
@@ -82,7 +100,10 @@ function commonErrorStyle(errorCount) {
 }
 
 function injectAssistiveErrorText(panelElement) {
-  if (panelElement && !panelElement.querySelector(".ons-panel__assistive-text")) {
+  if (
+    panelElement &&
+    !panelElement.querySelector(".ons-panel__assistive-text")
+  ) {
     const span = document.createElement("span");
     span.className = "ons-panel__assistive-text ons-u-vh";
     span.textContent = "Error: ";
@@ -151,13 +172,17 @@ function typeAllowed(box, file) {
 }
 
 // Build the filename regex from the box prefix + code + 8-digit date + extension.
+// When there is no page code (a service-root page with no {code} in the URL),
+// the code segment is dropped so the pattern is "<prefix><8-digit date>.<ext>"
+// rather than leaving a stray separator for an empty code.
 function filenamePattern(box, code) {
   const exts = (box.accepted_extensions || [".csv"]).map((e) =>
     e.replace(/^\./, "").replace(/[.*+?^$()[\]{}|\\]/g, "\\$&"),
   );
   const extGroup = exts.length ? `($${exts.join("|")})` : "csv";
+  const codePart = code ? code + "_" : "";
   return new RegExp(
-    "^" + box.filename_prefix + code + "_\\d{8}\\." + extGroup + "$",
+    "^" + box.filename_prefix + codePart + "\\d{8}\\." + extGroup + "$",
     "i",
   );
 }
@@ -180,9 +205,11 @@ function allowedTypesText(box) {
 }
 
 // Example of the filename the box expects, e.g. "CTAX_EXTRACT_E07000223_yyyymmdd.csv".
+// With no page code it collapses to "<prefix>yyyymmdd<ext>" to match filenamePattern.
 function expectedFilename(box, code) {
   const ext = (box.accepted_extensions && box.accepted_extensions[0]) || ".csv";
-  return box.filename_prefix + code + "_yyyymmdd" + ext;
+  const codePart = code ? code + "_" : "";
+  return box.filename_prefix + codePart + "yyyymmdd" + ext;
 }
 
 // ---------------------------------------------------------------------------
@@ -195,11 +222,11 @@ const DEFAULT_ERRORS = {
   missing_code: "File name does not contain matching code",
   wrong_filename: "File name must match {expected}",
   names_dont_match: "File names do not match",
-  upload_failed: "There has been an issue with the upload, please contact {contact}",
+  upload_failed:
+    "There has been an issue with the upload, please contact {contact}",
 };
 
-const ERROR_OVERRIDES =
-  (CONFIG.wording && CONFIG.wording.errors) || {};
+const ERROR_OVERRIDES = (CONFIG.wording && CONFIG.wording.errors) || {};
 
 function errorMessage(key, vars) {
   const template = ERROR_OVERRIDES[key] || DEFAULT_ERRORS[key] || "";
@@ -244,7 +271,10 @@ document.getElementById("form").addEventListener("submit", function (e) {
     if (!file) {
       if (box.required) {
         markBoxError(box.id);
-        addItem(errorMessage("missing_required", boxVars(box)), box.id + "-input");
+        addItem(
+          errorMessage("missing_required", boxVars(box)),
+          box.id + "-input",
+        );
         errCount++;
       }
       return; // optional + empty => skip
@@ -269,7 +299,10 @@ document.getElementById("form").addEventListener("submit", function (e) {
     } else if (!filenamePattern(box, code).test(file.name)) {
       markBoxError(box.id);
       addItem(
-        errorMessage("wrong_filename", boxVars(box, { expected: expectedFilename(box, code) })),
+        errorMessage(
+          "wrong_filename",
+          boxVars(box, { expected: expectedFilename(box, code) }),
+        ),
         box.id + "-input",
       );
       errCount++;
@@ -315,6 +348,7 @@ document.getElementById("form").addEventListener("submit", function (e) {
     url +
     `?serviceId=$${encodeURIComponent(CONFIG.service_id)}` +
     `&councilName=$${councilName}` +
+    `&code=$${encodeURIComponent(code)}` +
     `&files=$${encodeURIComponent(JSON.stringify(files))}`;
 
   document.getElementById("form").style.display = "none";
@@ -343,7 +377,7 @@ document.getElementById("form").addEventListener("submit", function (e) {
 
       Promise.all(uploadPromises)
         .then(() => {
-          window.location.href = "success.html";
+          window.location.href = PAGE.success_url || "success.html";
         })
         .catch((error) => {
           console.error("Error uploading files:", error);

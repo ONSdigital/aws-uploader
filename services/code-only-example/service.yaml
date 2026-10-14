@@ -1,0 +1,36 @@
+# ---------------------------------------------------------------------------
+# EXAMPLE: a service whose per-user page URL is keyed by the LAD code ONLY.
+#
+# Demonstrates page_filename_template with a single {lad_code} token (no name).
+# users.csv has `name,lad_code`, so each page URL is:
+#   code-only-example/<lad_code>.html
+#   e.g. https://uploader.<domain>/code-only-example/E07000171.html
+#
+# The council name no longer appears in the URL, but it is still injected into
+# the page (CONFIG.page.council_name) from the CSV, so the page heading and the
+# uploaded S3 key still carry the council name -- only the URL is shortened.
+#
+# heading_column / code_column keep their defaults (name / lad_code), so the
+# heading reads "<heading_prefix><name>" and the {code} box token resolves to
+# the lad_code, exactly like the two-column services.
+# ---------------------------------------------------------------------------
+service_id: code-only-example
+onboarding_csv: services/code-only-example/users.csv
+
+page_filename_template: "{lad_code}"
+
+wording:
+  page_title: ONS-Uploader
+  heading_prefix: "Code Only Example - "
+  contact_email: james.williams@ons.gov.uk
+  uploading_banner: Uploading. Do not refresh or close the page.
+  submit_text: Submit
+
+boxes:
+  - id: extract
+    label: Upload the extract file
+    description: "File must be named with the format 'COE_EXTRACT_{code}_yyyymmdd' where the 8 digits are your LAD code and yyyymmdd is the data run date"
+    required: true
+    accepted_types: ["text/csv"]
+    accepted_extensions: [".csv"]
+    filename_prefix: COE_EXTRACT_

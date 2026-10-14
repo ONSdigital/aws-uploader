@@ -1,0 +1,37 @@
+# ---------------------------------------------------------------------------
+# EXAMPLE: a service rendered as a SINGLE page at the bucket root.
+#
+# Demonstrates page_scope: service. Instead of one page per onboarding row, the
+# whole service is a single shared page published at the bucket root:
+#   service-page-example.html
+#   e.g. https://uploader.<domain>/service-page-example.html
+#
+# Because there is no per-user sub-path, there is no {code} / council name in
+# the URL. The page carries no code, so the upload filename is validated as
+# "<filename_prefix><yyyymmdd>.<ext>" (the code segment is dropped), and uploads
+# land under the service prefix with no per-council folder:
+#   service-page-example/<yyyymmdd...>/<file>
+#
+# No onboarding_csv is needed for a service-scope service (there are no users to
+# iterate), so it is omitted here. heading_column / code_column are irrelevant
+# for a single shared page and are left at their defaults.
+# ---------------------------------------------------------------------------
+service_id: service-page-example
+
+page_scope: service
+
+wording:
+  page_title: ONS-Uploader
+  heading_prefix: "Service Page Example"
+  contact_email: james.williams@ons.gov.uk
+  uploading_banner: Uploading. Do not refresh or close the page.
+  submit_text: Submit
+
+boxes:
+  - id: data
+    label: Upload the data file
+    description: "File must be named with the format 'SPE_DATA_yyyymmdd' where yyyymmdd is the data run date"
+    required: true
+    accepted_types: ["text/csv"]
+    accepted_extensions: [".csv"]
+    filename_prefix: SPE_DATA_

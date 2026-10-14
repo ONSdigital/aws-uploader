@@ -23,7 +23,13 @@
  *   node scripts/helpers/local_render.mjs --config my-service.json   # override: render from a JSON file
  */
 
-import { readFileSync, writeFileSync, watch, readdirSync, existsSync } from "node:fs";
+import {
+  readFileSync,
+  writeFileSync,
+  watch,
+  readdirSync,
+  existsSync,
+} from "node:fs";
 import { createServer } from "node:http";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve, join } from "node:path";
@@ -32,7 +38,12 @@ import { parse as parseYaml } from "yaml";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 // repo root is two levels up from scripts/helpers/
 const REPO_ROOT = resolve(__dirname, "..", "..");
-const TEMPLATE_PATH = join(REPO_ROOT, "scripts", "template", "generic-template.html");
+const TEMPLATE_PATH = join(
+  REPO_ROOT,
+  "scripts",
+  "template",
+  "generic-template.html",
+);
 const SERVICES_DIR = join(REPO_ROOT, "services");
 
 // ---------------------------------------------------------------------------
@@ -49,17 +60,24 @@ const SERVICES_DIR = join(REPO_ROOT, "services");
 /** Load all services from the services/ folder into { id: serviceConfig }. */
 function loadServices() {
   const ids = readdirSync(SERVICES_DIR, { withFileTypes: true })
-    .filter((d) => d.isDirectory() && existsSync(join(SERVICES_DIR, d.name, "service.yaml")))
+    .filter(
+      (d) =>
+        d.isDirectory() &&
+        existsSync(join(SERVICES_DIR, d.name, "service.yaml")),
+    )
     .map((d) => d.name);
   if (ids.length === 0) {
     throw new Error(`No <service>/service.yaml files found in ${SERVICES_DIR}`);
   }
   const services = {};
   for (const id of ids) {
-    const svc = parseYaml(readFileSync(join(SERVICES_DIR, id, "service.yaml"), "utf8")) || {};
+    const svc =
+      parseYaml(readFileSync(join(SERVICES_DIR, id, "service.yaml"), "utf8")) ||
+      {};
     // Normalise the fields the renderer uses, defaulting the optional ones.
     services[id] = {
       service_id: svc.service_id || id,
+      page_scope: svc.page_scope || "per_user",
       wording: svc.wording || {},
       boxes: (svc.boxes || []).map((b) => ({
         id: b.id,
@@ -125,7 +143,10 @@ function parseArgs(argv) {
 function buildBoxFragment(box, ladCode) {
   const optionalSuffix = box.required ? "" : " (optional)";
   const description = String(box.description).replaceAll("{code}", ladCode);
-  const accept = [...(box.accepted_extensions || []), ...(box.accepted_types || [])].join(",");
+  const accept = [
+    ...(box.accepted_extensions || []),
+    ...(box.accepted_types || []),
+  ].join(",");
   // Indentation mirrors the Terraform heredoc output closely enough for preview.
   return `      <div class="ons-panel ons-u-mb-m" id="${box.id}-file-error">
         <p class="ons-panel__error" id="${box.id}-file-type-error" style="display: none">
@@ -147,8 +168,25 @@ function buildBoxFragment(box, ladCode) {
 
 function render(service, { council, lad }) {
   const wording = service.wording;
-  const heading = `${wording.heading_prefix}${council}`;
-  const uploadBoxesHtml = service.boxes.map((b) => buildBoxFragment(b, lad)).join("\n");
+  const isServiceScope = service.page_scope === "service";
+  // For a service-scope page the heading has no per-user name appended.
+  const heading = isServiceScope
+    ? `${wording.heading_prefix}`
+    : `${wording.heading_prefix}${council}`;
+  const uploadBoxesHtml = service.boxes
+    .map((b) => buildBoxFragment(b, lad))
+    .join("\n");
+
+  // Mirror modules/render_service: a service-scope page lives at the bucket
+  // root and reaches into "<service_id>/" for its shared assets; a per-user
+  // page sits alongside its assets so needs no prefix.
+  const assetPrefix = isServiceScope ? `${service.service_id}/` : "";
+  const pageIdentity = {
+    code: isServiceScope ? "" : lad,
+    council_name: isServiceScope ? "" : council,
+    asset_prefix: assetPrefix,
+    success_url: `${assetPrefix}success.html`,
+  };
 
   const substitutions = {
     page_title: wording.page_title,
@@ -156,6 +194,8 @@ function render(service, { council, lad }) {
     submit_text: wording.submit_text,
     uploading_banner: wording.uploading_banner,
     upload_boxes_html: uploadBoxesHtml,
+    asset_prefix: assetPrefix,
+    page_identity_json: JSON.stringify(pageIdentity),
   };
 
   let template = readFileSync(TEMPLATE_PATH, "utf8");
@@ -175,7 +215,9 @@ let service;
 
 if (args.config) {
   // Explicit JSON override.
-  service = JSON.parse(readFileSync(resolve(process.cwd(), args.config), "utf8"));
+  service = JSON.parse(
+    readFileSync(resolve(process.cwd(), args.config), "utf8"),
+  );
 } else {
   const services = loadServices();
   const ids = Object.keys(services);
@@ -203,8 +245,14 @@ if (args.config) {
   service = services[chosen];
 }
 
-const cleanCouncil = args.council.replace(/[^A-Za-z0-9-_ ]/g, "").replace(/ /g, "-");
-const defaultOut = join(REPO_ROOT, "scripts", `preview-${service.service_id}-${args.lad}-${cleanCouncil}.html`);
+const cleanCouncil = args.council
+  .replace(/[^A-Za-z0-9-_ ]/g, "")
+  .replace(/ /g, "-");
+const defaultOut = join(
+  REPO_ROOT,
+  "scripts",
+  `preview-${service.service_id}-${args.lad}-${cleanCouncil}.html`,
+);
 const outPath = args.out ? resolve(process.cwd(), args.out) : defaultOut;
 
 // ---------------------------------------------------------------------------
@@ -238,7 +286,9 @@ if (!args.watch) {
   // --- One-shot mode (original behaviour) ---
   const html = doRender();
   writeFileSync(outPath, html, "utf8");
-  console.log(`Rendered ${service.service_id} page for "${args.council}" (LAD ${args.lad})`);
+  console.log(
+    `Rendered ${service.service_id} page for "${args.council}" (LAD ${args.lad})`,
+  );
   console.log(`  boxes: ${service.boxes.length}`);
   console.log(`Output: ${outPath}`);
   console.log(`Open it with:  open "${outPath}"`);
@@ -250,7 +300,9 @@ if (!args.watch) {
   function rerender() {
     try {
       currentHtml = doRender() + RELOAD_SNIPPET;
-      console.log(`[${new Date().toLocaleTimeString()}] Re-rendered ${service.service_id}`);
+      console.log(
+        `[${new Date().toLocaleTimeString()}] Re-rendered ${service.service_id}`,
+      );
       // Release all waiting long-poll clients so the browser reloads.
       for (const res of pendingClients) {
         res.writeHead(200);
@@ -291,8 +343,12 @@ if (!args.watch) {
 
   server.listen(args.port, () => {
     console.log(`Watching services/ + template for changes...`);
-    console.log(`Serving ${service.service_id} at http://localhost:${args.port}`);
-    console.log(`Edit the service YAML or the template and the browser will reload automatically.`);
+    console.log(
+      `Serving ${service.service_id} at http://localhost:${args.port}`,
+    );
+    console.log(
+      `Edit the service YAML or the template and the browser will reload automatically.`,
+    );
     console.log(`Press Ctrl+C to stop.`);
   });
 }

@@ -180,23 +180,43 @@ locals {
   # Tokenisation uses a NUL marker + split so it works for any number of
   # columns without a fold (Terraform has no reduce). See the matching note in
   # modules/render_service/main.tf.
+  # A service's page_scope decides how many pages it renders:
+  #   - "per_user" (default): one page per onboarding CSV row.
+  #   - "service": a single shared page for the whole service, rendered at the
+  #     bucket root as "<service_id>.html". No per-user iteration happens and
+  #     the onboarding CSV is not required (there is no {code}/{name} in the URL
+  #     for a single shared page), so such a service can omit onboarding_csv.
+  # For a service-scope service we emit exactly one synthetic row (an empty user
+  # row + a filename_body of the service_id) so the rest of the pipeline -- the
+  # state key and modules/render_service -- is unchanged in shape.
   _service_user_rows = flatten([
-    for svc_id, svc in local.services : [
-      for user in csvdecode(file("./${svc.onboarding_csv}")) : {
-        service_id = svc_id
-        service    = svc
-        user_row   = user
+    for svc_id, svc in local.services : (
+      lookup(svc, "page_scope", "per_user") == "service"
+      ? [
+        {
+          service_id    = svc_id
+          service       = svc
+          user_row      = {}
+          filename_body = svc_id
+        }
+      ]
+      : [
+        for user in csvdecode(file("./${svc.onboarding_csv}")) : {
+          service_id = svc_id
+          service    = svc
+          user_row   = user
 
-        filename_body = join("", [
-          for part in split("\u0000", replace(
-            lookup(svc, "page_filename_template", "{lad_code}-{name}"),
-            "/\\{([A-Za-z0-9_]+)\\}/",
-            "\u0000$1\u0000"
-          )) :
-          contains(keys(user), part) ? replace(replace(user[part], "/[^A-Za-z0-9-_ ]/", ""), " ", "-") : part
-        ])
-      }
-    ]
+          filename_body = join("", [
+            for part in split("\u0000", replace(
+              lookup(svc, "page_filename_template", "{lad_code}-{name}"),
+              "/\\{([A-Za-z0-9_]+)\\}/",
+              "\u0000$1\u0000"
+            )) :
+            contains(keys(user), part) ? replace(replace(user[part], "/[^A-Za-z0-9-_ ]/", ""), " ", "-") : part
+          ])
+        }
+      ]
+    )
   ])
 
   # Attach the state-map key (service_id + filename body). Kept separate so the

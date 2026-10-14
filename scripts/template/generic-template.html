@@ -331,8 +331,19 @@
     </footer>
   </div>
 
-  <script src="config.js"> </script>
-  <script src="file_submission.js"> </script>
+  <script src="${asset_prefix}config.js"> </script>
+  <!--
+    Per-page identity injected by modules/render_service at render time.
+    config.js is shared by every page of a service, so the page-specific code
+    (LAD code) and council name are set here instead of being parsed out of the
+    URL. This is what lets a service use any page_filename_template (or a single
+    service-root page) without the client having to reverse-engineer the URL.
+  -->
+  <script>
+    window.UPLOADER_CONFIG = window.UPLOADER_CONFIG || {};
+    window.UPLOADER_CONFIG.page = ${page_identity_json};
+  </script>
+  <script src="${asset_prefix}file_submission.js"> </script>
 
   <div class="embeddable"></div>
 </body>

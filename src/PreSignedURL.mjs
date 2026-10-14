@@ -1,13 +1,17 @@
-import querystring from 'querystring';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import querystring from "querystring";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 class uploaderLogger {
   logError(code, fileName, fileSize, statusCode, errorMessage) {
-    console.error(`Status: ${statusCode}, Code: ${code}, File: ${fileName}, File size: ${fileSize} MB, Message: ${errorMessage}`);
+    console.error(
+      `Status: ${statusCode}, Code: ${code}, File: ${fileName}, File size: ${fileSize} MB, Message: ${errorMessage}`,
+    );
   }
 
   logInternalError(code, fileName, statusCode, errorMessage) {
-    console.error(`Status: ${statusCode}, Code: ${code}, File: ${fileName}, Message: ${errorMessage}`);
+    console.error(
+      `Status: ${statusCode}, Code: ${code}, File: ${fileName}, Message: ${errorMessage}`,
+    );
   }
 
   logInfo(infoMessage) {
@@ -15,18 +19,30 @@ class uploaderLogger {
   }
 
   logSuccess(code, fileName, URL, statusCode, councilName, serviceId) {
-    console.log(`Success: Service: ${serviceId}, Council: ${councilName}, Status: ${statusCode}, Code: ${code}, fileName: ${fileName}, URL: ${URL}`);
+    console.log(
+      `Success: Service: ${serviceId}, Council: ${councilName}, Status: ${statusCode}, Code: ${code}, fileName: ${fileName}, URL: ${URL}`,
+    );
   }
 }
 
 function cleanCouncilName(councilName) {
-  return councilName.replace(/[!_\-.*'()&$@=;/+:,?\\{}^}%`[\]"<>#|~]/g, "").replace(/ /g, "");
+  return councilName
+    .replace(/[!_\-.*'()&$@=;/+:,?\\{}^}%`[\]"<>#|~]/g, "")
+    .replace(/ /g, "");
 }
 
 // New way of using AWS SDk v3
-import { S3, PutObjectCommand, S3Client, GetObjectCommand, CreateMultipartUploadCommand, UploadPartCommand, CompleteMultipartUploadCommand } from "@aws-sdk/client-s3"
-const s3 = new S3({ region: 'eu-west-2' });
-const logger = new uploaderLogger()
+import {
+  S3,
+  PutObjectCommand,
+  S3Client,
+  GetObjectCommand,
+  CreateMultipartUploadCommand,
+  UploadPartCommand,
+  CompleteMultipartUploadCommand,
+} from "@aws-sdk/client-s3";
+const s3 = new S3({ region: "eu-west-2" });
+const logger = new uploaderLogger();
 
 const MULTIPART_THRESHOLD = 5 * 1024 * 1024; // 5MB threshold for multipart
 
@@ -42,20 +58,26 @@ const serviceConfigCache = new Map();
 
 async function loadService(serviceId) {
   if (!serviceId) return null;
-  if (serviceConfigCache.has(serviceId)) return serviceConfigCache.get(serviceId);
+  if (serviceConfigCache.has(serviceId))
+    return serviceConfigCache.get(serviceId);
 
   let service = null;
   try {
-    const res = await s3.send(new GetObjectCommand({
-      Bucket: CONFIG_BUCKET,
-      Key: `${serviceId}/config.json`,
-    }));
+    const res = await s3.send(
+      new GetObjectCommand({
+        Bucket: CONFIG_BUCKET,
+        Key: `${serviceId}/config.json`,
+      }),
+    );
     const text = await res.Body.transformToString();
     service = JSON.parse(text);
   } catch (err) {
     // A missing object (unknown serviceId) is an expected "not found", not a
     // server fault -- cache the null so repeated bad ids don't re-hit S3.
-    if (err && (err.name === 'NoSuchKey' || err.$metadata?.httpStatusCode === 404)) {
+    if (
+      err &&
+      (err.name === "NoSuchKey" || err.$metadata?.httpStatusCode === 404)
+    ) {
       service = null;
     } else {
       throw err;
@@ -67,15 +89,15 @@ async function loadService(serviceId) {
 }
 
 function convertExtensionToLowerCase(filename) {
-  const fileParts = filename.split('.');
+  const fileParts = filename.split(".");
   const fileExtension = fileParts.pop();
-  const fileNameWithoutExtension = fileParts.join('.');
-  return fileNameWithoutExtension + '.' + fileExtension.toLowerCase();
+  const fileNameWithoutExtension = fileParts.join(".");
+  return fileNameWithoutExtension + "." + fileExtension.toLowerCase();
 }
 
 function fileExtension(name) {
-  const idx = name.lastIndexOf('.');
-  return idx === -1 ? '' : name.slice(idx).toLowerCase();
+  const idx = name.lastIndexOf(".");
+  return idx === -1 ? "" : name.slice(idx).toLowerCase();
 }
 
 // Accept if the file's extension OR MIME type matches one of the box's allowed values.
@@ -87,47 +109,58 @@ function typeAllowed(box, file) {
   return extOk || typeOk;
 }
 
+// Build the filename regex from the box prefix + code + 8-digit date + extension.
+// When there is no code (a service-root page with no {code} in the URL) the code
+// segment is dropped so the pattern is "<prefix><8-digit date>.<ext>". Mirrors
+// the client (file_submission.js) so both ends agree.
 function filenamePattern(box, code) {
-  const exts = (box.accepted_extensions || ['.csv']).map((e) =>
-    e.replace(/^\./, '').replace(/[.*+?^$()[\]{}|\\]/g, '\\$&')
+  const exts = (box.accepted_extensions || [".csv"]).map((e) =>
+    e.replace(/^\./, "").replace(/[.*+?^$()[\]{}|\\]/g, "\\$&"),
   );
-  const extGroup = exts.length ? `(${exts.join('|')})` : 'csv';
-  return new RegExp('^' + box.filename_prefix + code + '_\\d{8}\\.' + extGroup + '$', 'i');
+  const extGroup = exts.length ? `(${exts.join("|")})` : "csv";
+  const codePart = code ? code + "_" : "";
+  return new RegExp(
+    "^" + box.filename_prefix + codePart + "\\d{8}\\." + extGroup + "$",
+    "i",
+  );
 }
 
 // Human-readable list of the file types a box accepts, e.g. ".csv" or ".csv or .txt".
 // Prefers extensions (friendlier) and falls back to MIME types only if no extensions are set.
 function allowedTypesText(box) {
   const parts =
-    (box.accepted_extensions && box.accepted_extensions.length)
+    box.accepted_extensions && box.accepted_extensions.length
       ? box.accepted_extensions
-      : (box.accepted_types || []);
-  if (parts.length === 0) return 'the correct type';
+      : box.accepted_types || [];
+  if (parts.length === 0) return "the correct type";
   if (parts.length === 1) return parts[0];
-  return parts.slice(0, -1).join(', ') + ' or ' + parts[parts.length - 1];
+  return parts.slice(0, -1).join(", ") + " or " + parts[parts.length - 1];
 }
 
 // Example of the filename the box expects, e.g. "CTAX_EXTRACT_E07000223_yyyymmdd.csv".
+// With no code (a service-root page) it collapses to "<prefix>yyyymmdd<ext>" to
+// match filenamePattern.
 function expectedFilename(box, code) {
-  const ext = (box.accepted_extensions && box.accepted_extensions[0]) || '.csv';
-  return `${box.filename_prefix}${code}_yyyymmdd${ext}`;
+  const ext = (box.accepted_extensions && box.accepted_extensions[0]) || ".csv";
+  const codePart = code ? `${code}_` : "";
+  return `${box.filename_prefix}${codePart}yyyymmdd${ext}`;
 }
 
 // Error message templates. Overridable per service via service.wording.errors.<key>.
 // Templates use {placeholder} substitution. Keys mirror the client (file_submission.js).
 const DEFAULT_ERRORS = {
-  missing_required: 'Missing required file: {label}',
-  empty_file: 'File is empty',
-  wrong_type: 'File is not {types}',
-  wrong_filename: 'File name must match {expected}',
-  names_dont_match: 'File names do not match',
+  missing_required: "Missing required file: {label}",
+  empty_file: "File is empty",
+  wrong_type: "File is not {types}",
+  wrong_filename: "File name must match {expected}",
+  names_dont_match: "File names do not match",
 };
 
 function errorMessage(service, key, vars) {
   const overrides = (service.wording && service.wording.errors) || {};
-  const template = overrides[key] || DEFAULT_ERRORS[key] || '';
+  const template = overrides[key] || DEFAULT_ERRORS[key] || "";
   return template.replace(/\{(\w+)\}/g, (m, name) =>
-    name in (vars || {}) ? vars[name] : m
+    name in (vars || {}) ? vars[name] : m,
   );
 }
 
@@ -137,21 +170,37 @@ function dateSuffix(name) {
 }
 
 // Derive the user's code from any provided filename: <prefix><code>_<date>.<ext>
+// Used only as a fallback when the client does not send an explicit code
+// (older clients). A service-root page sends an empty code, which is honoured
+// directly in the handler -- it does not reach here.
 function codeFromFiles(service, files) {
   for (const f of files) {
     const box = service.boxes.find((b) => b.id === f.boxId);
     if (!box) continue;
-    const m = f.name.match(new RegExp('^' + box.filename_prefix + '([^_]+)_'));
+    const m = f.name.match(new RegExp("^" + box.filename_prefix + "([^_]+)_"));
     if (m) return m[1];
   }
-  return 'unknown';
+  return "unknown";
+}
+
+// Resolve the code the filename pattern should enforce. The client sends the
+// code it rendered the page with (CONFIG.page.code), which is authoritative:
+//   - a per-user page sends the LAD code;
+//   - a service-root page sends "" (empty) -> no code segment in the pattern.
+// If the query param is absent entirely (older client) we fall back to deriving
+// the code from the uploaded filenames, preserving the previous behaviour.
+function resolveCode(qs, service, files) {
+  if (qs.code !== undefined) {
+    return decodeURIComponent(qs.code);
+  }
+  return codeFromFiles(service, files);
 }
 
 function errorResponse(statusCode, message, extra = {}) {
   return {
     statusCode,
     isBase64Encoded: false,
-    headers: { 'Access-Control-Allow-Origin': '*' },
+    headers: { "Access-Control-Allow-Origin": "*" },
     body: JSON.stringify({ message, ...extra }),
   };
 }
@@ -165,27 +214,31 @@ export const handler = async (event, context, callback) => {
     serviceId = qs.serviceId;
     const service = await loadService(serviceId);
     if (!service) {
-      logger.logError(serviceId, 'n/a', 0, 400, 'Unknown serviceId');
-      return errorResponse(400, 'Unknown service');
+      logger.logError(serviceId, "n/a", 0, 400, "Unknown serviceId");
+      return errorResponse(400, "Unknown service");
     }
 
-    const councilNameRaw = decodeURIComponent(qs.councilName || '');
+    const councilNameRaw = decodeURIComponent(qs.councilName || "");
     let files;
     try {
-      files = JSON.parse(qs.files || '[]');
+      files = JSON.parse(qs.files || "[]");
     } catch (e) {
-      return errorResponse(400, 'Invalid files parameter');
+      return errorResponse(400, "Invalid files parameter");
     }
 
     const boxesById = Object.fromEntries(service.boxes.map((b) => [b.id, b]));
-    const code = codeFromFiles(service, files);
+    const code = resolveCode(qs, service, files);
 
     // --- Required-box presence check ---
     const providedIds = new Set(files.map((f) => f.boxId));
     for (const box of service.boxes) {
       if (box.required && !providedIds.has(box.id)) {
-        logger.logError(code, box.id, 0, 403, 'Required file missing');
-        return errorResponse(403, errorMessage(service, 'missing_required', { label: box.label }), { boxId: box.id });
+        logger.logError(code, box.id, 0, 403, "Required file missing");
+        return errorResponse(
+          403,
+          errorMessage(service, "missing_required", { label: box.label }),
+          { boxId: box.id },
+        );
       }
     }
 
@@ -193,88 +246,138 @@ export const handler = async (event, context, callback) => {
     for (const f of files) {
       const box = boxesById[f.boxId];
       if (!box) {
-        return errorResponse(400, `Unknown upload box: ${f.boxId}`, { boxId: f.boxId });
+        return errorResponse(400, `Unknown upload box: ${f.boxId}`, {
+          boxId: f.boxId,
+        });
       }
       const size = parseInt(f.size, 10);
       if (size === 0) {
-        logger.logError(code, f.name, f.size, 204, 'File is empty');
-        return errorResponse(204, errorMessage(service, 'empty_file', {}), { boxId: f.boxId, filename: f.name });
+        logger.logError(code, f.name, f.size, 204, "File is empty");
+        return errorResponse(204, errorMessage(service, "empty_file", {}), {
+          boxId: f.boxId,
+          filename: f.name,
+        });
       }
       if (!typeAllowed(box, f)) {
-        logger.logError(code, f.name, f.size, 403, 'File type not allowed');
-        return errorResponse(403, errorMessage(service, 'wrong_type', { types: allowedTypesText(box), label: box.label }), { boxId: f.boxId, filename: f.name });
+        logger.logError(code, f.name, f.size, 403, "File type not allowed");
+        return errorResponse(
+          403,
+          errorMessage(service, "wrong_type", {
+            types: allowedTypesText(box),
+            label: box.label,
+          }),
+          { boxId: f.boxId, filename: f.name },
+        );
       }
       if (!filenamePattern(box, code).test(f.name)) {
-        logger.logError(code, f.name, f.size, 403, 'Filename pattern mismatch');
-        return errorResponse(403, errorMessage(service, 'wrong_filename', { expected: expectedFilename(box, code), label: box.label }), { boxId: f.boxId, filename: f.name });
+        logger.logError(code, f.name, f.size, 403, "Filename pattern mismatch");
+        return errorResponse(
+          403,
+          errorMessage(service, "wrong_filename", {
+            expected: expectedFilename(box, code),
+            label: box.label,
+          }),
+          { boxId: f.boxId, filename: f.name },
+        );
       }
     }
 
     // --- Cross-file rules (only across boxes that were provided) ---
-    for (const rule of (service.cross_file_rules || [])) {
-      if (rule.type === 'matching_date_suffix') {
+    for (const rule of service.cross_file_rules || []) {
+      if (rule.type === "matching_date_suffix") {
         const dates = rule.boxes
           .map((bid) => files.find((f) => f.boxId === bid))
           .filter(Boolean)
           .map((f) => dateSuffix(f.name))
           .filter(Boolean);
         if (dates.length > 1 && !dates.every((d) => d === dates[0])) {
-          logger.logError(code, 'n/a', 0, 300, 'File names do not match');
-          return errorResponse(300, errorMessage(service, 'names_dont_match', {}));
+          logger.logError(code, "n/a", 0, 300, "File names do not match");
+          return errorResponse(
+            300,
+            errorMessage(service, "names_dont_match", {}),
+          );
         }
       }
     }
 
     // --- All checks pass: generate presigned URLs per provided file ---
     const currentDate = new Date();
-    const formatedDate = currentDate.toISOString().replace(/[^0-9]/g, '').slice(0, -3);
+    const formatedDate = currentDate
+      .toISOString()
+      .replace(/[^0-9]/g, "")
+      .slice(0, -3);
     const councilName = cleanCouncilName(councilNameRaw);
 
     const uploads = {};
     for (const f of files) {
       const fileNameLowerCase = convertExtensionToLowerCase(f.name);
       const size = parseInt(f.size, 10);
-      uploads[f.boxId] = await createUploadData(serviceId, fileNameLowerCase, size, formatedDate, councilName);
-      logger.logSuccess(code, fileNameLowerCase, 'multipart/single', 200, councilName, serviceId);
+      uploads[f.boxId] = await createUploadData(
+        serviceId,
+        fileNameLowerCase,
+        size,
+        formatedDate,
+        councilName,
+      );
+      logger.logSuccess(
+        code,
+        fileNameLowerCase,
+        "multipart/single",
+        200,
+        councilName,
+        serviceId,
+      );
     }
 
     return {
       statusCode: 200,
       isBase64Encoded: false,
-      headers: { 'Access-Control-Allow-Origin': '*' },
-      body: JSON.stringify({ message: 'Success', uploads }),
+      headers: { "Access-Control-Allow-Origin": "*" },
+      body: JSON.stringify({ message: "Success", uploads }),
     };
   } catch (error) {
-    logger.logInternalError(serviceId, 'n/a', '500', error.message);
+    logger.logInternalError(serviceId, "n/a", "500", error.message);
     return {
       statusCode: 500,
       body: JSON.stringify({
-        message: 'Internal Server Error',
+        message: "Internal Server Error",
         error: error.message,
       }),
     };
   }
 };
 
-const createUploadData = async (serviceId, fileName, fileSize, formatedDate, councilName) => {
-  const key = `${serviceId}/${councilName}/${formatedDate}/${fileName}`;
+const createUploadData = async (
+  serviceId,
+  fileName,
+  fileSize,
+  formatedDate,
+  councilName,
+) => {
+  // A service-root page has no council name, so drop that path segment rather
+  // than leaving a "//" in the key. Per-user pages are unchanged.
+  const key = [serviceId, councilName, formatedDate, fileName]
+    .filter(
+      (segment) => segment !== "" && segment !== undefined && segment !== null,
+    )
+    .join("/");
 
   if (fileSize > MULTIPART_THRESHOLD) {
     return await createMultipartUpload(key, fileSize);
   } else {
     const s3Params = new PutObjectCommand({
       Bucket: process.env.BUCKET_NAME,
-      Key: key
+      Key: key,
     });
     const uploadURL = await getSignedUrl(s3, s3Params, { expiresIn: 1800 });
     return { uploadURL, multipart: false };
   }
-}
+};
 
 const createMultipartUpload = async (key, fileSize) => {
   const createParams = new CreateMultipartUploadCommand({
     Bucket: process.env.BUCKET_NAME,
-    Key: key
+    Key: key,
   });
 
   const createResult = await s3.send(createParams);
@@ -289,10 +392,12 @@ const createMultipartUpload = async (key, fileSize) => {
       Bucket: process.env.BUCKET_NAME,
       Key: key,
       PartNumber: i,
-      UploadId: uploadId
+      UploadId: uploadId,
     });
 
-    const uploadURL = await getSignedUrl(s3, uploadPartParams, { expiresIn: 1800 });
+    const uploadURL = await getSignedUrl(s3, uploadPartParams, {
+      expiresIn: 1800,
+    });
     parts.push({ PartNumber: i, uploadURL });
   }
 
@@ -300,6 +405,6 @@ const createMultipartUpload = async (key, fileSize) => {
     multipart: true,
     uploadId,
     parts,
-    completeURL: `${process.env.API_GATEWAY_URL}complete-multipart?bucket=${process.env.BUCKET_NAME}&key=${encodeURIComponent(key)}&uploadId=${uploadId}`
+    completeURL: `${process.env.API_GATEWAY_URL}complete-multipart?bucket=${process.env.BUCKET_NAME}&key=${encodeURIComponent(key)}&uploadId=${uploadId}`,
   };
-}
+};

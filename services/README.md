@@ -144,7 +144,9 @@ runtime) expects it; optional fields fall back to a sensible default when omitte
 | Field | Required | Type | What it does |
 | --- | --- | --- | --- |
 | `service_id` | yes | string | The service's unique identifier. It becomes the **URL path prefix** (`/<service_id>/...`) and the **S3 key prefix** where that service's rendered pages and assets live. Must match `^[a-z0-9-]+$` (lowercase letters, digits, hyphens) and be unique across all services. Changing it after launch changes every user's URL, so treat it as permanent. |
-| `onboarding_csv` | yes | string | Path (relative to the repo root, conventionally `services/<service-id>/users.csv`) to this service's onboarding CSV. The CSV has two columns, `name,lad_code`: one row per organisation that should get a page. Terraform reads it with `csvdecode` and renders **one static page per row**. |
+| `onboarding_csv` | yes* | string | Path (relative to the repo root, conventionally `services/<service-id>/users.csv`) to this service's onboarding CSV. The CSV has two columns, `name,lad_code`: one row per organisation that should get a page. Terraform reads it with `csvdecode` and renders **one static page per row**. *Not required when `page_scope: service` (a single shared page has no per-user rows to iterate). |
+| `page_filename_template` | no | string | Controls the **URL/S3 filename** of each per-user page (everything before `.html`). Defaults to `"{lad_code}-{name}"`, giving `/<service_id>/<lad_code>-<name>.html`. Each `{column}` token is replaced with that CSV column's cleaned value (characters outside `[A-Za-z0-9-_ ]` stripped, spaces → hyphens); literals (including `/`, which creates a sub-path) are kept verbatim. Examples: `"{lad_code}"` → `/<service_id>/<lad_code>.html`; `"{region}/{lad_code}-{name}"` → `/<service_id>/<region>/<lad_code>-<name>.html`. The template must distinguish every row, or two rows that render to the same filename will collide at plan time. |
+| `page_scope` | no | string | `"per_user"` (default) renders one page per onboarding row, under `/<service_id>/...`. `"service"` renders a **single shared page for the whole service** at the bucket root, `/<service_id>.html`, with no per-user sub-path, no `{code}`/council name in the URL, and no onboarding CSV required. See "Choosing the page URL layout" below. |
 
 #### `wording` block (page text)
 
@@ -218,6 +220,55 @@ remember browsers can report an empty string or a generic type for some files �
 Config is validated at `terraform plan`/`apply` time (`terraform_data.service_config_validation`):
 `service_id` format, at least one box, unique box ids, each box has at least one accepted
 type/extension, and `cross_file_rules` reference existing boxes. Invalid config fails the plan.
+
+### Choosing the page URL layout
+
+Two config fields control how a service's page URLs look. They are independent of
+the validation rules — the same boxes work under any layout.
+
+**`page_filename_template`** shapes each per-user page's filename. The default,
+`"{lad_code}-{name}"`, reproduces the original behaviour:
+
+```text
+/<service_id>/<lad_code>-<name>.html
+e.g. /electoral-register/E07000171-Bassetlaw.html
+```
+
+Set it to a single token to shorten the URL to just the code (the council name
+is still shown on the page and used in the S3 upload key — only the URL changes):
+
+```yaml
+page_filename_template: "{lad_code}"
+# -> /electoral-register/E07000171.html
+```
+
+Or include a `/` to group pages under a sub-path, and reference any CSV column:
+
+```yaml
+page_filename_template: "{region}/{lad_code}-{name}"
+# -> /<service_id>/<region>/<lad_code>-<name>.html
+```
+
+**`page_scope: service`** collapses the whole service to one shared page at the
+bucket root, with no per-user pages at all:
+
+```yaml
+page_scope: service
+# -> /electoral-register.html
+```
+
+A service-scope page has no code in its URL, so uploaded filenames are validated
+as `<filename_prefix><yyyymmdd>.<ext>` (the `{code}` segment is dropped), and
+uploads land under `<service_id>/<yyyymmdd...>/<file>` with no per-council
+folder. Because there are no per-user rows, `onboarding_csv` is not needed and
+can be omitted.
+
+How this works under the hood: the per-page code and council name are injected
+into each rendered page (as `window.UPLOADER_CONFIG.page`) at render time rather
+than parsed out of the URL, so the client never has to know the URL layout. That
+is what lets any `page_filename_template` — or a single service-root page — work
+without JS changes. Worked examples live in `services/code-only-example/`
+(`{lad_code}` only) and `services/service-page-example/` (`page_scope: service`).
 
 ### Customising error messages
 
