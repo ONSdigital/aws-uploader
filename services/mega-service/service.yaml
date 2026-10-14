@@ -5,7 +5,7 @@
 # must match service_id and becomes the service's map key in local.services.
 # ---------------------------------------------------------------------------
 service_id: mega-service
-onboarding_csv: services/awesome-service/users.csv
+onboarding_csv: services/mega-service/users.csv
 
 wording:
   page_title: ONS-Uploader
