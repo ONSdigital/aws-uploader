@@ -12,7 +12,14 @@ Nothing below is committed — all current changes are in the working tree.
 - [x] `scripts/template/generic-template.html` (parameterised wording + `${upload_boxes_html}`)
 - [x] `scripts/file_submission.js` generalised to read `window.UPLOADER_CONFIG` and loop over boxes
 - [x] `src/PreSignedURL.mjs` generalised to accept `serviceId` + `files[]`, validate per box, write under `<service_id>/`
-- [x] Multi-service wiring in `s3_host.tf`, `cloudfront.tf` (per-service invalidation), `s3_upload.tf` (per-service lifecycle), `lambda.tf` (`SERVICES_CONFIG`)
+- [x] Multi-service wiring in `s3_host.tf`, `cloudfront.tf` (per-service invalidation), `s3_upload.tf` (per-service lifecycle), `lambda.tf`
+- [x] Lambda service config moved OFF the `SERVICES_CONFIG` env var (it hit AWS's
+      4 KB env-var limit once several services existed, failing `apply` with
+      `RequestEntityTooLargeException`). The Lambda now reads each service's
+      `<service_id>/config.json` from the host bucket at request time (with a warm
+      in-memory cache). New `CONFIG_BUCKET` env var + an `s3:GetObject` grant scoped
+      to `*/config.json`; `s3_host.tf` writes the per-service `config.json`. No
+      combined-size ceiling, so adding services no longer touches the Lambda.
 - [x] Electoral Register service added (`services.tf` + `electoral-register.csv`, seeded small)
 - [x] Removed Council-Tax-specific leftovers: `modules/render_council`, `scripts/template/council-tax-template.html`, `scripts/council-tax/index.html` (+ its TF resource/trigger)
 - [x] Unit tests updated to the new N-file contract (`test/PreSignedURL.test.mjs`, 14 passing)

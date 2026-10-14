@@ -11,13 +11,15 @@ jest.unstable_mockModule('@aws-sdk/client-s3', () => ({
   S3: jest.fn(() => ({ send: mockS3Send })),
   S3Client: jest.fn(),
   PutObjectCommand: jest.fn((params) => ({ __type: 'Put', ...params })),
+  GetObjectCommand: jest.fn((params) => ({ __type: 'GetObject', ...params })),
   CreateMultipartUploadCommand: jest.fn((params) => ({ __type: 'CreateMultipart', ...params })),
   UploadPartCommand: jest.fn((params) => ({ __type: 'UploadPart', ...params })),
   CompleteMultipartUploadCommand: jest.fn()
 }));
 
-// Minimal service config mirroring services.tf -> local.services, injected the
-// same way Terraform injects it (jsonencode(local.services) into SERVICES_CONFIG).
+// Minimal service config mirroring services.tf -> local.services. The Lambda
+// now reads each service's config from S3 (<service_id>/config.json); the
+// mocked S3 GetObject below serves these entries keyed by serviceId.
 const SERVICES_CONFIG = {
   'council-tax': {
     service_id: 'council-tax',
@@ -83,8 +85,51 @@ const SERVICES_CONFIG = {
   }
 };
 
-// SERVICES_CONFIG must be set before the module is imported (it is read at module load).
-process.env.SERVICES_CONFIG = JSON.stringify(SERVICES_CONFIG);
+// The Lambda now reads each service's config from S3 (<serviceId>/config.json
+// in CONFIG_BUCKET) rather than from an env var. `activeConfig` is the map of
+// serviceId -> config the mocked S3 GetObject serves; tests can swap it to
+// exercise overrides (e.g. the error-override suite).
+process.env.CONFIG_BUCKET = 'test-config-bucket';
+let activeConfig = SERVICES_CONFIG;
+
+// mockUploadSend holds the behaviour tests configure for non-config S3 calls
+// (CreateMultipartUpload etc.) via the usual mockResolvedValue(...) in each test.
+const mockUploadSend = jest.fn();
+
+// The single s3.send mock dispatches: a config GetObject is served from
+// activeConfig (a 404-style rejection for an unknown serviceId); everything
+// else delegates to mockUploadSend so existing test setup keeps working.
+// Installed via a function so it can be re-applied after jest.clearAllMocks().
+function installS3SendRouter() {
+  mockS3Send.mockImplementation((command) => {
+    if (command && command.__type === 'GetObject') {
+      const serviceId = String(command.Key).replace(/\/config\.json$/, '');
+      const service = activeConfig[serviceId];
+      if (!service) {
+        const err = new Error('NoSuchKey');
+        err.name = 'NoSuchKey';
+        err.$metadata = { httpStatusCode: 404 };
+        return Promise.reject(err);
+      }
+      return Promise.resolve({
+        Body: { transformToString: async () => JSON.stringify(service) },
+      });
+    }
+    return mockUploadSend(command);
+  });
+}
+installS3SendRouter();
+
+// Clear mock call history and re-install the config router before every test.
+// This replaces the per-suite jest.clearAllMocks() calls (which would wipe the
+// router's implementation); mock.calls are still reset here via clearAllMocks.
+beforeEach(() => {
+  jest.clearAllMocks();
+  activeConfig = SERVICES_CONFIG;
+  installS3SendRouter();
+  process.env.BUCKET_NAME = 'test-bucket';
+  process.env.API_GATEWAY_URL = 'https://api.test.com/';
+});
 
 const { handler } = await import('../src/PreSignedURL.mjs');
 
@@ -100,19 +145,13 @@ function buildEvent(serviceId, files, councilName = 'Test') {
 }
 
 describe('PreSignedURL Lambda - council-tax (two required files)', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-    process.env.BUCKET_NAME = 'test-bucket';
-    process.env.API_GATEWAY_URL = 'https://api.test.com/';
-  });
-
   test('uses multipart upload for files larger than 5MB', async () => {
     const event = buildEvent('council-tax', [
       { boxId: 'extract', name: 'CTAX_EXTRACT_E00000000_20250131.csv', type: 'text/csv', size: 6291456 },
       { boxId: 'mani', name: 'CTAX_MANI_E00000000_20250131.csv', type: 'text/csv', size: 1024 }
     ]);
 
-    mockS3Send.mockResolvedValue({ UploadId: 'test-upload-id' });
+    mockUploadSend.mockResolvedValue({ UploadId: 'test-upload-id' });
     mockGetSignedUrl.mockResolvedValue('https://presigned-url.com');
 
     const result = await handler(event);
@@ -148,7 +187,7 @@ describe('PreSignedURL Lambda - council-tax (two required files)', () => {
       { boxId: 'mani', name: 'CTAX_MANI_E00000000_20250131.csv', type: 'text/csv', size: 1024 }
     ]);
 
-    mockS3Send.mockResolvedValue({ UploadId: 'test-upload-id' });
+    mockUploadSend.mockResolvedValue({ UploadId: 'test-upload-id' });
     mockGetSignedUrl.mockResolvedValue('https://presigned-url.com');
 
     const result = await handler(event);
@@ -241,12 +280,6 @@ describe('PreSignedURL Lambda - council-tax (two required files)', () => {
 });
 
 describe('PreSignedURL Lambda - electoral-register (optional second file)', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-    process.env.BUCKET_NAME = 'test-bucket';
-    process.env.API_GATEWAY_URL = 'https://api.test.com/';
-  });
-
   test('succeeds when only the compulsory file is provided', async () => {
     const event = buildEvent('electoral-register', [
       { boxId: 'extract', name: 'ER_EXTRACT_E00000000_20250131.csv', type: 'text/csv', size: 1024 }
@@ -303,12 +336,6 @@ describe('PreSignedURL Lambda - electoral-register (optional second file)', () =
 });
 
 describe('PreSignedURL Lambda - type-specific error messages', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-    process.env.BUCKET_NAME = 'test-bucket';
-    process.env.API_GATEWAY_URL = 'https://api.test.com/';
-  });
-
   test('a TXT-only box rejects a CSV with "File is not .txt"', async () => {
     const event = buildEvent('txt-service', [
       { boxId: 'notes', name: 'NOTES_E00000000_20250131.csv', type: 'text/csv', size: 1024 }
@@ -353,16 +380,11 @@ describe('PreSignedURL Lambda - type-specific error messages', () => {
 });
 
 describe('PreSignedURL Lambda - per-service error message overrides', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-    process.env.BUCKET_NAME = 'test-bucket';
-    process.env.API_GATEWAY_URL = 'https://api.test.com/';
-    // Re-import with an extra service that overrides error wording.
-  });
-
   test('uses a service-provided wrong_type override with placeholder substitution', async () => {
-    // Build a one-off config with an override and re-import the module fresh.
-    const overrideConfig = {
+    // Serve a service with an error override via the mocked config.json fetch.
+    // Its serviceId isn't used by any other test, so the Lambda's per-service
+    // config cache won't collide.
+    activeConfig = {
       'custom-msgs': {
         service_id: 'custom-msgs',
         wording: {
@@ -383,9 +405,6 @@ describe('PreSignedURL Lambda - per-service error message overrides', () => {
         cross_file_rules: []
       }
     };
-    process.env.SERVICES_CONFIG = JSON.stringify(overrideConfig);
-    jest.resetModules();
-    const { handler: freshHandler } = await import('../src/PreSignedURL.mjs?override');
 
     const event = {
       queryStringParameters: {
@@ -397,22 +416,13 @@ describe('PreSignedURL Lambda - per-service error message overrides', () => {
       }
     };
 
-    const result = await freshHandler(event);
+    const result = await handler(event);
     expect(result.statusCode).toBe(403);
     expect(JSON.parse(result.body).message).toBe('Oops — Upload the report must be a .csv document');
-
-    // Restore the shared config for any later suites.
-    process.env.SERVICES_CONFIG = JSON.stringify(SERVICES_CONFIG);
   });
 });
 
 describe('PreSignedURL Lambda - unknown service', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-    process.env.BUCKET_NAME = 'test-bucket';
-    process.env.API_GATEWAY_URL = 'https://api.test.com/';
-  });
-
   test('returns 400 for an unknown serviceId', async () => {
     const event = buildEvent('does-not-exist', [
       { boxId: 'extract', name: 'X_E00000000_20250131.csv', type: 'text/csv', size: 1024 }

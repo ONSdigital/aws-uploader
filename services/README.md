@@ -31,7 +31,7 @@ The uploader is driven by configuration. There are two distinct onboarding tasks
 | The HTML page template (shared by all services) | `scripts/template/generic-template.html` |
 | Per-user page rendering | `modules/render_service` |
 | Client-side validation/upload (shared) | `scripts/file_submission.js` (reads `window.UPLOADER_CONFIG`) |
-| Backend validation + presigned URLs (shared) | `src/PreSignedURL.mjs` (reads the `SERVICES_CONFIG` env var) |
+| Backend validation + presigned URLs (shared) | `src/PreSignedURL.mjs` (reads each service's `<service_id>/config.json` from the host bucket at request time) |
 
 A single service config is the source of truth: Terraform renders each user's page from it, emits a
 `<service_id>/config.js` the browser reads, and injects the same config into the Lambda. There is

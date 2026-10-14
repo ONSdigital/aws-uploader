@@ -93,6 +93,20 @@ resource "aws_s3_object" "service_config" {
   content_type = "text/javascript"
 }
 
+# Per-service config as pure JSON, read by the PreSignedURL Lambda at request
+# time (keyed by serviceId). This replaces the single SERVICES_CONFIG env var,
+# which hit AWS's 4 KB env-var limit once several services existed: each service
+# is now fetched individually, so the platform scales to any number of services.
+# Same source of truth as config.js (local.services_json) -- just without the
+# window.UPLOADER_CONFIG JS wrapper so the Lambda can JSON.parse it directly.
+resource "aws_s3_object" "service_config_json" {
+  for_each     = local.services
+  bucket       = module.ons_upload_bucket.bucket_id
+  key          = "${each.key}/config.json"
+  content      = local.services_json[each.key]
+  content_type = "application/json"
+}
+
 # Generic upload client (api_url injected), one copy per service.
 resource "aws_s3_object" "service_file_submission" {
   for_each = local.services

@@ -24,16 +24,47 @@ function cleanCouncilName(councilName) {
 }
 
 // New way of using AWS SDk v3
-import { S3, PutObjectCommand, S3Client, CreateMultipartUploadCommand, UploadPartCommand, CompleteMultipartUploadCommand } from "@aws-sdk/client-s3"
+import { S3, PutObjectCommand, S3Client, GetObjectCommand, CreateMultipartUploadCommand, UploadPartCommand, CompleteMultipartUploadCommand } from "@aws-sdk/client-s3"
 const s3 = new S3({ region: 'eu-west-2' });
 const logger = new uploaderLogger()
 
 const MULTIPART_THRESHOLD = 5 * 1024 * 1024; // 5MB threshold for multipart
 
-// Service configurations are injected at deploy time as a JSON object keyed by
-// service_id (see services.tf -> local.services_json). This is the single
-// source of truth shared with the browser (config.js) and Terraform rendering.
-const SERVICES = JSON.parse(process.env.SERVICES_CONFIG || "{}");
+// Service configurations live in the S3 host bucket as <service_id>/config.json
+// (written by Terraform from the same source of truth as the browser config.js
+// and the rendered pages -- see services.tf -> local.services_json and
+// s3_host.tf -> aws_s3_object.service_config_json). We fetch the single service
+// a request targets, rather than loading all services from an environment
+// variable, because the combined config outgrew AWS's 4 KB env-var limit. A
+// small in-memory cache keeps warm invocations from re-fetching.
+const CONFIG_BUCKET = process.env.CONFIG_BUCKET;
+const serviceConfigCache = new Map();
+
+async function loadService(serviceId) {
+  if (!serviceId) return null;
+  if (serviceConfigCache.has(serviceId)) return serviceConfigCache.get(serviceId);
+
+  let service = null;
+  try {
+    const res = await s3.send(new GetObjectCommand({
+      Bucket: CONFIG_BUCKET,
+      Key: `${serviceId}/config.json`,
+    }));
+    const text = await res.Body.transformToString();
+    service = JSON.parse(text);
+  } catch (err) {
+    // A missing object (unknown serviceId) is an expected "not found", not a
+    // server fault -- cache the null so repeated bad ids don't re-hit S3.
+    if (err && (err.name === 'NoSuchKey' || err.$metadata?.httpStatusCode === 404)) {
+      service = null;
+    } else {
+      throw err;
+    }
+  }
+
+  serviceConfigCache.set(serviceId, service);
+  return service;
+}
 
 function convertExtensionToLowerCase(filename) {
   const fileParts = filename.split('.');
@@ -132,7 +163,7 @@ export const handler = async (event, context, callback) => {
 
     const qs = event.queryStringParameters || {};
     serviceId = qs.serviceId;
-    const service = SERVICES[serviceId];
+    const service = await loadService(serviceId);
     if (!service) {
       logger.logError(serviceId, 'n/a', 0, 400, 'Unknown serviceId');
       return errorResponse(400, 'Unknown service');
