@@ -26,4 +26,4 @@ boxes:
 
 cross_file_rules:
   - type: matching_date_suffix
-    boxes: ["awesome", "also-awesome", "mani"]
+    boxes: ["awesome"]
