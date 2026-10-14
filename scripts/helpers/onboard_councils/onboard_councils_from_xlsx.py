@@ -148,7 +148,13 @@ class OnboardCouncils:
                 f"Columns found: {list(df.columns)}"
             )
 
-        return df[["name", "lad_code"]].copy()
+        # Keep every column, not just name/lad_code: a service's page URL can
+        # be built from any columns via page_filename_template (see
+        # modules/render_service), so extra columns must survive onboarding
+        # into users.csv. name/lad_code remain required because the cleaning
+        # and dedup logic below is keyed on them; any additional columns are
+        # carried through verbatim.
+        return df.copy()
 
     def _load_councils_file(self) -> pd.DataFrame:
         logging.info("Loading councils CSV…")

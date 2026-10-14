@@ -3,14 +3,24 @@ variable "service_config" {
   description = "The full service configuration object (see local.services in services.tf)."
 }
 
-variable "council_name" {
-  type        = string
-  description = "Name of the user/council, e.g. 'Essex'."
+variable "user_row" {
+  type        = map(string)
+  description = <<-EOT
+    One decoded row from the service's onboarding CSV, as a map of
+    column-name => value (e.g. { name = "Essex", lad_code = "E07000223" }).
+    Every CSV column is available here, so page_filename_template and the
+    heading/{code} substitutions can reference any column the service defines.
+  EOT
 }
 
-variable "lad_code" {
+variable "filename_body" {
   type        = string
-  description = "Local Authority District code, e.g. E07000223."
+  description = <<-EOT
+    The rendered page's filename without the ".html" extension, derived in
+    services.tf from the service's page_filename_template (default
+    "{lad_code}-{name}") and the user_row. Passed in rather than recomputed
+    here so the S3 object key and the Terraform state key stay identical.
+  EOT
 }
 
 variable "bucket-id" {

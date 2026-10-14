@@ -155,21 +155,56 @@ locals {
   #
   # The map key must be unique per rendered page. Some onboarding lists reuse a
   # single lad_code across multiple distinct organisations (e.g. the Council Tax
-  # list has four rows sharing E06000066), so the key includes the cleaned
-  # council name as well as the lad_code -- the same identity the rendered page
-  # filename uses (see modules/render_service: "<lad_code>-<clean-name>.html").
-  # This only affects the Terraform state key, not the page URL.
-  service_user_pairs = flatten([
+  # list has four rows sharing E06000066), so the key must encode the full page
+  # identity, not just the lad_code.
+  #
+  # We derive the key from the SAME filename template the rendered page uses
+  # (modules/render_service: page_filename_template, default "{lad_code}-{name}")
+  # so the state key equals "<svc_id>/<page-filename-without-.html>". For the
+  # default two-column services this reproduces the previous
+  # "<svc_id>/<lad_code>-<clean-name>" key byte-for-byte, leaving existing state
+  # (and already-disseminated URLs) untouched. For a service with a custom
+  # template over arbitrary columns, the key tracks whatever makes its pages
+  # unique -- and two rows that would render to the same filename collide here,
+  # which is the correct signal that the template can't tell them apart.
+  # The filename body is derived here (the single source of truth) and passed
+  # to modules/render_service, so the state key and the rendered S3 object key
+  # cannot drift apart.
+  #
+  # Derivation (preserving the original clean-name behaviour exactly):
+  #   - template := page_filename_template, default "{lad_code}-{name}"
+  #   - each CSV value is cleaned: strip chars not in [A-Za-z0-9-_ ], then
+  #     spaces -> hyphens
+  #   - each "{column}" token in the template is replaced with that column's
+  #     cleaned value; literals in the template are kept verbatim
+  # Tokenisation uses a NUL marker + split so it works for any number of
+  # columns without a fold (Terraform has no reduce). See the matching note in
+  # modules/render_service/main.tf.
+  _service_user_rows = flatten([
     for svc_id, svc in local.services : [
       for user in csvdecode(file("./${svc.onboarding_csv}")) : {
-        key          = "${svc_id}/${user.lad_code}-${replace(replace(user.name, "/[^A-Za-z0-9-_ ]/", ""), " ", "-")}"
-        service_id   = svc_id
-        service      = svc
-        council_name = user.name
-        lad_code     = user.lad_code
+        service_id = svc_id
+        service    = svc
+        user_row   = user
+
+        filename_body = join("", [
+          for part in split("\u0000", replace(
+            lookup(svc, "page_filename_template", "{lad_code}-{name}"),
+            "/\\{([A-Za-z0-9_]+)\\}/",
+            "\u0000$1\u0000"
+          )) :
+          contains(keys(user), part) ? replace(replace(user[part], "/[^A-Za-z0-9-_ ]/", ""), " ", "-") : part
+        ])
       }
     ]
   ])
+
+  # Attach the state-map key (service_id + filename body). Kept separate so the
+  # key reuses the already-derived filename_body rather than recomputing it.
+  service_user_pairs = [
+    for pair in local._service_user_rows :
+    merge(pair, { key = "${pair.service_id}/${pair.filename_body}" })
+  ]
 
   # Per-service JSON (consumed by the browser config.js and the Lambda).
   services_json = { for svc_id, svc in local.services : svc_id => jsonencode(svc) }

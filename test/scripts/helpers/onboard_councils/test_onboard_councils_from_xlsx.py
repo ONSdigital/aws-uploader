@@ -212,12 +212,16 @@ class TestLoadInputFile:
         # assert
         assert isinstance(result, pd.DataFrame)
 
-    def test_load_input_file_returns_only_name_and_lad_code_columns(self, tmp_path, dummy_councils_csv):
+    def test_load_input_file_preserves_extra_columns(self, tmp_path, dummy_councils_csv):
+        # A service's page URL can be built from arbitrary columns via
+        # page_filename_template (see modules/render_service), so any columns
+        # beyond the required name/lad_code must survive onboarding rather than
+        # being dropped on load.
         # arrange
         df = pd.DataFrame({
             "name": ["BIRMINGHAM", "PORTSMOUTH", "KNOWSLEY"],
             "lad_code": ["E08000025", "E06000044", "E08000011"],
-            "these_should_be_dropped": ["Barnacle Cumbersniff", "Benadryl Cramplesnutch", "Bedlington Collywog"]
+            "region": ["West Midlands", "South East", "North West"]
         })
         path = tmp_path / "benedict_cumberbatch.xlsx"
         df.to_excel(path, index=False)
@@ -231,8 +235,8 @@ class TestLoadInputFile:
         result = onboarder._load_input_file()
 
         # assert
-        assert list(result.columns) == ["name", "lad_code"]
-        assert "these_should_be_dropped" not in result.columns
+        assert set(result.columns) == {"name", "lad_code", "region"}
+        assert list(result["region"]) == ["West Midlands", "South East", "North West"]
 
     def test_load_input_file_raises_on_missing_file_error(self):
         # arrange

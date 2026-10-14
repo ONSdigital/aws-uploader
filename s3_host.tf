@@ -129,8 +129,8 @@ module "render_service" {
   source         = "./modules/render_service"
   for_each       = { for pair in local.service_user_pairs : pair.key => pair }
   service_config = each.value.service
-  council_name   = each.value.council_name
-  lad_code       = each.value.lad_code
+  user_row       = each.value.user_row
+  filename_body  = each.value.filename_body
   bucket-id      = module.ons_upload_bucket.bucket_id
   template_path  = "${path.root}/scripts/template/generic-template.html"
 }

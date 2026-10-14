@@ -20,17 +20,33 @@ Nothing below is committed — all current changes are in the working tree.
 ## Outstanding tasks
 
 ### 1. Generalise the onboarding helper
-- [ ] **Bug:** `PROJECT_ROOT` in `scripts/helpers/onboard_councils/onboard_councils_from_xlsx.py`
+- [x] **Bug:** `PROJECT_ROOT` in `scripts/helpers/onboard_councils/onboard_councils_from_xlsx.py`
       resolves the repo root by finding a parent dir literally named `aws-uploader`
       (`next(p for p in ... if p.name == "aws-uploader")`). This repo is `aws-generic-uploader-poc`,
       so that `next(...)` raises `StopIteration`. Fix to detect the root robustly (e.g. walk up to
       the dir containing `services.tf`/`.git`, or make it a required/derived argument).
-- [ ] Update `scripts/helpers/onboard_councils/` so it can target an arbitrary service's CSV
+      (Done: `find_project_root` now walks up to the dir containing `services/` or `.git`.)
+- [x] Update `scripts/helpers/onboard_councils/` so it can target an arbitrary service's CSV
       (e.g. a `--service` / output-path argument) instead of hardcoding `data/councils.csv`.
-- [ ] Default output path is now `data/councils.csv` (CSVs moved under `data/`); keep the helper
-      and its tests consistent with that location.
-- [ ] Update `scripts/helpers/onboard_councils/README.md` accordingly.
-- [ ] Update the Python helper tests under `test/scripts/helpers/onboard_councils/`.
+      (Done: `--service` resolves the CSV from `services/<service>/service.yaml`'s `onboarding_csv`,
+      with an explicit `--councils-csv` override.)
+- [x] Extra onboarding CSV columns are now preserved through the pipeline (needed so page URLs can
+      key off arbitrary columns via `page_filename_template`): `_load_input_file` no longer slices
+      to `[["name","lad_code"]]`. Test updated: `test_load_input_file_preserves_extra_columns`.
+- [ ] **Drop the hard `name`/`lad_code` requirement.** `REQUIRED_COLUMNS = {"name","lad_code"}`
+      and the cleaning / dedup / drop-empty / duplicate-check / already-onboarded / reporting logic
+      are all keyed on those two column names, so a service whose CSV has neither (e.g. a single
+      `id` column, or a three-column layout with different names) can't be onboarded by this helper
+      even though the Terraform render path now supports it. Generalise the helper to a configurable
+      column set (e.g. driven by the service's `page_filename_template` columns, or an explicit
+      `--columns` / key-column argument), parameterising the cleaning and dedup over that set.
+      NOTE: this is a sizeable rewrite of the cleaning/dedup/reporting code — scope before starting.
+- [ ] Update `scripts/helpers/onboard_councils/README.md` accordingly (the `--service` resolution,
+      preserved-columns behaviour, and — once done — the configurable column set).
+- [ ] Update the Python helper tests under `test/scripts/helpers/onboard_councils/` to cover the
+      configurable column set. (Pre-existing unrelated failure to fix while here:
+      `TestInit::test_init_paths_populate_expected_custom_paths` — asserts a relative path but the
+      helper resolves `councils_csv` to an absolute path.)
 
 ### 2. Populate the full Electoral Register council list
 - [ ] Replace the seed rows in `electoral-register.csv` (currently Test, Adur, Birmingham)
@@ -72,6 +88,29 @@ Nothing below is committed — all current changes are in the working tree.
 - **Nothing committed yet** — review the working tree before committing.
 
 ### Support services whose pages key off an arbitrary set of CSV columns (not fixed name + lad_code)
+
+**Progress (render path done).** The Terraform render path is now column-agnostic via a per-service
+`page_filename_template` (default `"{lad_code}-{name}"`, which reproduces the existing URLs
+byte-for-byte — verified in `terraform console`). Done:
+- `services.tf` builds `filename_body` (and the state key) by tokenising the template on `{column}`
+  markers and substituting cleaned column values; it passes the full `user_row` map + `filename_body`
+  into the module instead of named `council_name`/`lad_code` vars.
+- `modules/render_service/` takes `user_row` (map) + `filename_body`; heading and the `{code}` box
+  substitution are driven by configurable `heading_column` / `code_column` (defaults `name`/`lad_code`).
+- Documented in `services/electoral-register/service.yaml`.
+
+Still outstanding (client / Lambda / smoke test still assume `<lad_code>-<clean-name>` and the first
+`-`-delimited token = code):
+- [ ] `scripts/file_submission.js`: `extractCodeFromURL()` / `extractCouncilNameFromURL()` split the
+      filename on the first `-`. Make this schema/template-driven (the page needs to know its own
+      column layout — e.g. include the row's column values in the per-service `config.js`).
+- [ ] `src/PreSignedURL.mjs`: generalise the `councilName` + derived-code assumptions to match.
+- [ ] `test/smoke/check_council_urls.js`: `parseCsv` requires `name`+`lad_code` and `buildUrl`
+      assumes `<lad_code>-<clean-name>.html`; honour `page_filename_template` instead.
+- [ ] Add a test that diffs the generated council-tax URL set before/after (as done for the original
+      migration) to guard the byte-for-byte constraint.
+
+**Original design notes (for the remaining client/Lambda work):**
 
 **Motivation.** Today every service assumes a fixed two-column onboarding CSV (`name`, `lad_code`)
 and builds the page filename as `<lad_code>-<clean-name>.html`. The two-column case is just one
