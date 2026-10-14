@@ -1,23 +1,6 @@
 #!/usr/bin/env node
 "use strict";
 
-// Smoke test for the generic (multi-service) uploader.
-//
-// For every service defined under services/ (one services/<id>/service.yaml
-// per service, the same source of truth Terraform's local.services loads),
-// this derives the published page URL for each row of that service's
-// onboarding CSV and checks it returns 200. It then runs one negative check
-// per service (a non-existent LAD code must NOT return 200), so a mis-pointed
-// origin can't pass silently.
-//
-// Dependency-free (Node built-ins only) so it runs on the plain node:18 image
-// used by the Concourse smokeTests task.
-//
-// The URL/key derivation mirrors modules/render_service exactly:
-//   https://<base>/<service_id>/<lad_code>-<clean-name>.html
-// where clean-name = name with any char outside [A-Za-z0-9-_ ] stripped, then
-// spaces replaced with "-".
-
 const fs = require("fs");
 const path = require("path");
 const https = require("https");
@@ -70,10 +53,31 @@ function findProjectRoot(startDir) {
   return path.resolve(startDir, "..", "..");
 }
 
-// Must match modules/render_service: replace(replace(name,
+// Must match modules/render_service / services.tf: replace(replace(value,
 // "/[^A-Za-z0-9-_ ]/", ""), " ", "-").
-function cleanCouncilName(name) {
-  return name.replace(/[^A-Za-z0-9\-_ ]/g, "").replace(/ /g, "-");
+function cleanValue(value) {
+  return String(value)
+    .replace(/[^A-Za-z0-9\-_ ]/g, "")
+    .replace(/ /g, "-");
+}
+
+// Build the page filename body from a page_filename_template and a row map,
+// mirroring services.tf exactly: tokenise on "{column}" and substitute each
+// column's cleaned value, keeping template literals verbatim. An unknown
+// {placeholder} (a column not present in the row) is left as-is, surfacing the
+// config mistake in the URL rather than silently vanishing.
+function buildFilenameBody(template, row) {
+  // Split keeps the captured column names at the odd indices.
+  const parts = template.split(/\{([A-Za-z0-9_]+)\}/);
+  return parts
+    .map((part, i) =>
+      i % 2 === 1
+        ? Object.prototype.hasOwnProperty.call(row, part)
+          ? cleanValue(row[part])
+          : `{${part}}`
+        : part,
+    )
+    .join("");
 }
 
 // Pull a single scalar field (e.g. onboarding_csv) out of a service.yaml.
@@ -98,7 +102,9 @@ function discoverServices(servicesDir) {
   try {
     entries = fs.readdirSync(servicesDir, { withFileTypes: true });
   } catch (err) {
-    throw new Error(`Could not read services directory ${servicesDir}: ${err.message}`);
+    throw new Error(
+      `Could not read services directory ${servicesDir}: ${err.message}`,
+    );
   }
   const services = [];
   for (const entry of entries) {
@@ -110,45 +116,59 @@ function discoverServices(servicesDir) {
     const csv =
       parseYamlScalar(yamlContents, "onboarding_csv") ||
       `services/${entry.name}/users.csv`;
-    services.push({ serviceId, csv });
+    const filenameTemplate =
+      parseYamlScalar(yamlContents, "page_filename_template") ||
+      "{lad_code}-{name}";
+    services.push({ serviceId, csv, filenameTemplate });
   }
   if (services.length === 0) {
-    throw new Error(`No <service>/service.yaml files found under ${servicesDir}`);
+    throw new Error(
+      `No <service>/service.yaml files found under ${servicesDir}`,
+    );
   }
   return services;
 }
 
+// Parse the onboarding CSV into a list of row maps (column -> value), keyed by
+// the header names. No columns are required here: which columns a service needs
+// is determined by its page_filename_template, so a one-, two-, or many-column
+// CSV all parse the same way. A row is skipped only if every cell is empty.
 function parseCsv(contents) {
   const lines = contents
     .split(/\r?\n/)
     .map((l) => l.trim())
     .filter((l) => l.length > 0);
   if (lines.length === 0) return [];
-  const header = lines[0].split(",").map((h) => h.trim().toLowerCase());
-  const nameIdx = header.indexOf("name");
-  const ladIdx = header.indexOf("lad_code");
-  if (nameIdx === -1 || ladIdx === -1) {
-    throw new Error(
-      `onboarding CSV must have "name" and "lad_code" headers, got: ${header.join(",")}`,
-    );
-  }
+  const header = lines[0].split(",").map((h) => h.trim());
   const rows = [];
   for (let i = 1; i < lines.length; i += 1) {
     const cols = lines[i].split(",").map((c) => c.trim());
-    const name = cols[nameIdx];
-    const ladCode = cols[ladIdx];
-    if (!name || !ladCode) continue;
-    rows.push({ name, ladCode });
+    const row = {};
+    header.forEach((h, idx) => {
+      row[h] = cols[idx] !== undefined ? cols[idx] : "";
+    });
+    if (Object.values(row).every((v) => v === "")) continue;
+    rows.push(row);
   }
   return rows;
 }
 
-function buildUrl(base, serviceId, row) {
-  const fileName = `${row.ladCode}-${cleanCouncilName(row.name)}.html`;
+function buildUrl(base, serviceId, filenameTemplate, row) {
+  const fileName = `${buildFilenameBody(filenameTemplate, row)}.html`;
   return `https://${base}/${serviceId}/${fileName}`;
 }
 
-const NEGATIVE_CHECK = { name: "foo", ladCode: "123456789" };
+// A row that cannot correspond to any real onboarded user, for the negative
+// check. Covers the columns the default and example templates reference so the
+// synthesised URL is well-formed whatever the service's template is; unknown
+// {placeholders} are left literal by buildFilenameBody, which is still a URL
+// that must not exist.
+const NEGATIVE_CHECK = {
+  name: "foo",
+  lad_code: "123456789",
+  id: "no-such-id-123456789",
+  region: "no-such-region",
+};
 
 function requestOnce(url, timeoutMs) {
   return new Promise((resolve) => {
@@ -226,9 +246,25 @@ function loadServiceRows(args) {
         `No rows found in onboarding CSV for service "${svc.serviceId}" (${csvPath})`,
       );
     }
-    out.push({ serviceId: svc.serviceId, rows });
+    out.push({
+      serviceId: svc.serviceId,
+      filenameTemplate: svc.filenameTemplate,
+      rows,
+    });
   }
   return out;
+}
+
+// A short, human-readable label for a row in logs. Prefers a "name" column,
+// then an "id" column, otherwise joins the row's values.
+function rowLabel(row) {
+  if (row.name) return row.name;
+  if (row.id) return row.id;
+  return (
+    Object.values(row)
+      .filter((v) => v !== "")
+      .join(" / ") || "(row)"
+  );
 }
 
 async function main() {
@@ -241,7 +277,7 @@ async function main() {
       urls.push({
         serviceId: svc.serviceId,
         row,
-        url: buildUrl(args.base, svc.serviceId, row),
+        url: buildUrl(args.base, svc.serviceId, svc.filenameTemplate, row),
       });
     }
   }
@@ -264,8 +300,7 @@ async function main() {
     });
     return {
       serviceId: item.serviceId,
-      name: item.row.name,
-      ladCode: item.row.ladCode,
+      label: rowLabel(item.row),
       ...result,
     };
   });
@@ -301,7 +336,12 @@ async function main() {
   // One negative check per service: a non-existent page must never be 200.
   const negativeResults = [];
   for (const svc of services) {
-    const negativeUrl = buildUrl(args.base, svc.serviceId, NEGATIVE_CHECK);
+    const negativeUrl = buildUrl(
+      args.base,
+      svc.serviceId,
+      svc.filenameTemplate,
+      NEGATIVE_CHECK,
+    );
     const negativeResult = await requestOnce(negativeUrl, args.timeoutMs);
     const negativeOk = negativeResult.status !== 200;
     console.log(
@@ -319,9 +359,7 @@ async function main() {
     console.error(`\n${failures.length} page URL(s) failed:`);
     for (const f of failures) {
       const detail = f.error ? ` (${f.error})` : "";
-      console.error(
-        `  - [${f.serviceId}] ${f.name} [${f.ladCode}] -> ${f.status}${detail}`,
-      );
+      console.error(`  - [${f.serviceId}] ${f.label} -> ${f.status}${detail}`);
     }
   }
 
