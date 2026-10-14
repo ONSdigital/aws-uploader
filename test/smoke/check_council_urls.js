@@ -119,7 +119,11 @@ function discoverServices(servicesDir) {
     const filenameTemplate =
       parseYamlScalar(yamlContents, "page_filename_template") ||
       "{lad_code}-{name}";
-    services.push({ serviceId, csv, filenameTemplate });
+    // A service-scope service renders a single shared page at the bucket root
+    // (/<service_id>.html) and has no onboarding CSV, so it is handled
+    // separately from the per-user services below.
+    const pageScope = parseYamlScalar(yamlContents, "page_scope") || "per_user";
+    services.push({ serviceId, csv, filenameTemplate, pageScope });
   }
   if (services.length === 0) {
     throw new Error(
@@ -153,7 +157,12 @@ function parseCsv(contents) {
   return rows;
 }
 
-function buildUrl(base, serviceId, filenameTemplate, row) {
+function buildUrl(base, serviceId, filenameTemplate, row, pageScope) {
+  // A service-scope service is a single page at the bucket root
+  // (/<service_id>.html), with no per-user filename body.
+  if (pageScope === "service") {
+    return `https://${base}/${serviceId}.html`;
+  }
   const fileName = `${buildFilenameBody(filenameTemplate, row)}.html`;
   return `https://${base}/${serviceId}/${fileName}`;
 }
@@ -229,6 +238,19 @@ function loadServiceRows(args) {
   const services = discoverServices(args.servicesDir);
   const out = [];
   for (const svc of services) {
+    // A service-scope service has no onboarding CSV; it is a single root page.
+    // Emit one synthetic row so the rest of the pipeline (URL building, result
+    // reporting) is unchanged in shape.
+    if (svc.pageScope === "service") {
+      out.push({
+        serviceId: svc.serviceId,
+        filenameTemplate: svc.filenameTemplate,
+        pageScope: svc.pageScope,
+        rows: [{}],
+      });
+      continue;
+    }
+
     const csvPath = path.isAbsolute(svc.csv)
       ? svc.csv
       : path.join(args.projectRoot, svc.csv);
@@ -249,6 +271,7 @@ function loadServiceRows(args) {
     out.push({
       serviceId: svc.serviceId,
       filenameTemplate: svc.filenameTemplate,
+      pageScope: svc.pageScope,
       rows,
     });
   }
@@ -277,7 +300,13 @@ async function main() {
       urls.push({
         serviceId: svc.serviceId,
         row,
-        url: buildUrl(args.base, svc.serviceId, svc.filenameTemplate, row),
+        url: buildUrl(
+          args.base,
+          svc.serviceId,
+          svc.filenameTemplate,
+          row,
+          svc.pageScope,
+        ),
       });
     }
   }
@@ -336,12 +365,19 @@ async function main() {
   // One negative check per service: a non-existent page must never be 200.
   const negativeResults = [];
   for (const svc of services) {
-    const negativeUrl = buildUrl(
-      args.base,
-      svc.serviceId,
-      svc.filenameTemplate,
-      NEGATIVE_CHECK,
-    );
+    // For a service-scope service the real page is /<service_id>.html, so the
+    // negative probe must target a path that genuinely should not exist: a
+    // bogus per-user page under the service prefix.
+    const negativeUrl =
+      svc.pageScope === "service"
+        ? `https://${args.base}/${svc.serviceId}/no-such-page-123456789.html`
+        : buildUrl(
+            args.base,
+            svc.serviceId,
+            svc.filenameTemplate,
+            NEGATIVE_CHECK,
+            svc.pageScope,
+          );
     const negativeResult = await requestOnce(negativeUrl, args.timeoutMs);
     const negativeOk = negativeResult.status !== 200;
     console.log(
