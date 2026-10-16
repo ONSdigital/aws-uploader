@@ -13,7 +13,11 @@ if [ "${BRANCH}" = "${PROMOTION_BRANCH}" ]; then
   exit 0
 fi
 
-echo "${GITHUB_AUTH}" | gh auth login --with-token
+# Authenticate via GH_TOKEN instead of `gh auth login --with-token`.
+# `gh auth login` validates the token against gh's standard scope set, which
+# includes 'read:org'. Exporting GH_TOKEN skips that login-time validation, so
+# the token only needs the scopes the individual commands actually use (repo).
+export GH_TOKEN="${GITHUB_AUTH}"
 
 if gh pr list --limit 999 \
   --state open \
@@ -34,11 +38,9 @@ if gh pr create --title "${PR_NAME}" \
   echo "⏭️ No commits between ${BRANCH} and ${PROMOTION_BRANCH}, not raising PR"
 else
   echo "✅ Raised PR for promotion from ${BRANCH} to ${PROMOTION_BRANCH}"
-  # Requesting a team reviewer needs the 'read:org' token scope.
-  # Make it best-effort so a missing scope doesn't fail the promotion job.
-  if gh pr edit "${BRANCH}" --add-reviewer ONSdigital/ingestservice; then
-    echo "👥 Requested review from ONSdigital/ingestservice"
-  else
-    echo "⚠️ Could not add team reviewer (token may lack 'read:org'); continuing"
-  fi
+  # NOTE: auto-requesting the team reviewer (ONSdigital/ingestservice) is
+  # intentionally omitted. Resolving a team reviewer requires the 'read:org'
+  # token scope; this PAT doesn't have it. Add reviewers manually, or grant
+  # 'read:org' and restore:
+  #   gh pr edit "${BRANCH}" --add-reviewer ONSdigital/ingestservice
 fi
