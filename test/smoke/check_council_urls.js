@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-
 "use strict";
 
 const fs = require("fs");
@@ -16,9 +15,8 @@ const DEFAULTS = {
 
 function parseArgs(argv) {
   const args = { ...DEFAULTS };
-  const projectRoot = findProjectRoot(__dirname);
-  args.csv = path.join(projectRoot, "councils.csv");
-
+  args.projectRoot = findProjectRoot(__dirname);
+  args.servicesDir = path.join(args.projectRoot, "services");
   for (let i = 2; i < argv.length; i += 1) {
     const key = argv[i];
     const value = argv[i + 1];
@@ -27,8 +25,8 @@ function parseArgs(argv) {
         args.base = value;
         i += 1;
         break;
-      case "--csv":
-        args.csv = value;
+      case "--services":
+        args.servicesDir = value;
         i += 1;
         break;
       case "--concurrency":
@@ -55,45 +53,122 @@ function findProjectRoot(startDir) {
   return path.resolve(startDir, "..", "..");
 }
 
-
-function cleanCouncilName(name) {
-  return name.replace(/[^A-Za-z0-9\-_ ]/g, "").replace(/ /g, "-");
+// Must match modules/render_service / services.tf: replace(replace(value,
+// "/[^A-Za-z0-9-_ ]/", ""), " ", "-").
+function cleanValue(value) {
+  return String(value)
+    .replace(/[^A-Za-z0-9\-_ ]/g, "")
+    .replace(/ /g, "-");
 }
 
+// Build the page filename body from a page_filename_template and a row map,
+// mirroring services.tf exactly: tokenise on "{column}" and substitute each
+// column's cleaned value, keeping template literals verbatim. An unknown
+// {placeholder} (a column not present in the row) is left as-is, surfacing the
+// config mistake in the URL rather than silently vanishing.
+function buildFilenameBody(template, row) {
+  // Split keeps the captured column names at the odd indices.
+  const parts = template.split(/\{([A-Za-z0-9_]+)\}/);
+  return parts
+    .map((part, i) =>
+      i % 2 === 1
+        ? Object.prototype.hasOwnProperty.call(row, part)
+          ? cleanValue(row[part])
+          : `{${part}}`
+        : part,
+    )
+    .join("");
+}
+
+// Pull a single scalar field (e.g. onboarding_csv) out of a service.yaml.
+// Dependency-free: the field is a simple `key: value` line, optionally quoted
+// and optionally followed by a comment, so a narrow regex is enough and we
+// avoid adding a YAML parser to the plain node:18 smoke image.
+function parseYamlScalar(yamlContents, key) {
+  const re = new RegExp(
+    `^\\s*${key}\\s*:\\s*["']?([^"'\\n#]+?)["']?\\s*(?:#.*)?$`,
+    "m",
+  );
+  const m = yamlContents.match(re);
+  return m ? m[1].trim() : undefined;
+}
+
+// Discover services by scanning services/<id>/service.yaml. The folder name is
+// the service id (matching Terraform's local.services keying), and each
+// service's onboarding CSV comes from its service.yaml `onboarding_csv` field
+// (falling back to the conventional services/<id>/users.csv).
+function discoverServices(servicesDir) {
+  let entries;
+  try {
+    entries = fs.readdirSync(servicesDir, { withFileTypes: true });
+  } catch (err) {
+    throw new Error(
+      `Could not read services directory ${servicesDir}: ${err.message}`,
+    );
+  }
+  const services = [];
+  for (const entry of entries) {
+    if (!entry.isDirectory()) continue;
+    const serviceYaml = path.join(servicesDir, entry.name, "service.yaml");
+    if (!fs.existsSync(serviceYaml)) continue;
+    const yamlContents = fs.readFileSync(serviceYaml, "utf8");
+    const serviceId = parseYamlScalar(yamlContents, "service_id") || entry.name;
+    const csv =
+      parseYamlScalar(yamlContents, "onboarding_csv") ||
+      `services/${entry.name}/users.csv`;
+    const filenameTemplate =
+      parseYamlScalar(yamlContents, "page_filename_template") ||
+      "{lad_code}-{name}";
+    services.push({ serviceId, csv, filenameTemplate });
+  }
+  if (services.length === 0) {
+    throw new Error(
+      `No <service>/service.yaml files found under ${servicesDir}`,
+    );
+  }
+  return services;
+}
+
+// Parse the onboarding CSV into a list of row maps (column -> value), keyed by
+// the header names. No columns are required here: which columns a service needs
+// is determined by its page_filename_template, so a one-, two-, or many-column
+// CSV all parse the same way. A row is skipped only if every cell is empty.
 function parseCsv(contents) {
   const lines = contents
     .split(/\r?\n/)
     .map((l) => l.trim())
     .filter((l) => l.length > 0);
-
   if (lines.length === 0) return [];
-
-  const header = lines[0].split(",").map((h) => h.trim().toLowerCase());
-  const nameIdx = header.indexOf("name");
-  const ladIdx = header.indexOf("lad_code");
-  if (nameIdx === -1 || ladIdx === -1) {
-    throw new Error(
-      `councils.csv must have "name" and "lad_code" headers, got: ${header.join(",")}`,
-    );
-  }
-
+  const header = lines[0].split(",").map((h) => h.trim());
   const rows = [];
   for (let i = 1; i < lines.length; i += 1) {
     const cols = lines[i].split(",").map((c) => c.trim());
-    const name = cols[nameIdx];
-    const ladCode = cols[ladIdx];
-    if (!name || !ladCode) continue;
-    rows.push({ name, ladCode });
+    const row = {};
+    header.forEach((h, idx) => {
+      row[h] = cols[idx] !== undefined ? cols[idx] : "";
+    });
+    if (Object.values(row).every((v) => v === "")) continue;
+    rows.push(row);
   }
   return rows;
 }
 
-function buildUrl(base, row) {
-  const fileName = `${row.ladCode}-${cleanCouncilName(row.name)}.html`;
-  return `https://${base}/council-tax/${fileName}`;
+function buildUrl(base, serviceId, filenameTemplate, row) {
+  const fileName = `${buildFilenameBody(filenameTemplate, row)}.html`;
+  return `https://${base}/${serviceId}/${fileName}`;
 }
 
-const NEGATIVE_CHECK = { name: "foo", ladCode: "123456789" };
+// A row that cannot correspond to any real onboarded user, for the negative
+// check. Covers the columns the default and example templates reference so the
+// synthesised URL is well-formed whatever the service's template is; unknown
+// {placeholders} are left literal by buildFilenameBody, which is still a URL
+// that must not exist.
+const NEGATIVE_CHECK = {
+  name: "foo",
+  lad_code: "123456789",
+  id: "no-such-id-123456789",
+  region: "no-such-region",
+};
 
 function requestOnce(url, timeoutMs) {
   return new Promise((resolve) => {
@@ -150,35 +225,88 @@ async function runPool(items, concurrency, worker) {
   return results;
 }
 
+function loadServiceRows(args) {
+  const services = discoverServices(args.servicesDir);
+  const out = [];
+  for (const svc of services) {
+    const csvPath = path.isAbsolute(svc.csv)
+      ? svc.csv
+      : path.join(args.projectRoot, svc.csv);
+    let contents;
+    try {
+      contents = fs.readFileSync(csvPath, "utf8");
+    } catch (err) {
+      throw new Error(
+        `Could not read onboarding CSV for service "${svc.serviceId}" at ${csvPath}: ${err.message}`,
+      );
+    }
+    const rows = parseCsv(contents);
+    if (rows.length === 0) {
+      throw new Error(
+        `No rows found in onboarding CSV for service "${svc.serviceId}" (${csvPath})`,
+      );
+    }
+    out.push({
+      serviceId: svc.serviceId,
+      filenameTemplate: svc.filenameTemplate,
+      rows,
+    });
+  }
+  return out;
+}
+
+// A short, human-readable label for a row in logs. Prefers a "name" column,
+// then an "id" column, otherwise joins the row's values.
+function rowLabel(row) {
+  if (row.name) return row.name;
+  if (row.id) return row.id;
+  return (
+    Object.values(row)
+      .filter((v) => v !== "")
+      .join(" / ") || "(row)"
+  );
+}
+
 async function main() {
   const args = parseArgs(process.argv);
+  const services = loadServiceRows(args);
 
-  const contents = fs.readFileSync(args.csv, "utf8");
-  const rows = parseCsv(contents);
-  if (rows.length === 0) {
-    console.error(`No councils found in ${args.csv}`);
-    process.exit(1);
+  const urls = [];
+  for (const svc of services) {
+    for (const row of svc.rows) {
+      urls.push({
+        serviceId: svc.serviceId,
+        row,
+        url: buildUrl(args.base, svc.serviceId, svc.filenameTemplate, row),
+      });
+    }
   }
 
-  const urls = rows.map((row) => ({ row, url: buildUrl(args.base, row) }));
-
+  const serviceSummary = services
+    .map((s) => `${s.serviceId}=${s.rows.length}`)
+    .join(", ");
   console.log(
-    `Checking ${urls.length} council URLs against ${args.base} ` +
-      `(concurrency=${args.concurrency}, retries=${args.retries})\n`,
+    `Checking ${urls.length} page URLs across ${services.length} service(s) ` +
+      `against ${args.base} ` +
+      `(concurrency=${args.concurrency}, retries=${args.retries})\n` +
+      `  services: ${serviceSummary}\n`,
   );
 
-  const results = await runPool(urls, args.concurrency, async ({ row, url }) => {
-    const result = await checkUrl(url, {
+  const results = await runPool(urls, args.concurrency, async (item) => {
+    const result = await checkUrl(item.url, {
       retries: args.retries,
       retryDelayMs: args.retryDelayMs,
       timeoutMs: args.timeoutMs,
     });
-    return { name: row.name, ladCode: row.ladCode, ...result };
+    return {
+      serviceId: item.serviceId,
+      label: rowLabel(item.row),
+      ...result,
+    };
   });
 
   const failures = results.filter((r) => !r.ok);
   const passed = results.length - failures.length;
-
   for (const r of results) {
     if (r.ok) {
       console.log(`  OK   ${r.status} ${r.url}`);
@@ -187,41 +315,69 @@ async function main() {
       console.log(`  FAIL ${r.status}${detail} ${r.url}`);
     }
   }
+  console.log(`\n${passed}/${results.length} page URLs returned 200.`);
 
-  console.log(`\n${passed}/${results.length} council URLs returned 200.`);
-
-  const negativeUrl = buildUrl(args.base, NEGATIVE_CHECK);
-  const negativeResult = await requestOnce(negativeUrl, args.timeoutMs);
-  const negativeOk = negativeResult.status !== 200;
-  console.log(
-    `\nNegative check (${NEGATIVE_CHECK.name} [${NEGATIVE_CHECK.ladCode}]): ` +
-      `${negativeUrl} -> ${negativeResult.status} ` +
-      `(expected not 200) ${negativeOk ? "PASS" : "FAIL"}`,
+  // Per-service metrics: total URLs checked and how many returned 200.
+  console.log("\nPer-service results:");
+  const serviceOrder = services.map((s) => s.serviceId);
+  const metricsByService = new Map(
+    serviceOrder.map((id) => [id, { total: 0, passed: 0 }]),
   );
+  for (const r of results) {
+    const m = metricsByService.get(r.serviceId);
+    m.total += 1;
+    if (r.ok) m.passed += 1;
+  }
+  for (const serviceId of serviceOrder) {
+    const m = metricsByService.get(serviceId);
+    console.log(`  ${serviceId}: ${m.passed}/${m.total} URLs returned 200`);
+  }
+
+  // One negative check per service: a non-existent page must never be 200.
+  const negativeResults = [];
+  for (const svc of services) {
+    const negativeUrl = buildUrl(
+      args.base,
+      svc.serviceId,
+      svc.filenameTemplate,
+      NEGATIVE_CHECK,
+    );
+    const negativeResult = await requestOnce(negativeUrl, args.timeoutMs);
+    const negativeOk = negativeResult.status !== 200;
+    console.log(
+      `Negative check [${svc.serviceId}] ` +
+        `${negativeUrl} -> ${negativeResult.status} ` +
+        `(expected not 200) ${negativeOk ? "PASS" : "FAIL"}`,
+    );
+    negativeResults.push({ serviceId: svc.serviceId, negativeUrl, negativeOk });
+  }
 
   const hasFailures = failures.length > 0;
+  const negativeFailures = negativeResults.filter((n) => !n.negativeOk);
 
   if (hasFailures) {
-    console.error(`\n${failures.length} council URL(s) failed:`);
+    console.error(`\n${failures.length} page URL(s) failed:`);
     for (const f of failures) {
       const detail = f.error ? ` (${f.error})` : "";
-      console.error(`  - ${f.name} [${f.ladCode}] -> ${f.status}${detail}`);
+      console.error(`  - [${f.serviceId}] ${f.label} -> ${f.status}${detail}`);
     }
   }
 
-  if (!negativeOk) {
+  if (negativeFailures.length > 0) {
     console.error(
-      `\nNegative check failed: ${negativeUrl} returned 200, but a ` +
-        `non-existent council should never be reachable. The smoke test can ` +
-        `no longer prove it detects broken pages.`,
+      `\n${negativeFailures.length} negative check(s) failed (a non-existent ` +
+        `page returned 200, so the smoke test can no longer prove it detects ` +
+        `broken pages):`,
     );
+    for (const n of negativeFailures) {
+      console.error(`  - [${n.serviceId}] ${n.negativeUrl} returned 200`);
+    }
   }
 
-  if (hasFailures || !negativeOk) {
+  if (hasFailures || negativeFailures.length > 0) {
     process.exit(1);
   }
-
-  console.log("\nAll council URLs are up and the negative check passed.");
+  console.log("\nAll page URLs are up and every negative check passed.");
 }
 
 main().catch((err) => {

@@ -88,16 +88,21 @@ resource "aws_s3_bucket_lifecycle_configuration" "ingest_lifecycle_policy" {
     }
   }
 
-  rule {
-    id     = "delete-council-tax-files"
-    status = "Enabled"
+  # Expire uploaded files after 14 days, one rule per service prefix so every
+  # service's uploads (council-tax/, electoral-register/, ...) are covered.
+  dynamic "rule" {
+    for_each = local.services
+    content {
+      id     = "delete-${rule.key}-files"
+      status = "Enabled"
 
-    filter {
-      prefix = "council-tax/"
-    }
+      filter {
+        prefix = "${rule.key}/"
+      }
 
-    expiration {
-      days = 14
+      expiration {
+        days = 14
+      }
     }
   }
 }

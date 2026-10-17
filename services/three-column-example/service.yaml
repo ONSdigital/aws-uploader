@@ -1,0 +1,37 @@
+# ---------------------------------------------------------------------------
+# EXAMPLE: a service whose onboarding CSV has THREE columns.
+#
+# Demonstrates page_filename_template using more than two columns, including a
+# "/" to put each page under a per-region sub-path. users.csv has
+# `name,lad_code,region`, so each page URL is:
+#   three-column-example/<clean-region>/<lad_code>-<clean-name>.html
+#   e.g. .../South-East/E07000223-Adur.html
+#
+# Each {column} token is replaced with that column's cleaned value (chars
+# outside [A-Za-z0-9-_ ] stripped, spaces -> hyphens); the literal "/" and "-"
+# are kept, so "South East" becomes the sub-path "South-East".
+#
+# heading_column / code_column keep their defaults (name / lad_code), so the
+# page heading and the {code} box token behave exactly like the two-column
+# services -- region only affects the URL.
+# ---------------------------------------------------------------------------
+service_id: three-column-example
+onboarding_csv: services/three-column-example/users.csv
+
+page_filename_template: "{region}/{lad_code}-{name}"
+
+wording:
+  page_title: ONS-Uploader
+  heading_prefix: "Three Column Example - "
+  contact_email: james.williams@ons.gov.uk
+  uploading_banner: Uploading. Do not refresh or close the page.
+  submit_text: Submit
+
+boxes:
+  - id: extract
+    label: Upload the extract file
+    description: "File must be named with the format 'TCE_EXTRACT_{code}_yyyymmdd' where the 8 digits are your LAD code and yyyymmdd is the data run date"
+    required: true
+    accepted_types: ["text/csv"]
+    accepted_extensions: [".csv"]
+    filename_prefix: TCE_EXTRACT_

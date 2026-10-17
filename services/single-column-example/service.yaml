@@ -1,0 +1,40 @@
+# ---------------------------------------------------------------------------
+# EXAMPLE: a service whose onboarding CSV has a SINGLE column.
+#
+# Demonstrates page_filename_template with one column. users.csv has just an
+# `id` column, so each page URL is:
+#   single-column-example/<clean-id>.html   e.g. .../alpha-team.html
+#
+# Because there is no `name`/`lad_code`, we point heading_column and
+# code_column at the one column we do have (`id`):
+#   - heading_column: id  -> page <h1> is "<heading_prefix><id>"
+#   - code_column:    id  -> the {code} token in the box description below
+#                            resolves to the id (and the filename_prefix
+#                            validation keys off it too).
+#
+# NOTE: the Python onboarding helper (scripts/helpers/onboard_councils) still
+# requires name+lad_code, so this service's users.csv is maintained by hand
+# (see generic-uploader/TODO.md, "Drop the hard name/lad_code requirement").
+# ---------------------------------------------------------------------------
+service_id: single-column-example
+onboarding_csv: services/single-column-example/users.csv
+
+page_filename_template: "{id}"
+heading_column: id
+code_column: id
+
+wording:
+  page_title: ONS-Uploader
+  heading_prefix: "Single Column Example - "
+  contact_email: james.williams@ons.gov.uk
+  uploading_banner: Uploading. Do not refresh or close the page.
+  submit_text: Submit
+
+boxes:
+  - id: data
+    label: Upload the data file
+    description: "File must be named with the format 'SCE_DATA_{code}_yyyymmdd' where {code} is your team id and yyyymmdd is the data run date"
+    required: true
+    accepted_types: ["text/csv"]
+    accepted_extensions: [".csv"]
+    filename_prefix: SCE_DATA_
