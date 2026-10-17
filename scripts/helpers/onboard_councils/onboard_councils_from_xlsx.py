@@ -10,22 +10,84 @@ from onboard_councils_reporting import OnboardingReport, AddedRow, OnboardingRep
 
 REQUIRED_COLUMNS = {"name", "lad_code"}
 BASE_DIR = Path(__file__).resolve().parent
-PROJECT_ROOT = next(p for p in Path(__file__).resolve().parents if p.name == "aws-uploader")
-DEFAULT_COUNCILS_CSV = PROJECT_ROOT / "councils.csv"
+
+
+def find_project_root(start: Path | None = None) -> Path:
+    """Walk up from this file to the repo root (the dir containing services/).
+
+    Falls back to the dir containing .git. Robust to the repo being named
+    anything (don't rely on a parent literally named "aws-uploader").
+    """
+    start = (start or Path(__file__)).resolve()
+    for parent in [start, *start.parents]:
+        if (parent / "services").is_dir() or (parent / ".git").exists():
+            return parent
+    raise RuntimeError(
+        "Could not locate the project root (no services/ or .git found above "
+        f"{start})."
+    )
+
+
+PROJECT_ROOT = find_project_root()
+DEFAULT_SERVICE = "council-tax"
+
+
+def _parse_onboarding_csv(service_yaml: Path) -> str | None:
+    """Pull the `onboarding_csv` value out of a service.yaml.
+
+    We read just this one scalar field with a narrow regex rather than take a
+    YAML dependency — the field is a simple `onboarding_csv: <path>` line.
+    Returns None if the field is absent.
+    """
+    text = service_yaml.read_text(encoding="utf-8")
+    m = re.search(r'^\s*onboarding_csv\s*:\s*["\']?([^"\'\n#]+?)["\']?\s*(?:#.*)?$',
+                  text, flags=re.MULTILINE)
+    return m.group(1).strip() if m else None
+
+
+def service_csv_path(service: str, project_root: Path = PROJECT_ROOT) -> Path:
+    """Resolve a service id to its onboarding CSV.
+
+    Each service lives in its own folder: services/<service>/service.yaml with
+    its users list alongside it. service.yaml is the single source of truth for
+    the `onboarding_csv` path; we read it from there (falling back to the
+    conventional services/<service>/users.csv) rather than guessing, because
+    the path can be customised per service.
+    """
+    services_dir = project_root / "services"
+    service_yaml = services_dir / service / "service.yaml"
+    if not service_yaml.is_file():
+        known = ", ".join(
+            sorted(
+                p.name
+                for p in services_dir.iterdir()
+                if (p / "service.yaml").is_file()
+            )
+        ) or "(none found)"
+        raise ValueError(
+            f"Service '{service}' not found (no {service_yaml}). "
+            f"Known services: {known}."
+        )
+    csv_rel = _parse_onboarding_csv(service_yaml) or f"services/{service}/users.csv"
+    return (project_root / csv_rel).resolve()
+
 
 class OnboardCouncils:
     def __init__(
             self,
             input_file_path: str | Path,
             councils_csv: str | Path | None = None,
+            service: str | None = None,
     ):
 
         self.input_file_path = Path(input_file_path).resolve()
-        self.councils_csv = (
-            Path(councils_csv).resolve()
-            if councils_csv
-            else DEFAULT_COUNCILS_CSV
-        )
+        # Output CSV precedence: an explicit councils_csv path wins; otherwise
+        # resolve from the service id (defaulting to council-tax for backward
+        # compatibility).
+        if councils_csv:
+            self.councils_csv = Path(councils_csv).resolve()
+        else:
+            self.councils_csv = service_csv_path(service or DEFAULT_SERVICE)
         self._reporter = OnboardingReporter(
             input_file=str(self.input_file_path),
             councils_csv=str(self.councils_csv),
@@ -86,7 +148,13 @@ class OnboardCouncils:
                 f"Columns found: {list(df.columns)}"
             )
 
-        return df[["name", "lad_code"]].copy()
+        # Keep every column, not just name/lad_code: a service's page URL can
+        # be built from any columns via page_filename_template (see
+        # modules/render_service), so extra columns must survive onboarding
+        # into users.csv. name/lad_code remain required because the cleaning
+        # and dedup logic below is keyed on them; any additional columns are
+        # carried through verbatim.
+        return df.copy()
 
     def _load_councils_file(self) -> pd.DataFrame:
         logging.info("Loading councils CSV…")
@@ -255,7 +323,8 @@ class OnboardCouncils:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="Onboard new councils from an Excel spreadsheet."
+        description="Onboard new users (name + lad_code) from an Excel "
+        "spreadsheet into a service's onboarding CSV."
     )
 
     parser.add_argument(
@@ -264,9 +333,22 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
+        "--service",
+        default=DEFAULT_SERVICE,
+        help=(
+            "Service id to onboard into; resolves the output CSV from "
+            f"services/<service>/service.yaml (default: {DEFAULT_SERVICE}). "
+            "Must match a service folder under services/."
+        ),
+    )
+
+    parser.add_argument(
         "--councils-csv",
         default=None,
-        help="Optional path to councils.csv (default: <project-root>/councils.csv)",
+        help=(
+            "Optional explicit path to the output CSV. Overrides --service when "
+            "set (default: derived from --service)."
+        ),
     )
 
     parser.add_argument(
@@ -282,4 +364,5 @@ if __name__ == "__main__":
     OnboardCouncils(
         input_file_path=args.input_file,
         councils_csv=args.councils_csv,
+        service=args.service,
     ).run()

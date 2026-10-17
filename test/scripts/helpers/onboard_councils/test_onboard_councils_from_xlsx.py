@@ -4,7 +4,11 @@ from unittest.mock import patch
 import pandas as pd
 import pytest
 
-from scripts.helpers.onboard_councils.onboard_councils_from_xlsx import OnboardCouncils
+from scripts.helpers.onboard_councils.onboard_councils_from_xlsx import (
+    OnboardCouncils,
+    service_csv_path,
+    PROJECT_ROOT,
+)
 
 
 @pytest.fixture
@@ -38,14 +42,56 @@ def onboarder(dummy_input, dummy_councils_csv):
 
 
 class TestInit:
-    def test_init_paths_populate_expected_default_paths(self, dummy_input, dummy_councils_csv):
+    def test_init_default_service_resolves_to_council_tax_csv(self, dummy_input):
         # arrange & act
         onboarder = OnboardCouncils(
             input_file_path=dummy_input,
         )
 
+        # assert: default service is council-tax, whose onboarding_csv in
+        # services/council-tax/service.yaml is services/council-tax/users.csv.
+        assert (
+            onboarder.councils_csv
+            == PROJECT_ROOT / "services" / "council-tax" / "users.csv"
+        )
+
+    def test_init_service_argument_resolves_to_that_services_csv(self, dummy_input):
+        # arrange & act
+        onboarder = OnboardCouncils(
+            input_file_path=dummy_input,
+            service="electoral-register",
+        )
+
         # assert
-        assert onboarder.councils_csv == Path("../../councils.csv")
+        assert (
+            onboarder.councils_csv
+            == PROJECT_ROOT / "services" / "electoral-register" / "users.csv"
+        )
+
+    def test_explicit_councils_csv_overrides_service(self, dummy_input):
+        # arrange & act
+        onboarder = OnboardCouncils(
+            input_file_path=dummy_input,
+            councils_csv="custom/path.csv",
+            service="electoral-register",
+        )
+
+        # assert: explicit path wins over the service-derived default
+        assert onboarder.councils_csv == Path("custom/path.csv").resolve()
+
+    def test_service_csv_path_reads_onboarding_csv_from_service_yaml(self):
+        # arrange & act: resolves against the real services/ folder in the repo
+        result = service_csv_path("council-tax")
+
+        # assert: council-tax maps to its co-located users.csv
+        assert result == (
+            PROJECT_ROOT / "services" / "council-tax" / "users.csv"
+        ).resolve()
+
+    def test_service_csv_path_raises_for_unknown_service(self):
+        # arrange & act & assert
+        with pytest.raises(ValueError, match="not-a-real-service"):
+            service_csv_path("not-a-real-service")
 
     def test_init_paths_populate_expected_custom_paths(self, dummy_input):
         # arrange & act
@@ -166,12 +212,16 @@ class TestLoadInputFile:
         # assert
         assert isinstance(result, pd.DataFrame)
 
-    def test_load_input_file_returns_only_name_and_lad_code_columns(self, tmp_path, dummy_councils_csv):
+    def test_load_input_file_preserves_extra_columns(self, tmp_path, dummy_councils_csv):
+        # A service's page URL can be built from arbitrary columns via
+        # page_filename_template (see modules/render_service), so any columns
+        # beyond the required name/lad_code must survive onboarding rather than
+        # being dropped on load.
         # arrange
         df = pd.DataFrame({
             "name": ["BIRMINGHAM", "PORTSMOUTH", "KNOWSLEY"],
             "lad_code": ["E08000025", "E06000044", "E08000011"],
-            "these_should_be_dropped": ["Barnacle Cumbersniff", "Benadryl Cramplesnutch", "Bedlington Collywog"]
+            "region": ["West Midlands", "South East", "North West"]
         })
         path = tmp_path / "benedict_cumberbatch.xlsx"
         df.to_excel(path, index=False)
@@ -185,8 +235,8 @@ class TestLoadInputFile:
         result = onboarder._load_input_file()
 
         # assert
-        assert list(result.columns) == ["name", "lad_code"]
-        assert "these_should_be_dropped" not in result.columns
+        assert set(result.columns) == {"name", "lad_code", "region"}
+        assert list(result["region"]) == ["West Midlands", "South East", "North West"]
 
     def test_load_input_file_raises_on_missing_file_error(self):
         # arrange

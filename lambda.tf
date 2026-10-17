@@ -58,6 +58,11 @@ resource "aws_lambda_function" "PreSignedURL" {
     variables = {
       BUCKET_NAME     = module.ons_upload_ingest_bucket.bucket_id
       API_GATEWAY_URL = aws_apigatewayv2_stage.api.invoke_url
+      # The S3 host bucket holding each service's <service_id>/config.json. The
+      # Lambda reads the one service it needs per request, so there is no 4 KB
+      # env-var limit on the number/size of services (see s3_host.tf
+      # aws_s3_object.service_config_json).
+      CONFIG_BUCKET = module.ons_upload_bucket.bucket_id
     }
   }
 }
@@ -95,6 +100,14 @@ data "aws_iam_policy_document" "get_s3_object" {
     effect    = "Allow"
     actions   = ["s3:GetObject", "s3:PutObject", "s3:CreateMultipartUpload", "s3:CompleteMultipartUpload", "s3:AbortMultipartUpload", "s3:UploadPart"]
     resources = ["${module.ons_upload_ingest_bucket.bucket_arn}/*"] #tfsec:ignore:aws-iam-no-policy-wildcards 
+  }
+
+  # Read-only access to the per-service config.json files in the host bucket.
+  # Scoped to the config.json objects, not the whole bucket.
+  statement {
+    effect    = "Allow"
+    actions   = ["s3:GetObject"]
+    resources = ["${module.ons_upload_bucket.bucket_arn}/*/config.json"]
   }
 }
 
